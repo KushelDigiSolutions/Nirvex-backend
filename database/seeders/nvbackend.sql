@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 23, 2024 at 08:48 PM
+-- Generation Time: Dec 27, 2024 at 09:14 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -38,7 +38,8 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('laravel_cache_spatie.permission.cache', 'a:3:{s:5:\"alias\";a:4:{s:1:\"a\";s:2:\"id\";s:1:\"b\";s:4:\"name\";s:1:\"c\";s:10:\"guard_name\";s:1:\"r\";s:5:\"roles\";}s:11:\"permissions\";a:8:{i:0;a:4:{s:1:\"a\";i:1;s:1:\"b\";s:9:\"role-list\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:1;a:4:{s:1:\"a\";i:2;s:1:\"b\";s:11:\"role-create\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:2;a:4:{s:1:\"a\";i:3;s:1:\"b\";s:9:\"role-edit\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:3;a:4:{s:1:\"a\";i:4;s:1:\"b\";s:11:\"role-delete\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:4;a:4:{s:1:\"a\";i:5;s:1:\"b\";s:12:\"product-list\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:5;a:4:{s:1:\"a\";i:6;s:1:\"b\";s:14:\"product-create\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:6;a:4:{s:1:\"a\";i:7;s:1:\"b\";s:12:\"product-edit\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:7;a:4:{s:1:\"a\";i:8;s:1:\"b\";s:14:\"product-delete\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}}s:5:\"roles\";a:1:{i:0;a:3:{s:1:\"a\";i:1;s:1:\"b\";s:5:\"Admin\";s:1:\"c\";s:3:\"web\";}}}', 1734722084);
+('laravel_cache_kontactdileep@gmail.com|127.0.0.1', 'i:3;', 1735218057),
+('laravel_cache_kontactdileep@gmail.com|127.0.0.1:timer', 'i:1735218057;', 1735218057);
 
 -- --------------------------------------------------------
 
@@ -124,7 +125,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (2, '0001_01_01_000001_create_cache_table', 1),
 (3, '0001_01_01_000002_create_jobs_table', 1),
 (4, '2024_05_10_144003_create_permission_tables', 1),
-(5, '2024_05_10_144032_create_products_table', 1);
+(5, '2024_05_10_144032_create_products_table', 1),
+(6, '2024_12_24_113543_create_personal_access_tokens_table', 2),
+(7, '2024_12_25_200754_create_otps_table', 3);
 
 -- --------------------------------------------------------
 
@@ -157,6 +160,33 @@ CREATE TABLE `model_has_roles` (
 INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 (1, 'App\\Models\\User', 1),
 (1, 'App\\Models\\User', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `otps`
+--
+
+CREATE TABLE `otps` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `otp` varchar(6) NOT NULL,
+  `status` enum('pending','used','expired') NOT NULL DEFAULT 'pending',
+  `expiry` timestamp NULL DEFAULT NULL,
+  `complete` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `otps`
+--
+
+INSERT INTO `otps` (`id`, `user_id`, `otp`, `status`, `expiry`, `complete`, `created_at`, `updated_at`) VALUES
+(1, 10, '539842', 'pending', '2024-12-25 15:08:23', 0, '2024-12-25 14:58:23', '2024-12-25 14:58:23'),
+(2, 10, '644347', 'pending', '2024-12-26 05:46:48', 0, '2024-12-26 05:36:48', '2024-12-26 05:45:02'),
+(3, 10, '442266', 'used', '2024-12-26 05:57:59', 1, '2024-12-26 05:47:59', '2024-12-26 05:49:00'),
+(4, 10, '335207', 'used', '2024-12-27 02:33:30', 1, '2024-12-27 02:23:30', '2024-12-27 02:28:22');
 
 -- --------------------------------------------------------
 
@@ -197,6 +227,34 @@ INSERT INTO `permissions` (`id`, `name`, `guard_name`, `created_at`, `updated_at
 (6, 'product-create', 'web', '2024-12-18 11:40:36', '2024-12-18 11:40:36'),
 (7, 'product-edit', 'web', '2024-12-18 11:40:36', '2024-12-18 11:40:36'),
 (8, 'product-delete', 'web', '2024-12-18 11:40:36', '2024-12-18 11:40:36');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `personal_access_tokens`
+--
+
+CREATE TABLE `personal_access_tokens` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `tokenable_type` varchar(255) NOT NULL,
+  `tokenable_id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `abilities` text DEFAULT NULL,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `personal_access_tokens`
+--
+
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES
+(1, 'App\\Models\\User', 12, 'auth_token', 'bbacd9b00eaa5ba364ae6590392f96069c4989f5df2acc70588040fed91ab82d', '[\"*\"]', NULL, NULL, '2024-12-24 07:38:41', '2024-12-24 07:38:41'),
+(2, 'App\\Models\\User', 10, 'API Token', 'f5857cc79a3a774fccb0507f7a3a0867f69e9fb998391550f001654a2c38a6f8', '[\"*\"]', NULL, NULL, '2024-12-24 13:33:57', '2024-12-24 13:33:57'),
+(3, 'App\\Models\\User', 13, 'auth_token', '19a1c99d21eb6e9c898bf1f79c18fc36ee814847983ff932ca5aace20acc0a3d', '[\"*\"]', NULL, NULL, '2024-12-24 13:36:54', '2024-12-24 13:36:54');
 
 -- --------------------------------------------------------
 
@@ -281,8 +339,10 @@ CREATE TABLE `sessions` (
 
 CREATE TABLE `users` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone` varchar(15) DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
@@ -294,10 +354,17 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'Dileep singh', 'kontactdileep@gmail.com', NULL, '$2y$12$IleRTZaDahN03KBBEpNP7uWzr.gll0AIfQJ05Mbh1.vTb7heEqV6K', 'TKpCtTgHPhtSkfyRrlFuvypBJQ1W7VLAGd8peEnWh5RfHNkJnhAyJo6G8q7W', '2024-12-18 11:01:02', '2024-12-18 11:42:10'),
-(2, 'Hardik Savani', 'admin@gmail.com', NULL, '$2y$12$Ndsga0/gvK81B.X63Ci3aeOD0V9TKtNPdhuOfkiJLW2f7bCIloBXi', 'ak8tffxkwV7Hl3i7adC7iSicXql8N5dd7lGxfPDeEBWInrBCjIbhDXAZPP6m', '2024-12-18 11:39:46', '2024-12-18 11:39:46'),
-(3, 'Test User', 'test@example.com', '2024-12-18 11:40:11', '$2y$12$V6l/a2EeBPwz9jwmOdD.fOZx.9GuWQta4tqwr.QFqCs8SosQ65jrK', 'f9BsORKgCi', '2024-12-18 11:40:11', '2024-12-18 11:40:11');
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `phone`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
+(2, 'Hardik Savani', NULL, 'admin@gmail.com', NULL, NULL, '$2y$12$Ndsga0/gvK81B.X63Ci3aeOD0V9TKtNPdhuOfkiJLW2f7bCIloBXi', 'ak8tffxkwV7Hl3i7adC7iSicXql8N5dd7lGxfPDeEBWInrBCjIbhDXAZPP6m', '2024-12-18 11:39:46', '2024-12-18 11:39:46'),
+(3, 'Test User', NULL, 'test@example.com', NULL, '2024-12-18 11:40:11', '$2y$12$V6l/a2EeBPwz9jwmOdD.fOZx.9GuWQta4tqwr.QFqCs8SosQ65jrK', 'f9BsORKgCi', '2024-12-18 11:40:11', '2024-12-18 11:40:11'),
+(4, 'Dileep', 'Singh', 'admin1@gmail.com', '8826067609', NULL, '$2y$12$wi012DvkMb1NNcKWSoQ4XObuehFmLJhy1hDZOhxdJ8yi8jqxp9KZ2', NULL, '2024-12-23 15:01:40', '2024-12-23 15:01:40'),
+(5, 'Dileep', 'Singh', 'admin11@gmail.com', '8826067601', NULL, '$2y$12$8A.6ItHABWexljh4FQFB0u4CqC1CQC4brbUZvUvXcW58O/i9B3nsW', NULL, '2024-12-23 15:08:36', '2024-12-23 15:08:36'),
+(7, 'Ashish', 'Gaur', NULL, '7503936451', NULL, '$2y$12$a9yiFzMzANcD3mzmnrwzGOhlebWY24cj7sRpa/xa1aC7zVxPUrY/e', NULL, '2024-12-24 06:10:19', '2024-12-24 06:10:19'),
+(9, 'Ashish', 'Gaur', NULL, '7503936452', NULL, '$2y$12$56Hsh6Y4E9EpnraZ8EMiQ.1uGv7BHLn0oVtF3.S6ag1wrHJ33Zige', NULL, '2024-12-24 06:11:46', '2024-12-24 06:11:46'),
+(10, 'Ashish', 'Gaur', 'ashish1@gmail.com', '7503936453', NULL, '$2y$12$9A0bGx/xNZVRmTaiRBQvxeGr1LJDUKcz2OlMoNNoJMA4cGHeuMzf.', NULL, '2024-12-24 06:39:08', '2024-12-24 06:39:08'),
+(11, 'Ashish', 'Gaur', 'ashish4@gmail.com', '7503936455', NULL, '$2y$12$J3Sa5ImeZ20JSI3PQgGZ4e4t2TmBttlViaP26oB66uSG6LSohVxve', NULL, '2024-12-24 07:36:01', '2024-12-24 07:36:01'),
+(12, 'Ashish', 'Gaur', 'ashish7@gmail.com', '7503936457', NULL, '$2y$12$JAyI9JVakk8pv.PQezS2S.JPXBJC./miKrWgw8zHmyuJHu9IyLzrC', NULL, '2024-12-24 07:38:41', '2024-12-24 07:38:41'),
+(13, 'Ashish', 'Gaur', 'ashish8@gmail.com', '7503936458', NULL, '$2y$12$ikqDMWfeibkBg0qH7IgTqOas1LzByV5c8G/.dbVXSjUQAmuqjCQ9S', NULL, '2024-12-24 13:36:54', '2024-12-24 13:36:54');
 
 --
 -- Indexes for dumped tables
@@ -356,6 +423,13 @@ ALTER TABLE `model_has_roles`
   ADD KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`);
 
 --
+-- Indexes for table `otps`
+--
+ALTER TABLE `otps`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `otps_user_id_foreign` (`user_id`);
+
+--
 -- Indexes for table `password_reset_tokens`
 --
 ALTER TABLE `password_reset_tokens`
@@ -367,6 +441,14 @@ ALTER TABLE `password_reset_tokens`
 ALTER TABLE `permissions`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`);
+
+--
+-- Indexes for table `personal_access_tokens`
+--
+ALTER TABLE `personal_access_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  ADD KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`);
 
 --
 -- Indexes for table `products`
@@ -401,7 +483,8 @@ ALTER TABLE `sessions`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `users_email_unique` (`email`);
+  ADD UNIQUE KEY `users_email_unique` (`email`),
+  ADD UNIQUE KEY `phone` (`phone`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -423,13 +506,25 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `otps`
+--
+ALTER TABLE `otps`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `personal_access_tokens`
+--
+ALTER TABLE `personal_access_tokens`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -447,7 +542,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Constraints for dumped tables
@@ -464,6 +559,12 @@ ALTER TABLE `model_has_permissions`
 --
 ALTER TABLE `model_has_roles`
   ADD CONSTRAINT `model_has_roles_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `otps`
+--
+ALTER TABLE `otps`
+  ADD CONSTRAINT `otps_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `role_has_permissions`
