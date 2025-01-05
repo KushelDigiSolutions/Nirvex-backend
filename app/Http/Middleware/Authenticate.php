@@ -13,7 +13,7 @@ class Authenticate extends Middleware
     protected function redirectTo(Request $request): ?string
     {
         if (!Auth::check()) {
-            return redirect('/login')->with('error', 'Please login to access this page.');
+            return redirect('/')->with('error', 'Please login to access this page.');
         }
         return $request->expectsJson() ? null : route('login');
     }

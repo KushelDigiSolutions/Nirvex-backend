@@ -19,7 +19,7 @@ class AuthMiddleware
     {
         if (!Auth::check()) {
             Log::info('User not authenticated, redirecting to login.');
-            return redirect(url('/login'))->with('error', 'Please login to access this page.');
+            return redirect(url('/'))->with('error', 'Please login to access this page.');
         }
 
         Log::info('User authenticated: ', ['user_id' => Auth::id()]);

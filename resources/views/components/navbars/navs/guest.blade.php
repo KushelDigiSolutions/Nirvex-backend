@@ -18,13 +18,13 @@
                 @auth
                 <li class="nav-item">
                     <a class="nav-link d-flex align-items-center me-2 active" aria-current="page"
-                        href="{{ route('dashboard') }}">
+                        href="">
                         <i class="fa fa-chart-pie opacity-6 text-dark me-1"></i>
                         Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link me-2" href="{{ route('profile') }}">
+                    <a class="nav-link me-2" href="">
                         <i class="fa fa-user opacity-6 text-dark me-1"></i>
                         Profile
                     </a>

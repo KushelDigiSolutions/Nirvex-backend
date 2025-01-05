@@ -1,120 +1,106 @@
 <?php
-    
+
 namespace App\Http\Controllers;
-    
-use App\Models\Product;
+
 use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
-    
+use App\Models\Category;
+use App\Models\Subcategory;
+use App\Models\Product;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 class ProductController extends Controller
-{ 
+{
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
-    function __construct()
+    public function index()
     {
-         $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:product-create', ['only' => ['create','store']]);
-         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+        $products = Product::with(['category', 'subCategory'])->get();
+       
+        return view('admin.products.index', compact('products'));
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(): View
-    {
-        $products = Product::latest()->paginate(5);
-        return view('products.index',compact('products'))
-            ->with('i', (request()->input('page', 1) - 1) * 5);
-    }
-    
+
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function create(): View
+    public function create()
     {
-        return view('products.create');
+        $categories = Category::with('subcategories')->get();
+        return view('admin.products.create', compact('categories'));
     }
-    
+
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        request()->validate([
-            'name' => 'required',
-            'detail' => 'required',
+    
+        // dd($request);
+
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'cat_id' => 'required|integer',
+            'sub_cat_id' => 'required|integer',
+            'status' => 'required|boolean',
+            'mrp' => 'required|numeric',
+            'availability' => 'required|string',
+            'specification' => 'required|string',
+            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        $imagePaths = [];
+        if ($request->hasFile('image')) {
+            foreach ($request->file('image') as $image) {
+                $fileName = time() . '_' . $image->getClientOriginalName(); 
+                $path = $image->move(public_path('uploads/products'), $fileName); 
+                $imagePaths[] = 'uploads/products/' . $fileName; 
+            }
+        }
     
-        Product::create($request->all());
-    
-        return redirect()->route('products.index')
-                        ->with('success','Product created successfully.');
+        $validatedData['image'] = implode(',', $imagePaths);
+
+        //   dd($validatedData['images']);
+       
+
+        $product = Product::create($validatedData);
+
+        return redirect()->route('products.create')->with('success', 'Products created successfully.');
+        // return response()->json(['message' => 'Product created successfully', 'product' => $product], 201);
+
     }
-    
+
     /**
      * Display the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
      */
-    public function show(Product $product): View
+    public function show(string $id)
     {
-        return view('products.show',compact('product'));
+        //
     }
-    
+
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
      */
-    public function edit(Product $product): View
+    public function edit(string $id)
     {
-        return view('products.edit',compact('product'));
+        //
     }
-    
+
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product): RedirectResponse
+    public function update(Request $request, string $id)
     {
-         request()->validate([
-            'name' => 'required',
-            'detail' => 'required',
-        ]);
-    
-        $product->update($request->all());
-    
-        return redirect()->route('products.index')
-                        ->with('success','Product updated successfully');
+        //
     }
-    
+
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product): RedirectResponse
+    public function destroy(string $id)
     {
-        $product->delete();
-    
-        return redirect()->route('products.index')
-                        ->with('success','Product deleted successfully');
+        //
     }
 }

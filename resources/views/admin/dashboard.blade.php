@@ -567,7 +567,7 @@
     <x-plugins></x-plugins>
     </div>
     @push('js')
-    <script src="{{ asset('assets') }}/js/plugins/chartjs.min.js"></script>
+    <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
     <script>
         var ctx = document.getElementById("chart-bars").getContext("2d");
 

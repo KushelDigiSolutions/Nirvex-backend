@@ -20,6 +20,6 @@ class CheckAdmin
             return $next($request);
         }
         // return redirect('/admin/login');
-        return redirect('/admin/login')->with('error', 'Access denied. Please login as admin.');
+        return redirect('/')->with('error', 'Access denied. Please login as admin.');
     }
 }

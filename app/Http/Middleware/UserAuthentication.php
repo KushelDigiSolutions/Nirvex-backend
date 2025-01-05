@@ -19,7 +19,7 @@ class UserAuthentication
         if (Auth::check()) {
             return $next($request);
         }
-        return redirect()->route('login')->with('error', 'You need to login first.');
+        return redirect()->route('/')->with('error', 'You need to login first.');
         
     }
 }
