@@ -8,18 +8,19 @@
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
-                    <div class="card">
-                        <div class="col-lg-12 margin-tb">
+                <div class="d-flex justify-content-between mb-2">
                             <div class="pull-left">
+                                <h2>Categories</h2>
+                            </div>
+                            <div class="pull-right">
                                 @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('products.create') }}"><i class="fa fa-plus"></i> Create Products</a>
+                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('products.create') }}"><i class="fa fa-plus"></i> Create New Product</a>
                                 @endcan
                             </div>
                         </div>
-                    </div>
-                        <div class="card-body px-0 pb-2">
-                            <div class="table-responsive">
-                                <table class="table align-items-center mb-0">
+                    <div class="card mydatatable">
+                        <div class="table-responsive">
+                            <table id="datatable-basic" class="display nowrap" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>Sr.No</th>
@@ -27,12 +28,13 @@
                                             <th>Category Name / Sub Category</th>
                                             <th>MRP(Rs.)</th>
                                             <th>Images</th>
-                                            <th>Action</th>
+                                            <th>Status</th>
+                                            <th>Edit</th>
+                                            <th>Delete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                     @forelse ($products as $rs)
-                                    {{ $rs->name }}
                                     <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $rs->name }}</td>
@@ -43,8 +45,13 @@
                                         $images = explode(',', $rs->image); 
                                         $firstImage = $images[0]; 
                                     ?>
-                                        <img src="{{ url('/').'/'.$firstImage }}" height="100" width="100">
+                                        <img src="{{ url('/').'/'.$firstImage }}" class="avatar avatar-sm me-3">
                                     </td>
+                                    @if($rs->status === 1)
+                                        <td>Active</td>
+                                        @else
+                                        <td>Inactive</td>
+                                        @endif
                                     <td>
                                 <a href="{{ route('products.edit', encrypt($rs->id)) }}"
                                     class="btn btn-sm btn-secondary">
@@ -79,7 +86,33 @@
     </main>
     <x-plugins></x-plugins>
     </div>
+    <style>
+        .mydatatable .dataTables_length,.mydatatable .dataTables_filter{
+            padding:20px;
+        }
+        .mydatatable .dataTables_info{
+            padding: 20px 10px;
+        }
+        .mydatatable .dataTables_paginate {
+            padding: 10px;
+        }
+    </style>
+
+
     @push('js')
+    <script>
+        $(document).ready(function() {
+            $('#datatable-basic').DataTable({
+                responsive: true, 
+                pageLength: 10,   
+                lengthMenu: [5, 10, 15, 20, 25], 
+                language: {
+                    lengthMenu: "Show _MENU_ entries per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                }
+            });
+        });
+    </script>
     <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
     @endpush
 </x-layout>

@@ -8,6 +8,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubcategoryController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PriceController;
+use App\Http\Controllers\SettingController;
 
 Route::get('/', function () {
     return view('login');
@@ -29,7 +32,9 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::resource('roles', RoleController::class);
         Route::resource('users', UserController::class);
         Route::delete('/products/image/remove', [ProductController::class, 'deleteImage'])->name('product.image.delete');
-
+        Route::resource('orders', OrderController::class);
+        Route::resource('pricings', PriceController::class);
+        Route::resource('settings', SettingController::class);
         // Route::get('/admin/dashboard', HomeController::class)->name('admin.dashboard');
         
 });

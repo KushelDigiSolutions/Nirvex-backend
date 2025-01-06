@@ -1,20 +1,20 @@
 <x-layout bodyClass="g-sidenav-show  bg-gray-200">
     @section('title')
-        {{ 'Category' }}
+        {{ 'Setting' }}
     @endsection
     <x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        <x-navbars.navs.auth titlePage="Categories"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="Setting"></x-navbars.navs.auth>
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
                         <div class="d-flex justify-content-between mb-2">
                             <div class="pull-left">
-                                <h2>Categories</h2>
+                                <h2>Setting</h2>
                             </div>
                             <div class="pull-right">
                                 @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('categories.create') }}"><i class="fa fa-plus"></i> Create New Category</a>
+                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i>Setting</a>
                                 @endcan
                             </div>
                         </div>
@@ -24,8 +24,8 @@
                                 <thead>
                                     <tr>
                                         <th>So.No.</th>
+                                        <th>Setting Name</th>
                                         <th>Image</th>
-                                        <th>Name</th>
                                         <th>Created at</th>
                                         <th>Status</th>
                                         <th>Edit</th>
@@ -33,28 +33,22 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($category as $rs)
+                                
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td><img src="{{ url('/').'/'.$rs->image }}" class="avatar avatar-sm me-3"></td>
-                                        <td>{{ $rs->name }}</td>
-                                        <td>{{ $rs->created_at }}</td>
-                                        @if($rs->status === 1)
+                                        <td>1.</td>
+                                        <td>10000</td>
+                                        <td><img src="{{ url('/').'/'.('/uploads/products/1736022006_drake.jpg') }}" class="avatar avatar-sm me-3"></td>
+                                        <td>2025-01-04 07:17:05</td>
                                         <td>Active</td>
-                                        @else
-                                        <td>Inactive</td>
-                                        @endif
-                                        <td><a href="{{ route('categories.edit', encrypt($rs->id)) }}" class="btn btn-sm btn-secondary"><i class="far fa-edit"></i></a></td>
-                                        <td><form action="{{ route('categories.destroy', encrypt($rs->id)) }}"
-                                    method="POST" onclick="confirm('Are you sure')">
-                                    @method('DELETE')
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form></td>
+                                        <td><a href="" class="btn btn-sm btn-secondary"><i class="far fa-edit"></i></a></td>
+                                        <td>
+                                            <form action=""method="POST" onclick="confirm('Are you sure')">
+                                            @method('DELETE')
+                                            @csrf
+                                                <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+                                            </form>
+                                        </td>
                                     </tr>
-                                @endforeach
                                 </tbody>
                             </table>
                         </div>
