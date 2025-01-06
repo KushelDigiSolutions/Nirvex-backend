@@ -9,12 +9,15 @@
 
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <!-- Navbar -->
-        <x-navbars.navs.auth titlePage="Dashboard"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="Categories"></x-navbars.navs.auth>
         <!-- End Navbar -->
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
-                <div class="col-lg-12 margin-tb">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="pull-left">
+                                <h2>Categories</h2>
+                            </div>
                             <div class="pull-right">
                                 @can('role-create')
                                     <a class="btn btn-success btn-sm mb-2" href="{{ route('categories.create') }}"><i class="fa fa-plus"></i> Create New Category</a>
