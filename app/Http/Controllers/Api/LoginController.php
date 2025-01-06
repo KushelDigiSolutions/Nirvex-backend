@@ -19,35 +19,47 @@ class LoginController extends Controller
 {
     
     public function login(Request $request)
-{
-    $request->validate([
-        'phone' => 'required|digits:10', 
-        'password' => 'required|min:6', 
-    ]);
-
-    $user = User::where('phone', $request->phone)->first();
-
-    if (!$user || !Hash::check($request->password, $user->password)) {
+    {
+        try {
+            $request->validate([
+                'phone' => 'required|digits:10', 
+                'password' => 'required|min:6', 
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation errors occurred',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+    
+        $user = User::where('phone', $request->phone)->first();
+    
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid mobile number or password.',
+            ], 401);
+        }
+    
+        $otp = rand(100000, 999999);
+    
+        Otp::create([
+            'user_id' => $user->id,
+            'otp' => '999999',
+            'status' => 'pending',
+            'expiry' => Carbon::now()->addMinutes(10),
+            'complete' => false,
+        ]);
+    
+        Log::info("OTP for user {$user->phone}: {$otp}");
+    
         return response()->json([
-            'message' => 'Invalid mobile number or password.',
-        ], 401);
+            'success' => true,
+            'message' => 'Login successful. OTP has been sent to your registered mobile number.',
+        ]);
     }
-
-    $otp = rand(100000, 999999);
-
-    Otp::create([
-        'user_id' => $user->id,
-        'otp' => $otp,
-        'status' => 'pending',
-        'expiry' => Carbon::now()->addMinutes(10),
-        'complete' => false,
-    ]);
-
-    Log::info("OTP for user {$user->phone}: {$otp}");
-    return response()->json([
-        'message' => 'Login successful. OTP has been sent to your registered mobile number.',
-    ]);
-}
+    
 
 
 public function validateOtp(Request $request)

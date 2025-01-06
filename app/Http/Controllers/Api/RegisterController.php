@@ -27,13 +27,16 @@ class RegisterController extends Controller
         $validator = Validator::make($request->all(),[
         'first_name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
-        'phone' => 'required',
+        'phone' => 'required|phone|unique:users',
         'password' => 'required|string|min:8'
         ]);
 
-        if($validator->fails())
-        {
-            return response()->json($validator->errors()->toJson(), 400);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation errors occurred',
+                'errors' => $validator->errors()
+            ], 400);
         }
 
         $user = User::create(array_merge(
