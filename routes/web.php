@@ -28,6 +28,8 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::resource('subcategories', SubcategoryController::class);
         Route::resource('roles', RoleController::class);
         Route::resource('users', UserController::class);
+        Route::delete('/products/image/remove', [ProductController::class, 'deleteImage'])->name('product.image.delete');
+
         // Route::get('/admin/dashboard', HomeController::class)->name('admin.dashboard');
         
 });

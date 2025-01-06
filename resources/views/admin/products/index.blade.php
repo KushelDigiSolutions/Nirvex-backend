@@ -1,12 +1,10 @@
 <x-layout bodyClass="g-sidenav-show  bg-gray-200">
 @section('title')
-        {{ 'Category' }}
+        {{ 'Product' }}
     @endsection
     <x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        <!-- Navbar -->
         <x-navbars.navs.auth titlePage="Dashboard"></x-navbars.navs.auth>
-        <!-- End Navbar -->
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
@@ -14,7 +12,7 @@
                         <div class="col-lg-12 margin-tb">
                             <div class="pull-left">
                                 @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('categories.create') }}"><i class="fa fa-plus"></i> Create New Category</a>
+                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('products.create') }}"><i class="fa fa-plus"></i> Create Products</a>
                                 @endcan
                             </div>
                         </div>
@@ -25,25 +23,36 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.No</th>
-                                            <th>Category Name</th>
+                                            <th>Product Name</th>
+                                            <th>Category Name / Sub Category</th>
+                                            <th>MRP(Rs.)</th>
                                             <th>Images</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                     @forelse ($products as $rs)
+                                    {{ $rs->name }}
                                     <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $rs->name }}</td>
-                                    <td><img src="{{ url('/').'/'.$rs->image }}" height="100" width="100"></td>
+                                    <td>{{ $rs->category->name ?? 'N/A' }} / {{ $rs->subCategory->name ?? 'N/A' }}</td>
+                                    <td>{{ $rs->mrp }}</td>
                                     <td>
-                                <a href="{{ route('categories.edit', encrypt($rs->id)) }}"
+                                    <?php
+                                        $images = explode(',', $rs->image); 
+                                        $firstImage = $images[0]; 
+                                    ?>
+                                        <img src="{{ url('/').'/'.$firstImage }}" height="100" width="100">
+                                    </td>
+                                    <td>
+                                <a href="{{ route('products.edit', encrypt($rs->id)) }}"
                                     class="btn btn-sm btn-secondary">
                                     <i class="far fa-edit"></i>
                                 </a>
                             </td>
                             <td>
-                                <form action="{{ route('categories.destroy', encrypt($rs->id)) }}"
+                                <form action="{{ route('products.destroy', encrypt($rs->id)) }}"
                                     method="POST" onclick="confirm('Are you sure')">
                                     @method('DELETE')
                                     @csrf
