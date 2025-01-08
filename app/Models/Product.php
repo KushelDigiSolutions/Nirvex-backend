@@ -33,4 +33,9 @@ class Product extends Model
     {
         return $this->belongsTo(SubCategory::class, 'sub_cat_id');
     }
+
+    public function variants()
+    {
+        return $this->hasMany(Variant::class);
+    }
 }

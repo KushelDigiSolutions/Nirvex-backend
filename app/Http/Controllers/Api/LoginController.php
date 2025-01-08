@@ -13,7 +13,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
@@ -165,6 +165,32 @@ public function validateOtp(Request $request)
         }
     }
 
+    public function updatePincode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:users,id',
+            'pincode' => 'required|digits:6',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation errors occurred',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+        $validated = $validator->validated();
+    
+        $user = \App\Models\User::find($validated['id']);
+        $user->pincode = $validated['pincode'];
+        $user->save();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Pincode updated successfully',
+            'data' => $user,
+        ]);
+    }
 
     public function createToken($token)
     {

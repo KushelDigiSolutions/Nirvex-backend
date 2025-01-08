@@ -11,6 +11,7 @@ use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ServiceController;
 
 Route::get('/', function () {
     return view('login');
@@ -35,6 +36,7 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::resource('orders', OrderController::class);
         Route::resource('pricings', PriceController::class);
         Route::resource('settings', SettingController::class);
+        Route::resource('services', ServiceController::class);
         // Route::get('/admin/dashboard', HomeController::class)->name('admin.dashboard');
         
 });

@@ -1,48 +1,53 @@
 <x-layout bodyClass="g-sidenav-show  bg-gray-200">
 @section('title')
-        {{ 'Create Category' }}
-    @endsection
-<x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
-    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        <!-- Navbar -->
-        <x-navbars.navs.auth titlePage="Dashboard"></x-navbars.navs.auth>
-        <!-- End Navbar -->
-        <div class="container-fluid py-4" style="background-color:#fff">
-            <div class="row mb-4">
+    {{ 'Create Product' }}
+@endsection
+<x-navbars.sidebar activePage='product'></x-navbars.sidebar>
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <x-navbars.navs.auth titlePage="Product"></x-navbars.navs.auth>
+    <!-- End Navbar -->
+    <div class="container-fluid py-4" style="background-color:#fff">
+        <div class="row mb-4">
             <div class="col-lg-10 col-md-10 mb-md-0 mb-4"></div>
-                <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
-                        <div class="col-lg-12 margin-tb">
-                            <div class="pull-left">
-                                @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('categories.index') }}">Category</a>
-                                @endcan
-                            </div>
-                        </div>
-                    </div>  
-                    @if(session('success'))
-                        <div class="alert alert-success">
-                        {{ session('success') }}
+            <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
+                <div class="col-lg-12 margin-tb">
+                    <div class="pull-left">
+                        @can('role-create')
+                            <a class="btn btn-success btn-sm mb-2" href="{{ route('categories.index') }}">Product</a>
+                        @endcan
                     </div>
-                    @endif
-                    <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
-                        @csrf
-                        <div class="row">
-                            <div class="col">
-                            <label for="name" class="form-label">Product Name:</label>
-                                <input type="text" class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}" id="name" placeholder="Enter Product" name="name">
-                                @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col">
-                            <label for="mrp" class="form-label">MRP (RS.):</label>
-                            <input type="text" class="form-control {{ $errors->has('mrp') ? 'is-invalid' : '' }}" id="mrp" placeholder="Enter MRP" name="mrp">
-                            @error('mrp')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="row">
+                </div>
+            </div>
+        </div>
+
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
+            @csrf
+
+            <!-- Existing Form Fields -->
+            <div class="row">
+                <div class="col">
+                    <label for="name" class="form-label">Product Name:</label>
+                    <input type="text" class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}" id="name" placeholder="Enter Product" name="name">
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col">
+                    <label for="mrp" class="form-label">MRP (RS.):</label>
+                    <input type="text" class="form-control {{ $errors->has('mrp') ? 'is-invalid' : '' }}" id="mrp" placeholder="Enter MRP" name="mrp">
+                    @error('mrp')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            <div class="row">
                             <div class="col">
                             <label for="cat_id" class="form-label">Category:</label>
                             <select class="form-select form-select-lg @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
@@ -64,6 +69,7 @@
                             @enderror
                             </div>
                         </div>
+
                         <div class="row">
                         <div class="col">
                             <label for="description" class="form-label">Discription:</label>
@@ -73,7 +79,7 @@
                             @enderror
                         </div>
                         </div>
-                        
+
                         <div class="row">
                         <div class="col">
                             <label for="specification" class="form-label">Specifications:</label>
@@ -83,6 +89,7 @@
                             @enderror
                         </div>
                         </div>
+
                         <div class="row">
                             <div class="col">
                             <label for="delivery" class="form-label">Delivery Days:</label>
@@ -112,22 +119,97 @@
                             @enderror
                         </div>
                         </div>
-                        <div class="col">
-                        <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3">Submit</button>
+
+
+            <!-- Dynamic Form Section -->
+            <div class="row mt-4">
+                <div class="col">
+                    <h5>Variant</h5>
+                    <div id="dynamic-form">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="type" class="form-label">Type:</label>
+                                <select class="form-select" name="options[0][type]">
+                                <option value="1">Quality</option>
+                                    <option value="2">Color</option>
+                                    <option value="3">Size</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" class="form-control" name="options[0][name]" placeholder="Enter name">
+                            </div>
+                            <div class="col">
+                                <label for="image" class="form-label">Image:</label>
+                                <input type="file" class="form-control" name="options[0][image]">
+                            </div>
+                            <div class="col">
+                                <label for="description" class="form-label">short_Description:</label>
+                                <input type="text" class="form-control" name="options[0][short_description]" placeholder="Short description">
+                            </div>
+                            <div class="col d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
+                            </div>
                         </div>
-                    </form>                
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm mt-2" id="add-field">Add More</button>
                 </div>
             </div>
-            <x-footers.auth></x-footers.auth>
-        </div>
-    </main>
-    <x-plugins></x-plugins>
+
+            <!-- Submit Button -->
+            <div class="row mt-4">
+                <div class="col">
+                    <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                </div>
+            </div>
+        </form>
     </div>
-    @push('js')
-    <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
-    @endpush
+</main>
+<x-plugins></x-plugins>
 </x-layout>
 
+<script>
+    let fieldCount = 1;
+
+    document.getElementById('add-field').addEventListener('click', function () {
+        const dynamicForm = document.getElementById('dynamic-form');
+        const newField = `
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="type" class="form-label">Type:</label>
+                    <select class="form-select" name="options[${fieldCount}][type]">
+                        <option value="1">Color</option>
+                        <option value="2">Size</option>
+                        <option value="3">Quality</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="name" class="form-label">Name:</label>
+                    <input type="text" class="form-control" name="options[${fieldCount}][name]" placeholder="Enter name">
+                </div>
+                <div class="col">
+                    <label for="image" class="form-label">Image:</label>
+                    <input type="file" class="form-control" name="options[${fieldCount}][image]">
+                </div>
+                <div class="col">
+                    <label for="description" class="form-label">Description:</label>
+                    <input type="text" class="form-control" name="options[${fieldCount}][description]" placeholder="Short description">
+                </div>
+                <div class="col d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
+                </div>
+            </div>
+        `;
+        dynamicForm.insertAdjacentHTML('beforeend', newField);
+        fieldCount++;
+    });
+
+    document.getElementById('dynamic-form').addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-field')) {
+            e.target.closest('.row').remove();
+        }
+    });
+</script>
 <script>
     document.getElementById('cat_id').addEventListener('change', function () {
         const catId = this.value; 
@@ -149,23 +231,3 @@
     }
     });
 </script>
-
-
-<!-- <script>
-        document.getElementById('cat_id').addEventListener('change', function () {
-            const catId = this.value;
-            const subCatDropdown = document.getElementById('sub_cat_id');
-            subCatDropdown.innerHTML = '<option value="">Select a SubCategory</option>';
-            const categories = @json($categories);
-            const selectedCategory = categories.find(cat => cat.id == catId);
-
-            if (selectedCategory && selectedCategory.subcategories) {
-                selectedCategory.subcategories.forEach(subCat => {
-                    const option = document.createElement('option');
-                    option.value = subCat.id;
-                    option.textContent = subCat.name;
-                    subCatDropdown.appendChild(option);
-                });
-            }
-        });
-    </script> -->
