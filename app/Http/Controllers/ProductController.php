@@ -18,7 +18,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['category', 'subCategory'])->get();
+        $products = Product::with(['category', 'subCategory'])->orderBy('id','desc')->get();
         return view('admin.products.index', compact('products'));
     }
 
@@ -75,8 +75,11 @@ class ProductController extends Controller
                      'product_id' => $product->id,
                      'type' => $option['type'],
                      'name' => $option['name'],
-                     'description' => $option['description'] ?? null,
+                     'short_description' => $option['short_description'] ?? null,
+                     'sku' => 'nirvix' . '/' . '0' . $product->id,
                  ];
+
+                //  dd($variantData);
      
                  // Process variant image
                  if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
@@ -93,42 +96,6 @@ class ProductController extends Controller
          return redirect()->route('products.create')->with('success', 'Product created successfully.');
      }
      
-
-
-
-    public function store08012025(Request $request)
-    {
-    
-        // dd($request);
-
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'cat_id' => 'required|integer',
-            'sub_cat_id' => 'required|integer',
-            'status' => 'required|boolean',
-            'mrp' => 'required|numeric',
-            'availability' => 'required|string',
-            'specification' => 'required|string',
-            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
-        ]);
-
-        $imagePaths = [];
-        if ($request->hasFile('image')) {
-            foreach ($request->file('image') as $image) {
-                $fileName = time() . '_' . $image->getClientOriginalName(); 
-                $path = $image->move(public_path('uploads/products'), $fileName); 
-                $imagePaths[] = 'uploads/products/' . $fileName; 
-            }
-        }
-    
-        $validatedData['image'] = implode(',', $imagePaths);    
-        $product = Product::create($validatedData);
-
-        return redirect()->route('products.create')->with('success', 'Products created successfully.');
-
-    }
-
     /**
      * Display the specified resource.
      */
@@ -140,15 +107,17 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+
     public function edit(string $id)
     {
-        $categories = Category::all();
-        $subCategories = SubCategory::all();
-        $products = Product::with(['category', 'subCategory'])->find(decrypt($id));
-        if ($products && $products->image) {
-            $products->image = explode(',', $products->image);
+         $categories = Category::all();
+         $subCategories = SubCategory::all();
+         $products = Product::with(['category', 'subCategory', 'variants'])->find(decrypt($id));
+        //  dd($products);
+            if ($products && $products->image) {
+                $products->image = explode(',', $products->image);
         }
-        return view('admin.products.edit',compact('categories','subCategories','products'));
+        return view('admin.products.edit', compact('categories', 'subCategories', 'products'));
     }
 
     /**
@@ -156,44 +125,13 @@ class ProductController extends Controller
      */
 
 
-     public function update(Request $request, string $id)
+    public function update(Request $request, string $id)
      {
-        echo $id; die;
-         $validatedData = $request->validate([
-             'name' => 'required|string|max:255',
-             'description' => 'required|string',
-             'cat_id' => 'required|integer|exists:categories,id', 
-             'sub_cat_id' => 'required|integer|exists:sub_categories,id', 
-             'status' => 'required|boolean',
-             'mrp' => 'required|numeric|min:0',
-             'availability' => 'required|string',
-             'specification' => 'required|string',
-             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
-         ]);
-     
-         try {
-             $product = Product::findOrFail($id);
-             $imagePaths = [];
-             if ($request->hasFile('image')) {
-                 foreach ($request->file('image') as $image) {
-                     $fileName = time() . '_' . $image->getClientOriginalName();
-                     $path = $image->move(public_path('uploads/products'), $fileName);
-                     $imagePaths[] = 'uploads/products/' . $fileName;
-                 }
-                 $validatedData['image'] = implode(',', $imagePaths);
-             }
-             $product->update($validatedData);
-             return redirect()->route('products.index')->with('success', 'Product updated successfully.');
-         } catch (\Exception $e) {
-             \Log::error('Error updating product: ' . $e->getMessage());
-     
-             return redirect()->back()->withErrors('An error occurred while updating the product. Please try again.');
-         }
-     }
-     
-
-    public function update06012024(Request $request, string $id)
-    {
+        \Log::info('Update method triggered');
+        \Log::info($request->all());
+    
+        dd($request->all());
+        
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -203,20 +141,79 @@ class ProductController extends Controller
             'mrp' => 'required|numeric',
             'availability' => 'required|string',
             'specification' => 'required|string',
-            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-        $imagePaths = [];
-        if ($request->hasFile('image')) {
-            foreach ($request->file('image') as $image) {
-                $fileName = time() . '_' . $image->getClientOriginalName(); 
-                $path = $image->move(public_path('uploads/products'), $fileName); 
-                $imagePaths[] = 'uploads/products/' . $fileName; 
-            }
-        }
-        $validatedData['image'] = implode(',', $imagePaths);    
-        $product = Product::update($validatedData);
-        return redirect()->route('products.index')->with('success', 'Products updated successfully.');
-    }
+            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'options.*.type' => 'required|string',
+            'options.*.name' => 'required|string|max:255',
+            'options.*.description' => 'nullable|string|max:255',
+            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+         ]);
+     
+
+
+         try {
+             $product = Product::findOrFail($id);
+             $imagePaths = [];
+             if ($request->hasFile('image')) {
+                 foreach ($request->file('image') as $image) {
+                     $fileName = time() . '_' . $image->getClientOriginalName();
+                     $path = $image->move(public_path('uploads/products'), $fileName);
+                     $imagePaths[] = 'uploads/products/' . $fileName;
+                 }
+                 $request['image'] = implode(',', $imagePaths);
+             }
+             $product->update($request);
+             if ($request->has('options')) {
+                 $existingVariantIds = $product->variants->pluck('id')->toArray();
+     
+                 foreach ($request->options as $index => $option) {
+                     if (isset($option['id']) && in_array($option['id'], $existingVariantIds)) {
+                         $variant = $product->variants()->find($option['id']);
+                         $variantData = [
+                             'type' => $option['type'],
+                             'name' => $option['name'],
+                             'short_description' => $option['short_description'] ?? null,
+                             'sku' => 'nirvix' . '/' . '0' . $product->id,
+                         ];
+                         if (isset($option['image']) && $request->hasFile("options.$index.image")) {
+                             $variantImage = $request->file("options.$index.image");
+                             $variantFileName = time() . '_' . $variantImage->getClientOriginalName();
+                             $variantPath = $variantImage->move(public_path('uploads/variants'), $variantFileName);
+                             $variantData['image'] = 'uploads/variants/' . $variantFileName;
+                         }
+                         $variant->update($variantData);
+                     } else {
+                         $newVariantData = [
+                             'type' => $option['type'],
+                             'name' => $option['name'],
+                             'short_description' => $option['short_description'] ?? null,
+                             'image' => null,
+                         ];
+                         if (isset($option['image']) && $request->hasFile("options.$index.image")) {
+                             $variantImage = $request->file("options.$index.image");
+                             $variantFileName = time() . '_' . $variantImage->getClientOriginalName();
+                             $variantPath = $variantImage->move(public_path('uploads/variants'), $variantFileName);
+                             $newVariantData['image'] = 'uploads/variants/' . $variantFileName;
+                         }
+     
+                         $product->variants()->create($newVariantData);
+                     }
+                 }
+                 $submittedVariantIds = array_column($request->options, 'id');
+                 $variantsToDelete = array_diff($existingVariantIds, $submittedVariantIds);
+                 $product->variants()->whereIn('id', $variantsToDelete)->delete();
+             }
+     
+             return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+         } catch (\Exception $e) {
+              \Log::error('Error updating product: ' . $e->getMessage());
+
+            // \Log::info('Request data:', $request->all());
+     
+             return redirect()->back()->withErrors('An error occurred while updating the product. Please try again.');
+         }
+     }
+     
+
 
     /**
      * Remove the specified resource from storage.

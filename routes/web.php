@@ -27,11 +27,8 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
     Route::resource('roles', RoleController::class);
         Route::resource('users', UserController::class);
         Route::resource('products', ProductController::class);
-        Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('subcategories', SubcategoryController::class);
-        Route::resource('roles', RoleController::class);
-        Route::resource('users', UserController::class);
         Route::delete('/products/image/remove', [ProductController::class, 'deleteImage'])->name('product.image.delete');
         Route::resource('orders', OrderController::class);
         Route::resource('pricings', PriceController::class);
@@ -41,8 +38,3 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         
 });
 
-// Route::group(['middleware' => ['auth']], function() {
-//     Route::resource('roles', RoleController::class);
-//     Route::resource('users', UserController::class);
-//     Route::resource('products', ProductController::class);
-// });

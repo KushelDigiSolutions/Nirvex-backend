@@ -16,6 +16,7 @@ class Variant extends Model
         'name',
         'short_description',
         'images',
+        'sku'
     ];
 
     public function product()

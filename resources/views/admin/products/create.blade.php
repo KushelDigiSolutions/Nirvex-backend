@@ -21,11 +21,7 @@
             </div>
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
+
 
         <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
             @csrf
@@ -144,7 +140,7 @@
                                 <input type="file" class="form-control" name="options[0][image]">
                             </div>
                             <div class="col">
-                                <label for="description" class="form-label">short_Description:</label>
+                                <label for="description" class="form-label">Short Description:</label>
                                 <input type="text" class="form-control" name="options[0][short_description]" placeholder="Short description">
                             </div>
                             <div class="col d-flex align-items-end">
@@ -178,9 +174,9 @@
                 <div class="col">
                     <label for="type" class="form-label">Type:</label>
                     <select class="form-select" name="options[${fieldCount}][type]">
-                        <option value="1">Color</option>
-                        <option value="2">Size</option>
-                        <option value="3">Quality</option>
+                        <option value="1">Quality</option>
+                        <option value="2">Color</option>
+                        <option value="3">Size</option>
                     </select>
                 </div>
                 <div class="col">
@@ -192,8 +188,8 @@
                     <input type="file" class="form-control" name="options[${fieldCount}][image]">
                 </div>
                 <div class="col">
-                    <label for="description" class="form-label">Description:</label>
-                    <input type="text" class="form-control" name="options[${fieldCount}][description]" placeholder="Short description">
+                    <label for="description" class="form-label">Short Description:</label>
+                    <input type="text" class="form-control" name="options[${fieldCount}][short_description]" placeholder="Short description">
                 </div>
                 <div class="col d-flex align-items-end">
                     <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
