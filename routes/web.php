@@ -34,7 +34,9 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::resource('pricings', PriceController::class);
         Route::resource('settings', SettingController::class);
         Route::resource('services', ServiceController::class);
-        // Route::get('/admin/dashboard', HomeController::class)->name('admin.dashboard');
+        Route::get('sellers', [UserController::class, 'getSelller'])->name('sellers.index');
+        Route::get('customers', [UserController::class, 'getCustomer'])->name('customers.index');
+        Route::get('clients', [UserController::class, 'getClient'])->name('clients.index');
         
 });
 

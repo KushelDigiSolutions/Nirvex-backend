@@ -28,8 +28,8 @@
    </tr>
    @foreach ($data as $key => $user)
     <tr>
-        <td>{{ ++$i }}</td>
-        <td>{{ $user->name }}</td>
+        <td>{{ $loop->iteration }}</td>
+        <td>{{ $user->first_name }}</td>
         <td>{{ $user->email }}</td>
         <td>
           @if(!empty($user->getRoleNames()))
@@ -52,7 +52,6 @@
  @endforeach
 </table>
 
-{!! $data->links('pagination::bootstrap-5') !!}
 
 <p class="text-center text-primary"><small>Tutorial by ItSolutionStuff.com</small></p>
 @endsection

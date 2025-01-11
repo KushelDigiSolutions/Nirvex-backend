@@ -47,7 +47,7 @@ class UserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
-            'name' => 'required',
+            'first_name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|same:confirm-password',
             'roles' => 'required'
@@ -85,7 +85,8 @@ class UserController extends Controller
     {
         $user = User::find($id);
         $roles = Role::pluck('name','name')->all();
-        $userRole = $user->roles->pluck('name','name')->all();
+        // $userRole = $user->roles->pluck('first_name','first_name')->all();
+        $userRole = $user->roles->pluck('name')->toArray();
     
         return view('users.edit',compact('user','roles','userRole'));
     }
@@ -100,7 +101,7 @@ class UserController extends Controller
     public function update(Request $request, $id): RedirectResponse
     {
         $this->validate($request, [
-            'name' => 'required',
+            'first_name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
             'password' => 'same:confirm-password',
             'roles' => 'required'
@@ -134,5 +135,21 @@ class UserController extends Controller
         User::find($id)->delete();
         return redirect()->route('users.index')
                         ->with('success','User deleted successfully');
+    }
+
+    public function getSelller(){
+        $data = User::role('seller')->get();
+        return view('admin.sellers.index',compact('data'));
+    }
+
+
+    public function getCustomer(){
+        $data = User::role('customers')->get();
+        return view('admin.customers.index',compact('data'));
+    }
+
+    public function getClient(){
+        $data = User::withoutRole(['seller', 'customers'])->get();
+        return view('admin.clients.index',compact('data'));
     }
 }
