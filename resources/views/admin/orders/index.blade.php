@@ -12,11 +12,7 @@
                             <div class="pull-left">
                                 <h2>Orders</h2>
                             </div>
-                            <div class="pull-right">
-                                @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i>Orders</a>
-                                @endcan
-                            </div>
+                            
                         </div>
                     <div class="card mydatatable">
                         <div class="table-responsive">
@@ -24,13 +20,13 @@
                                 <thead>
                                     <tr>
                                         <th>So.No.</th>
-                                        <th>Order Name</th>
                                         <th>Order No.</th>
-                                        <th>Image</th>
+                                        <th>Customer</th>
+                                        <th>Seller</th>
+                                        <th>Order Status</th>
                                         <th>Created at</th>
-                                        <th>Status</th>
-                                        <th>Edit</th>
-                                        <th>Delete</th>
+                                        <th></th>
+                                        <th>View</th>
                                     </tr>
                                 </thead>
                                 <tbody>

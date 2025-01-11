@@ -14,7 +14,8 @@
                             </div>
                             <div class="pull-right">
                                 @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i>Pricing</a>
+                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i> Create Price</a>
+                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i> Upload Bulk Pricings</a>
                                 @endcan
                             </div>
                         </div>
@@ -24,10 +25,10 @@
                                 <thead>
                                     <tr>
                                         <th>So.No.</th>
-                                        <th>Pricing</th>
-                                        <th>Image</th>
+                                        <th>PinCodes</th>
+                                        <th>Product SKU</th>
+                                        <th>Price</th>
                                         <th>Created at</th>
-                                        <th>Status</th>
                                         <th>Edit</th>
                                         <th>Delete</th>
                                     </tr>
@@ -36,10 +37,10 @@
                                 
                                     <tr>
                                         <td>1.</td>
-                                        <td>10000</td>
-                                        <td><img src="{{ url('/').'/'.('/uploads/products/1736022006_drake.jpg') }}" class="avatar avatar-sm me-3"></td>
+                                        <td>110011</td>
+                                        <td>1</td>
+                                        <td>₹ 25</td>
                                         <td>2025-01-04 07:17:05</td>
-                                        <td>Active</td>
                                         <td><a href="" class="btn btn-sm btn-secondary"><i class="far fa-edit"></i></a></td>
                                         <td>
                                             <form action=""method="POST" onclick="confirm('Are you sure')">
