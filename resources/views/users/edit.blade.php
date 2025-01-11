@@ -31,7 +31,7 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Name:</strong>
-                <input type="text" name="name" placeholder="Name" class="form-control" value="{{ $user->name }}">
+                <input type="text" name="name" placeholder="Name" class="form-control" value="{{ $user->first_name }}">
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -56,11 +56,11 @@
             <div class="form-group">
                 <strong>Role:</strong>
                 <select name="roles[]" class="form-control" multiple="multiple">
-                    @foreach ($roles as $value => $label)
-                        <option value="{{ $value }}" {{ isset($userRole[$value]) ? 'selected' : ''}}>
-                            {{ $label }}
-                        </option>
-                     @endforeach
+                @foreach ($roles as $value => $label)
+                    <option value="{{ $value }}" {{ in_array($value, $userRole) ? 'selected' : '' }}>
+                        {{ $label }}
+                    </option>
+                @endforeach
                 </select>
             </div>
         </div>

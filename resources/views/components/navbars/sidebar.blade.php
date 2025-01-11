@@ -84,6 +84,36 @@
             </li>
 
             <li class="nav-item">
+                <a class="nav-link text-white {{ $activePage == 'customers' ? 'active bg-gradient-primary' : '' }} "
+                    href="{{ route('customers.index') }}">
+                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Customers</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white {{ $activePage == 'sellers' ? 'active bg-gradient-primary' : '' }} "
+                    href="{{ route('sellers.index') }}">
+                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Sellers</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white {{ $activePage == 'clients' ? 'active bg-gradient-primary' : '' }} "
+                    href="{{ route('clients.index') }}">
+                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Clients</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link text-white {{ $activePage == 'products' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('products.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
