@@ -37,6 +37,8 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::get('sellers', [UserController::class, 'getSelller'])->name('sellers.index');
         Route::get('customers', [UserController::class, 'getCustomer'])->name('customers.index');
         Route::get('clients', [UserController::class, 'getClient'])->name('clients.index');
+        Route::get('/search-product', [ProductController::class, 'search']);
+
         
 });
 

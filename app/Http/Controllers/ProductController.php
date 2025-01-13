@@ -243,4 +243,52 @@ class ProductController extends Controller
 
     return back()->with('success', 'Image deleted successfully.');
 }
+
+public function search(Request $request)
+{
+    $query = $request->input('query');
+    // $products = DB::table('products')
+    //     ->where('name', 'LIKE', "%{$query}%")
+    //     ->select('id', 'name')
+    //     ->get();
+
+    $products = Product::where('name', 'LIKE', '%' . $query . '%')
+    ->with('variant') 
+    ->get();
+
+    return response()->json($products);
+}
+
+public function fetchVariants(Request $request)
+{
+    $productId = $request->input('product_id');
+
+    if ($productId) {
+        $variants = DB::table('variants')
+            ->where('variants.product_id', $productId)
+            ->select('variants.id', 'variants.name', 'variants.type', 'variants.sku')
+            ->get();
+
+        return response()->json($variants);
+    }
+
+    return response()->json([]);
+}
+
+
+
+// public function search(Request $request)
+// {
+//     $query = $request->input('query');
+
+//     if ($query) {
+//             $products = Product::where('name', 'LIKE', '%' . $query . '%')
+//                            ->limit(10)
+//                            ->get(['id', 'name']);
+//         return response()->json($products);
+//     }
+
+//     return response()->json([]);
+// }
+
 }
