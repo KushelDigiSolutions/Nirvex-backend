@@ -45,7 +45,7 @@
                         <div class="row">
                             <div class="col">
                             <label for="cat_id" class="form-label">Category:</label>
-                            <select class="form-select form-select-lg @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
+                            <select class="form-select @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
                                 @foreach($categories as $data)
                                 <option value="{{ $data->id }}">{{ $data->name }}</option>
                                 @endforeach
@@ -56,7 +56,7 @@
                             </div>
                             <div class="col">
                             <label for="sub_cat_id" class="form-label">Sub Category:</label>
-                            <select class="form-select form-select-lg {{ $errors->has('sub_cat_id') ? 'is-invalid' : '' }}" id="sub_cat_id" name="sub_cat_id">
+                            <select class="form-select {{ $errors->has('sub_cat_id') ? 'is-invalid' : '' }}" id="sub_cat_id" name="sub_cat_id">
                             <option value="">Select Sub Category</option>                      
                             </select>
                             @error('sub_cat_id')
@@ -93,7 +93,7 @@
                             </div>
                             <div class="col">
                             <label for="status" class="form-label">Status:</label>
-                            <select class="form-select form-select-lg {{ $errors->has('status') ? 'is-invalid' : '' }}" name="status">
+                            <select class="form-select {{ $errors->has('status') ? 'is-invalid' : '' }}" name="status">
                                 <option value="">Select status</option>
                                 <option value="1">Active</option>
                                 <option value="0">Inactive</option>

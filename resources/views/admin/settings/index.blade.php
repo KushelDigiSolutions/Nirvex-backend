@@ -12,15 +12,11 @@
                             <div class="pull-left">
                                 <h2>Setting</h2>
                             </div>
-                            <div class="pull-right">
-                                @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i>Setting</a>
-                                @endcan
-                            </div>
+                          
                         </div>
                     <div class="card mydatatable">
                         <div class="table-responsive">
-                            <table id="datatable-basic" class="display nowrap" style="width:100%">
+                           <!--  <table id="datatable-basic" class="display nowrap" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th>So.No.</th>
@@ -50,7 +46,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </table> -->
                         </div>
                     </div>
 

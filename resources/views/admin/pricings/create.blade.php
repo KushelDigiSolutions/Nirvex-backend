@@ -6,18 +6,18 @@
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <x-navbars.navs.auth titlePage="Pricing"></x-navbars.navs.auth>
     <div class="container-fluid py-4" style="background-color:#fff">
-        <div class="row mb-4">
-            <div class="col-lg-10 col-md-10 mb-md-0 mb-4"></div>
-            <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
-                <div class="col-lg-12 margin-tb">
-                    <div class="pull-left">
-                        @can('role-create')
-                            <a class="btn btn-success btn-sm mb-2" href="{{ route('pricings.index') }}">Pricing</a>
-                        @endcan
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="d-flex justify-content-between mb-2">
+                            <div class="pull-left">
+                                <h2>Create New Price</h2>
+                            </div>
+                        </div>
+                    <div class="card">   
+                        <div class="card-body">   
+                            @if(session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                            @endif
         <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
             @csrf
            
@@ -40,23 +40,13 @@
             <label for="pin-code">Pin Code</label>
             <input type="text" id="pin-code" name="pin_code">
         </div>
-        <div class="form-group">
-            <label for="pin-code">Sku No.</label>
-            <input type="text" id="variant-sku" name="sku">
+        <div class="form-group datetime-selector">
+            <label for="valid-upto">Valid Upto</label>
+            <input type="datetime-local" id="valid-upto" name="valid_upto">
         </div>
         </div>
 
-        <div class="inline-group">
-        <div class="form-group">
-            <label for="pin-code">Short Description</label>
-            <input type="text" id="variant-description" name="short_description">
-        </div>
-        <div class="form-group">
-            <label for="pin-code">Variant Name</label>
-            <input type="text" id="variant-name" name="variant_name">
-        </div>
-        </div>
-
+       
         <div class="inline-group">
             <div class="form-group">
                 <label for="mrp">MRP</label>
@@ -73,8 +63,8 @@
             <div class="form-group">
                 <label for="tax-type">Tax Type</label>
                 <select id="tax-type" name="tax_type">
-                    <option value="type1">Type 1</option>
-                    <option value="type2">Type 2</option>
+                    <option value="type1">Percentage</option>
+                    <option value="type2">Flat</option>
                 </select>
             </div>
 
@@ -84,17 +74,16 @@
             </div>
         </div>
 
-        <div class="form-group datetime-selector">
-            <label for="valid-upto">Valid Upto</label>
-            <input type="datetime-local" id="valid-upto" name="valid_upto">
-        </div>
+      
 
         <div class="form-group datetime-selector">
         <button type="submit" class="btn btn-primary btn-sm">Submit</button>
         </div>
 
         </form>
-    </div>
+        </div>
+                    </div>
+            </div>
 </main>
 <x-plugins></x-plugins>
 </x-layout>

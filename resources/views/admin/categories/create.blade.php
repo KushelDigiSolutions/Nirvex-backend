@@ -8,49 +8,46 @@
         <x-navbars.navs.auth titlePage="Dashboard"></x-navbars.navs.auth>
         <!-- End Navbar -->
         <div class="container-fluid py-4" style="background-color:#fff">
-            <div class="row mb-4">
-            <div class="col-lg-10 col-md-10 mb-md-0 mb-4"></div>
-                <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
-                        <div class="col-lg-12 margin-tb">
+        <div class="d-flex justify-content-between mb-2">
                             <div class="pull-left">
-                                @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('categories.index') }}">Category</a>
-                                @endcan
+                                <h2>Create New Categories</h2>
                             </div>
                         </div>
-                    </div>  
-                    @if(session('success'))
-                        <div class="alert alert-success">
-                        {{ session('success') }}
+                    <div class="card">   
+                        <div class="card-body">   
+                            @if(session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                            @endif
+                            <form action="{{ route('categories.store') }}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <div class="row">
+                                    <div class="col">
+                                    <label for="email" class="form-label">Category:</label>
+                                        <input type="text" class="form-control" id="name" placeholder="Enter category" name="name">
+                                    </div>
+                                    <div class="col">
+                                    <label for="status" class="form-label">Status:</label>
+                                    <select class="form-select" name="status">
+                                        <option value="">Select status</option>
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                <div class="col">
+                                    <label for="image" class="form-label">Category Images:</label>
+                                        <input type="file" class="form-control" name="image" />
+                                    </div>
+                                </div>
+                                <div class="col">
+                                <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3">Submit</button>
+                                </div>
+                            </form>                
+                        </div>
                     </div>
-                    @endif
-                    <form action="{{ route('categories.store') }}" method="post" enctype="multipart/form-data">
-                        @csrf
-                        <div class="row">
-                            <div class="col">
-                            <label for="email" class="form-label">Category:</label>
-                                <input type="text" class="form-control" id="name" placeholder="Enter category" name="name">
-                            </div>
-                            <div class="col">
-                            <label for="status" class="form-label">Status:</label>
-                            <select class="form-select form-select-lg" name="status">
-                                <option value="">Select status</option>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                        <div class="col">
-                            <label for="image" class="form-label">Category Images:</label>
-                                <input type="file" class="form-control" name="image" />
-                            </div>
-                        </div>
-                        <div class="col">
-                        <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3">Submit</button>
-                        </div>
-                    </form>                
-                </div>
             </div>
             <x-footers.auth></x-footers.auth>
         </div>

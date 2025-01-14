@@ -1,34 +1,29 @@
 <x-layout bodyClass="g-sidenav-show  bg-gray-200">
     @section('title')
-        {{ 'Pricing' }}
+        {{ 'Setting' }}
     @endsection
     <x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        <x-navbars.navs.auth titlePage="Pricing"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="Setting"></x-navbars.navs.auth>
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
                         <div class="d-flex justify-content-between mb-2">
                             <div class="pull-left">
-                                <h2>Pricing</h2>
+                                <h2>Profile Update</h2>
                             </div>
-                            <div class="pull-right">
-                                @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href="http://localhost/nirvex-backend/public/admin/pricings/create"><i class="fa fa-plus"></i> Create Price</a>
-                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i> Upload Bulk Pricings</a>
-                                @endcan
-                            </div>
+                          
                         </div>
                     <div class="card mydatatable">
                         <div class="table-responsive">
-                            <table id="datatable-basic" class="display nowrap" style="width:100%">
+                           <!--  <table id="datatable-basic" class="display nowrap" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th>So.No.</th>
-                                        <th>PinCodes</th>
-                                        <th>Product SKU</th>
-                                        <th>Price</th>
+                                        <th>Setting Name</th>
+                                        <th>Image</th>
                                         <th>Created at</th>
+                                        <th>Status</th>
                                         <th>Edit</th>
                                         <th>Delete</th>
                                     </tr>
@@ -37,10 +32,10 @@
                                 
                                     <tr>
                                         <td>1.</td>
-                                        <td>110011</td>
-                                        <td>1</td>
-                                        <td>₹ 25</td>
+                                        <td>10000</td>
+                                        <td><img src="{{ url('/').'/'.('/uploads/products/1736022006_drake.jpg') }}" class="avatar avatar-sm me-3"></td>
                                         <td>2025-01-04 07:17:05</td>
+                                        <td>Active</td>
                                         <td><a href="" class="btn btn-sm btn-secondary"><i class="far fa-edit"></i></a></td>
                                         <td>
                                             <form action=""method="POST" onclick="confirm('Are you sure')">
@@ -51,7 +46,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </table> -->
                         </div>
                     </div>
 

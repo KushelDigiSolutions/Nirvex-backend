@@ -10,7 +10,7 @@
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
                 <div class="d-flex justify-content-between mb-2">
                             <div class="pull-left">
-                                <h2>Categories</h2>
+                                <h2>Products</h2>
                             </div>
                             <div class="pull-right">
                                 @can('role-create')
@@ -24,10 +24,10 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.No</th>
+                                            <th>Images</th>
                                             <th>Product Name</th>
                                             <th>Category Name / Sub Category</th>
                                             <th>MRP(Rs.)</th>
-                                            <th>Images</th>
                                             <th>Status</th>
                                             <th>Edit</th>
                                             <th>Delete</th>
@@ -37,9 +37,6 @@
                                     @forelse ($products as $rs)
                                     <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $rs->name }}</td>
-                                    <td>{{ $rs->category->name ?? 'N/A' }} / {{ $rs->subCategory->name ?? 'N/A' }}</td>
-                                    <td>{{ $rs->mrp }}</td>
                                     <td>
                                     <?php
                                         $images = explode(',', $rs->image); 
@@ -47,6 +44,10 @@
                                     ?>
                                         <img src="{{ url('/').'/'.$firstImage }}" class="avatar avatar-sm me-3">
                                     </td>
+                                    <td>{{ $rs->name }}</td>
+                                    <td>{{ $rs->category->name ?? 'N/A' }} / {{ $rs->subCategory->name ?? 'N/A' }}</td>
+                                    <td>{{ $rs->mrp }}</td>
+                                   
                                     @if($rs->status === 1)
                                         <td>Active</td>
                                         @else

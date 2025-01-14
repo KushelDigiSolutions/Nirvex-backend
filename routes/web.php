@@ -11,6 +11,7 @@ use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 
 Route::get('/', function () {
@@ -33,7 +34,7 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::resource('orders', OrderController::class);
         Route::resource('pricings', PriceController::class);
         Route::resource('settings', SettingController::class);
-        Route::resource('services', ServiceController::class);
+        Route::resource('profile', ProfileController::class);
         Route::get('sellers', [UserController::class, 'getSelller'])->name('sellers.index');
         Route::get('customers', [UserController::class, 'getCustomer'])->name('customers.index');
         Route::get('clients', [UserController::class, 'getClient'])->name('clients.index');

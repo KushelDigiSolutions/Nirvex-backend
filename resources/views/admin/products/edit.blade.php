@@ -6,19 +6,18 @@
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
     <x-navbars.navs.auth titlePage="Product"></x-navbars.navs.auth>
     <div class="container-fluid py-4" style="background-color:#fff">
-        <div class="row mb-4">
-            <div class="col-lg-10 col-md-10 mb-md-0 mb-4"></div>
-            <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
-                <div class="col-lg-12 margin-tb">
-                    <div class="pull-left">
-                        @can('role-create')
-                            <a class="btn btn-success btn-sm mb-2" href="{{ route('products.index') }}">Product</a>
-                        @endcan
+        <div class="d-flex justify-content-between mb-2">
+                            <div class="pull-left">
+                                <h2>Edit Product</h2>
+                            </div>
+                        </div>
+                    <div class="card">   
+                        <div class="card-body">  
+                    @if(session('success'))
+                        <div class="alert alert-success">
+                        {{ session('success') }}
                     </div>
-                </div>
-            </div>
-        </div>
-
+                    @endif
 @if($errors->any())
     <div class="alert alert-danger">
         <ul>
@@ -50,7 +49,7 @@
             <div class="row">
                 <div class="col">
                     <label for="cat_id" class="form-label">Category:</label>
-                    <select class="form-select form-select-lg @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
+                    <select class="form-select @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
                         <option value="">Select Category</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ $products->category && $products->category->id == $category->id ? 'selected' : '' }}>
@@ -64,7 +63,7 @@
                 </div>
                 <div class="col">
                     <label for="sub_cat_id" class="form-label">Sub Category:</label>
-                    <select class="form-select form-select-lg @error('sub_cat_id') is-invalid @enderror" name="sub_cat_id" id="sub_cat_id">
+                    <select class="form-select @error('sub_cat_id') is-invalid @enderror" name="sub_cat_id" id="sub_cat_id">
                         <option value="">Select Sub Category</option>
                         @foreach($subCategories as $subCategory)
                             <option value="{{ $subCategory->id }}" {{ $products->subCategory && $products->subCategory->id == $subCategory->id ? 'selected' : '' }}>
@@ -105,7 +104,7 @@
                 </div>
                 <div class="col">
                     <label for="status" class="form-label">Status:</label>
-                    <select class="form-select form-select-lg" name="status">
+                    <select class="form-select" name="status">
                         <option value="" {{ $products->status === null ? 'selected' : '' }}>Select status</option>
                         <option value="1" {{ $products->status == 1 ? 'selected' : '' }}>Active</option>
                         <option value="0" {{ $products->status == 0 ? 'selected' : '' }}>Inactive</option>
@@ -190,7 +189,9 @@
                 </div>
             </div>
         </form>
-    </div>
+        </div>
+                    </div>
+            </div>
 </main>
 <x-plugins></x-plugins>
 </x-layout>
@@ -257,4 +258,11 @@
         subCatDropdown.appendChild(option);
     }
     });
+</script>
+<script>
+  tinymce.init({
+    selector: 'textarea',
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+  });
 </script>

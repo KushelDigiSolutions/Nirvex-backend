@@ -8,21 +8,18 @@
     <x-navbars.navs.auth titlePage="Product"></x-navbars.navs.auth>
     <!-- End Navbar -->
     <div class="container-fluid py-4" style="background-color:#fff">
-        <div class="row mb-4">
-            <div class="col-lg-10 col-md-10 mb-md-0 mb-4"></div>
-            <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
-                <div class="col-lg-12 margin-tb">
-                    <div class="pull-left">
-                        @can('role-create')
-                            <a class="btn btn-success btn-sm mb-2" href="{{ route('categories.index') }}">Product</a>
-                        @endcan
+        <div class="d-flex justify-content-between mb-2">
+                            <div class="pull-left">
+                                <h2>Create New Sub Category</h2>
+                            </div>
+                        </div>
+                    <div class="card">   
+                        <div class="card-body">  
+                    @if(session('success'))
+                        <div class="alert alert-success">
+                        {{ session('success') }}
                     </div>
-                </div>
-            </div>
-        </div>
-
-
-
+                    @endif
         <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
             @csrf
 
@@ -46,7 +43,7 @@
             <div class="row">
                             <div class="col">
                             <label for="cat_id" class="form-label">Category:</label>
-                            <select class="form-select form-select-lg @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
+                            <select class="form-select @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
                                 @foreach($categories as $data)
                                 <option value="{{ $data->id }}">{{ $data->name }}</option>
                                 @endforeach
@@ -57,7 +54,7 @@
                             </div>
                             <div class="col">
                             <label for="sub_cat_id" class="form-label">Sub Category:</label>
-                            <select class="form-select form-select-lg {{ $errors->has('sub_cat_id') ? 'is-invalid' : '' }}" id="sub_cat_id" name="sub_cat_id">
+                            <select class="form-select {{ $errors->has('sub_cat_id') ? 'is-invalid' : '' }}" id="sub_cat_id" name="sub_cat_id">
                             <option value="">Select Sub Category</option>                      
                             </select>
                             @error('sub_cat_id')
@@ -69,7 +66,7 @@
                         <div class="row">
                         <div class="col">
                             <label for="description" class="form-label">Discription:</label>
-                            <textarea class="form-control {{ $errors->has('description') ? 'is-invalid' : '' }}" name="description" placeholder="discription">{{ old('description') }}</textarea>
+                            <textarea  id="editor" class="form-control {{ $errors->has('description') ? 'is-invalid' : '' }}" name="description" placeholder="discription">{{ old('description') }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -96,7 +93,7 @@
                             </div>
                             <div class="col">
                             <label for="status" class="form-label">Status:</label>
-                            <select class="form-select form-select-lg {{ $errors->has('status') ? 'is-invalid' : '' }}" name="status">
+                            <select class="form-select {{ $errors->has('status') ? 'is-invalid' : '' }}" name="status">
                                 <option value="">Select status</option>
                                 <option value="1">Active</option>
                                 <option value="0">Inactive</option>
@@ -159,7 +156,10 @@
                 </div>
             </div>
         </form>
-    </div>
+             
+        </div>
+                    </div>
+            </div>
 </main>
 <x-plugins></x-plugins>
 </x-layout>
@@ -226,4 +226,13 @@
         subCatDropdown.appendChild(option);
     }
     });
+
+</script>
+
+<script>
+  tinymce.init({
+    selector: 'textarea',
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+  });
 </script>

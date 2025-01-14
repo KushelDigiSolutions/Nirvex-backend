@@ -34,7 +34,7 @@
                 <a class="nav-link text-white {{ $activePage == 'category' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('categories.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                        <i style="font-size: 1.2rem;" class="fa fa-list-alt ps-2 pe-2 text-center"></i>
                     </div>
                     <span class="nav-link-text ms-1">Category</span>
                 </a>
@@ -44,7 +44,7 @@
                 <a class="nav-link text-white {{ $activePage == 'sub-category' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('subcategories.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                        <i style="font-size: 1.2rem;" class="fa fa-list ps-2 pe-2 text-center"></i>
                     </div>
                     <span class="nav-link-text ms-1">Sub Category</span>
                 </a>
@@ -54,9 +54,18 @@
                 <a class="nav-link text-white {{ $activePage == 'products' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('products.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                        <i style="font-size: 1.2rem;" class="fas fa-hard-hat ps-2 pe-2 text-center"></i>
                     </div>
                     <span class="nav-link-text ms-1">Product</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white {{ $activePage == 'services' ? 'active bg-gradient-primary' : '' }} "
+                    href="{{ route('services.index') }}">
+                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1.2rem;" class="fa fa-tools ps-2 pe-2 text-center"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Services</span>
                 </a>
             </li>
 
@@ -64,7 +73,7 @@
                 <a class="nav-link text-white {{ $activePage == 'products' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('pricings.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                        <i style="font-size: 1.2rem;" class="fas fa-rupee-sign ps-2 pe-2 text-center"></i>
                     </div>
                     <span class="nav-link-text ms-1">Pricings</span>
                 </a>
@@ -77,29 +86,20 @@
                 <a class="nav-link text-white {{ $activePage == 'orders' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('orders.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                        <i style="font-size: 1.2rem;" class="fa fa-box ps-2 pe-2 text-center"></i>
                     </div>
                     <span class="nav-link-text ms-1">Orders</span>
                 </a>
             </li>
 
 
-            <li class="nav-item">
-                <a class="nav-link text-white {{ $activePage == 'services' ? 'active bg-gradient-primary' : '' }} "
-                    href="{{ route('services.index') }}">
-                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Services</span>
-                </a>
-            </li>
 
 
             <li class="nav-item">
                 <a class="nav-link text-white {{ $activePage == 'customers' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('customers.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                        <i style="font-size: 1.2rem;" class="fas fa-users ps-2 pe-2 text-center"></i>
                     </div>
                     <span class="nav-link-text ms-1">Customers</span>
                 </a>
@@ -109,7 +109,7 @@
                 <a class="nav-link text-white {{ $activePage == 'sellers' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('sellers.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                        <i style="font-size: 1.2rem;" class="fas fa-user-tie ps-2 pe-2 text-center"></i>
                     </div>
                     <span class="nav-link-text ms-1">Sellers</span>
                 </a>
@@ -119,13 +119,13 @@
                 <a class="nav-link text-white {{ $activePage == 'clients' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('clients.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
+                        <i style="font-size: 1.2rem;" class="fas fa-user-secret ps-2 pe-2 text-center"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Clients</span>
+                    <span class="nav-link-text ms-1">Staff Admin</span>
                 </a>
             </li>
 
-            <li class="nav-item">
+           <!--  <li class="nav-item">
                 <a class="nav-link text-white {{ $activePage == 'products' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('products.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -133,7 +133,7 @@
                     </div>
                     <span class="nav-link-text ms-1">Transactions</span>
                 </a>
-            </li>
+            </li> -->
 
 
             
@@ -142,7 +142,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link text-white {{ $activePage == 'user-profile' ? 'active bg-gradient-primary' : '' }} "
-                    href="">
+                    href="{{ route('profile.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
                         <i style="font-size: 1.2rem;" class="fas fa-user-circle ps-2 pe-2 text-center"></i>
                     </div>

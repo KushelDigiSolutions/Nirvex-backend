@@ -33,6 +33,9 @@
 
     <!-- Responsive Extension JavaScript -->
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <!-- Place the first <script> tag in your HTML's <head> -->
+<script src="https://cdn.tiny.cloud/1/vsgbwwves9kjc7cqqrk4j59dr8yiapctiupaq7vybycfjbcs/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
 
 
 </head>
