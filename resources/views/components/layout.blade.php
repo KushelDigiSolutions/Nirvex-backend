@@ -16,25 +16,25 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link id="pagestyle" href="{{ asset('assets') }}/css/material-dashboard.css?v=3.0.0" rel="stylesheet" />
     <link href="{{ asset('assets') }}/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('assets') }}/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
   
     <!-- jQuery (required by DataTables) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('assets') }}/js/jquery-3.6.0.min.js"></script>
 
     <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{{ asset('assets') }}/css/jquery.dataTables.min.css">
 
     <!-- DataTables JavaScript -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="{{ asset('assets') }}/js/jquery.dataTables.min.js"></script>
 
     <!-- Responsive Extension CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="{{ asset('assets') }}/css/responsive.dataTables.min.css">
 
     <!-- Responsive Extension JavaScript -->
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="{{ asset('assets') }}/js/dataTables.responsive.min.js"></script>
     <!-- Place the first <script> tag in your HTML's <head> -->
-<script src="https://cdn.tiny.cloud/1/vsgbwwves9kjc7cqqrk4j59dr8yiapctiupaq7vybycfjbcs/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="{{ asset('assets') }}/tinymce.min.js" referrerpolicy="origin"></script>
 
 
 
@@ -58,7 +58,7 @@
     }
 
 </script>
-<script async defer src="https://buttons.github.io/buttons.js"></script>
+<script async defer src="{{ asset('assets') }}/js/buttons.js"></script>
 <script src="{{ asset('assets') }}/js/material-dashboard.min.js?v=3.0.0"></script>
 </body>
 </html>

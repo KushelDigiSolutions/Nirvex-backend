@@ -34,7 +34,8 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::resource('orders', OrderController::class);
         Route::resource('pricings', PriceController::class);
         Route::resource('settings', SettingController::class);
-        Route::resource('profile', ProfileController::class);
+        Route::resource('services', ServiceController::class);
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::get('sellers', [UserController::class, 'getSelller'])->name('sellers.index');
         Route::get('customers', [UserController::class, 'getCustomer'])->name('customers.index');
         Route::get('clients', [UserController::class, 'getClient'])->name('clients.index');

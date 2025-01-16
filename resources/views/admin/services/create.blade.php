@@ -28,8 +28,6 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col">
                             <label for="status" class="form-label">Status:</label>
                             <select class="form-select {{ $errors->has('status') ? 'is-invalid' : '' }}" name="status">
