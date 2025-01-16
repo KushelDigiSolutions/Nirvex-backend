@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\Subcategory;
+use App\Models\SubCategory;
 use App\Models\Product;
 use App\Models\Variant;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['category', 'subCategory'])->orderBy('id','desc')->get();
+        $products = Product::with(['category', 'SubCategory'])->orderBy('id','desc')->get();
         return view('admin.products.index', compact('products'));
     }
 
@@ -112,7 +112,7 @@ class ProductController extends Controller
     {
          $categories = Category::all();
          $subCategories = SubCategory::all();
-         $products = Product::with(['category', 'subCategory', 'variants'])->find(decrypt($id));
+         $products = Product::with(['category', 'SubCategory', 'variants'])->find(decrypt($id));
         //  dd($products);
             if ($products && $products->image) {
                 $products->image = explode(',', $products->image);

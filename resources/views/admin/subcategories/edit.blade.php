@@ -20,21 +20,21 @@
                         {{ session('success') }}
                     </div>
                     @endif
-                    <form action="{{ route('subcategories.update', $subcategory->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('subcategories.update', $SubCategory->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="row">
                             <div class="col">
                             <label for="category" class="form-label">Category:</label>
                                 <input type="text" class="form-control" id="name" placeholder="Enter category" name="name"
-                                value="{{ old('name', $subcategory->name) }}">
+                                value="{{ old('name', $SubCategory->name) }}">
                             </div>
                             <div class="col">
                             <label for="status" class="form-label">Status:</label>
                             <select class="form-select" name="status">
-                                <option value="" {{ $subcategory->status === null ? 'selected' : '' }}>Select status</option>
-                                <option value="1" {{ $subcategory->status == 1 ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ $subcategory->status == 0 ? 'selected' : '' }}>Inactive</option>
+                                <option value="" {{ $SubCategory->status === null ? 'selected' : '' }}>Select status</option>
+                                <option value="1" {{ $SubCategory->status == 1 ? 'selected' : '' }}>Active</option>
+                                <option value="0" {{ $SubCategory->status == 0 ? 'selected' : '' }}>Inactive</option>
                             </select>
                             </div>
                         </div>
@@ -51,9 +51,9 @@
                         <div class="row">
                         <div class="col">
                             <label for="image" class="form-label">Sub Category Images:</label>
-                            @if (!empty($subcategory->image)) 
+                            @if (!empty($SubCategory->image)) 
                             <div class="mb-3">
-                                <img src="{{ url('/').'/'.$subcategory->image }}" alt="Current Category Image" style="max-height: 150px;">
+                                <img src="{{ url('/').'/'.$SubCategory->image }}" alt="Current Category Image" style="max-height: 150px;">
                             </div>
                             @else
                                 <p>No image available</p>

@@ -45,7 +45,7 @@
                                         <img src="{{ url('/').'/'.$firstImage }}" class="avatar avatar-sm me-3">
                                     </td>
                                     <td>{{ $rs->name }}</td>
-                                    <td>{{ $rs->category->name ?? 'N/A' }} / {{ $rs->subCategory->name ?? 'N/A' }}</td>
+                                    <td>{{ $rs->category->name ?? 'N/A' }} / {{ $rs->SubCategory->name ?? 'N/A' }}</td>
                                     <td>{{ $rs->mrp }}</td>
                                    
                                     @if($rs->status === 1)

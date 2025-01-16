@@ -5,7 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\Subcategory;
+use App\Models\SubCategory;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +16,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['category', 'subCategory'])->get();
+        $products = Product::with(['category', 'SubCategory'])->get();
         
         if ($products->isEmpty()) {
             return response()->json(['message' => 'No Sub Category found.'], 404);
@@ -32,7 +32,7 @@ class ProductController extends Controller
     {
         $categories = Category::all();
         $subCategories = SubCategory::all();
-        $products = Product::with(['category', 'subCategory'])->find($id);
+        $products = Product::with(['category', 'SubCategory'])->find($id);
         if ($products && $products->image) {
             $products->image = explode(',', $products->image);
         }

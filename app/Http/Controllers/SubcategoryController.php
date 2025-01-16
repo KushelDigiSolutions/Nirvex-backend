@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\Subcategory;
+use App\Models\SubCategory;
 use Illuminate\Support\Facades\DB;
 
 class SubcategoryController extends Controller
 {
     public function index()
     {
-        $subcategories = Subcategory::with('category')->orderby('id','desc')->get();
+        $subcategories = SubCategory::with('category')->orderby('id','desc')->get();
         
         return view('admin.subcategories.index', compact('subcategories'));
     }
@@ -34,38 +34,38 @@ class SubcategoryController extends Controller
         $imageName = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads/subcategories'), $imageName);
 
-        // Subcategory::create($request->all());
-        $blog = Subcategory::create([
+        // SubCategory::create($request->all());
+        $blog = SubCategory::create([
             'cat_id' => $request->cat_id,
             'name' => $request->name,
             'status' => $request->status,
             'image' => 'uploads/subcategories/' . $imageName ?? null
         ]);
-        return redirect()->route('subcategories.index')->with('success', 'Subcategory created successfully.');
+        return redirect()->route('subcategories.index')->with('success', 'SubCategory created successfully.');
     }
 
     public function edit($id)
     {
         $subcategoryId = decrypt($id); 
-        $subcategory = Subcategory::findOrFail($subcategoryId); 
+        $SubCategory = SubCategory::findOrFail($subcategoryId); 
 
         // $categories = Category::all(); 
-        $categories = Subcategory::with('category')->get();
-    return view('admin.subcategories.edit', compact('subcategory', 'categories'));
+        $categories = SubCategory::with('category')->get();
+    return view('admin.subcategories.edit', compact('SubCategory', 'categories'));
     }
 
 
-    // public function edit(Subcategory $subcategory)
+    // public function edit(SubCategory $SubCategory)
     // {
-    //     dd($subcategory);
+    //     dd($SubCategory);
     //     // $categories = Category::all();
     //     $catid = decrypt($id);
     //     echo $catid; die;
     //     $category = Category::where('id', $catid)->firstOrFail();
-    //     return view('subcategories.edit', compact('subcategory', 'categories'));
+    //     return view('subcategories.edit', compact('SubCategory', 'categories'));
     // }
 
-    // public function update(Request $request, Subcategory $subcategory, $id)
+    // public function update(Request $request, SubCategory $SubCategory, $id)
     public function update(Request $request, string $id)
     {
         
@@ -94,7 +94,7 @@ class SubcategoryController extends Controller
             'status' => $request->status,
             'image' => isset($imageName) ? 'uploads/subcategories/' . $imageName : null,
         ]);
-        return redirect()->route('subcategories.index')->with('success', 'Subcategory updated successfully.');
+        return redirect()->route('subcategories.index')->with('success', 'SubCategory updated successfully.');
     }
 
     public function destroy(string $id)
@@ -103,9 +103,9 @@ class SubcategoryController extends Controller
         return redirect()->back()->with('success','Email deleted successfully.');
     }
 
-    public function destroy0312024(Subcategory $subcategory)
+    public function destroy0312024(SubCategory $SubCategory)
     {
-        $subcategory->delete();
-        return redirect()->route('subcategories.index')->with('success', 'Subcategory deleted successfully.');
+        $SubCategory->delete();
+        return redirect()->route('subcategories.index')->with('success', 'SubCategory deleted successfully.');
     }
 }

@@ -65,9 +65,9 @@
                     <label for="sub_cat_id" class="form-label">Sub Category:</label>
                     <select class="form-select @error('sub_cat_id') is-invalid @enderror" name="sub_cat_id" id="sub_cat_id">
                         <option value="">Select Sub Category</option>
-                        @foreach($subCategories as $subCategory)
-                            <option value="{{ $subCategory->id }}" {{ $products->subCategory && $products->subCategory->id == $subCategory->id ? 'selected' : '' }}>
-                                {{ $subCategory->name }}
+                        @foreach($subCategories as $SubCategory)
+                            <option value="{{ $SubCategory->id }}" {{ $products->SubCategory && $products->SubCategory->id == $SubCategory->id ? 'selected' : '' }}>
+                                {{ $SubCategory->name }}
                             </option>
                         @endforeach
                     </select>
