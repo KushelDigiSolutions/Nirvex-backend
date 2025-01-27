@@ -14,11 +14,88 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class LoginController extends Controller
 {
-    
+
     public function login(Request $request)
+{
+    try {
+        $request->validate([
+            'phone' => 'required|digits:10', 
+            'password' => 'required|min:6', 
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Validation errors occurred',
+                'details' => $e->errors(),
+            ],
+            'data' => [],
+        ], 422);
+    }
+
+     $user = User::where('phone', $request->phone)->first();
+    // $usersWithRoles = User::role(['customer', 'seller'])->get();
+
+    // $user = User::where('phone', $request->phone)
+    //         ->whereHas('roles', function ($query) {
+    //             $query->whereIn('name', ['customer', 'seller']);
+    //         })
+    //         ->first();
+
+    // echo '<pre>';  print_r($usersWithRoles); die;
+
+    if (!$user) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'User not found or does not have the required role.',
+            ],
+            'data' => [],
+        ], 404); 
+    }
+    
+    $user->makeHidden(['created_at', 'updated_at']);
+
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Invalid mobile number or password.',
+            ],
+            'data' => [],
+        ], 401);
+    }
+
+    $otp = rand(100000, 999999);
+
+    Otp::create([
+        'user_id' => $user->id,
+        'otp' => '999999', 
+        'status' => 'pending',
+        'expiry' => Carbon::now()->addMinutes(10),
+        'complete' => false,
+    ]);
+
+    Log::info("OTP for user {$user->phone}: {$otp}");
+
+    return response()->json([
+        'isSuccess' => true,
+        'errors' => [
+            'message' => 'Login successful. OTP has been sent to your registered mobile number.',
+        ],
+        'data' => [
+            // 'message' => 'Login successful. OTP has been sent to your registered mobile number.',
+            'data' => $user
+        ],
+    ]);
+}
+
+    
+    public function login27012025(Request $request)
     {
         try {
             $request->validate([
@@ -69,11 +146,6 @@ public function validateOtp(Request $request)
         'otp' => 'required|string|size:6',
     ]);
 
-    // $otpRecord = Otp::where('user_id', $request['user_id'])
-    //     ->where('otp', $request['otp'])
-    //     ->orderBy('id', 'desc')
-    //     ->first();
-
     $otpRecord = Otp::where('user_id', $request['user_id'])
     ->where('otp', $request['otp'])
     ->where('status', '!=', 'used') 
@@ -87,15 +159,23 @@ public function validateOtp(Request $request)
 
 
     if (!$otpRecord) {
-        return response()->json(['message' => 'Invalid OTP.'], 400);
+        return response()->json(['isSuccess' => false,
+                            'error' => ['message' => 'Invalid OTP.'],
+                            'data' => [], ], 401);
     }
 
     if ($otpRecord->expiry && Carbon::now()->greaterThan($otpRecord->expiry)) {
-        return response()->json(['message' => 'OTP has expired.'], 400);
+        return response()->json(['isSuccess' =>false, 
+                            'error' => ['message' => 'OTP has expired.'], 
+                            'data' => [],
+                        ], 401);
     }
 
     if ($otpRecord->status === 'used') {
-        return response()->json(['message' => 'OTP has already been used.'], 400);
+        return response()->json(['isSuccess' =>false,
+                            'error' => ['message' => 'OTP has already been used.'],
+                            'data' => [], 
+                        ], 401);
     }
 
     $otpRecord->update([
@@ -104,9 +184,11 @@ public function validateOtp(Request $request)
     ]);
 
     $user = User::findOrFail($request['user_id']);
+    $user->makeHidden(['created_at', 'updated_at']);
     $token = auth('api')->login($user);
 
-    return response()->json(['token' => $token]);
+    return response()->json(['isSuccess' => true, 'error' => ['message' => 'Login Successfully'],
+    'data' =>$user, 'token' => $token],200);
 
     // return $this->createToken($token);
 }
@@ -125,9 +207,11 @@ public function validateOtp(Request $request)
             ->first();
             // dd($otpRecord); 
         if (($otpRecord && Carbon::now()->diffInMinutes($otpRecord->updated_at)) < $otpTime) {
-            return response()->json([
-                'message' => "Please wait before requesting a new OTP. Try again in " . ($otpTime - Carbon::now()->diffInMinutes($otpRecord->updated_at)) . " minute(s).",
-            ], 429); 
+            return response()->json(['isSuccess' =>false, 
+               'error' => ['message' => "Please wait before requesting a new OTP. Try again in "
+                . ($otpTime - Carbon::now()->diffInMinutes($otpRecord->updated_at)) . " minute(s)."],
+                'data' =>[],
+            ], 401); 
         }
         $newOtp = mt_rand(100000, 999999);
 
@@ -152,8 +236,9 @@ public function validateOtp(Request $request)
     
         $this->sendOtpToUser($validated['user_id'], $newOtp);
     
-        return response()->json([
-            'message' => 'A new OTP has been sent successfully.',
+        return response()->json(['isSuccess' =>true,
+            'error'=> ['message' => 'A new OTP has been sent successfully.'],
+            'data' =>$otpRecord, 
         ], 200);
     }
     
@@ -174,10 +259,10 @@ public function validateOtp(Request $request)
     
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Validation errors occurred',
-                'errors' => $validator->errors(),
-            ], 400);
+                'isSuccess' => false,
+               'error' => ['message' => $validator->errors()],
+               'data' => [],
+            ], 401);
         }
         $validated = $validator->validated();
     
@@ -186,8 +271,8 @@ public function validateOtp(Request $request)
         $user->save();
     
         return response()->json([
-            'success' => true,
-            'message' => 'Pincode updated successfully',
+            'isSuccess' => true,
+            'error' => ['message' => 'Pincode updated successfully'],
             'data' => $user,
         ]);
     }

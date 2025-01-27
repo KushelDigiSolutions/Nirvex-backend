@@ -33,10 +33,10 @@ class RegisterController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Validation errors occurred',
-                'errors' => $validator->errors()
-            ], 400);
+                'isSuccess' => false,
+                'error' => ['message' =>$validator->errors()],
+                'data' => [],
+            ], 401);
         }
 
         $user = User::create(array_merge(
@@ -47,8 +47,8 @@ class RegisterController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'message' => 'Registration created successfully',
+        return response()->json(['isSuccess'=>true,
+           'error' => ['message' => 'Registration created successfully'],
             'user' => $user,
             'token' => $token,
              200]);
