@@ -16,6 +16,8 @@ class Category extends Model
 
     protected $fillable = ['id','name', 'image', 'status'];
 
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+
 
     public function subcategories()
     {

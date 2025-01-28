@@ -19,7 +19,10 @@ class ProductController extends Controller
         $products = Product::with(['category', 'SubCategory'])->get();
         
         if ($products->isEmpty()) {
-            return response()->json(['message' => 'No Sub Category found.'], 404);
+            return response()->json(['isSuccess'=>false,
+                'error' => ['message' => 'No Sub Category found.'],
+                'data' =>[],
+            ], 401);
         }
 
         return response()->json([
@@ -33,14 +36,18 @@ class ProductController extends Controller
         $categories = Category::all();
         $subCategories = SubCategory::all();
         $products = Product::with(['category', 'SubCategory'])->find($id);
+        if(!$products){
+            return response()->json(['isSuccess' =>false,
+            'error' => ['message' =>  'Product not found'],
+              'data' => [],
+                ], 401);
+        }
         if ($products && $products->image) {
             $products->image = explode(',', $products->image);
         }
-        return response()->json([
-            'message' =>  'Product retrieved successfully',
-            'products' => $products,
-            'categories' => $categories,
-            'subCategories' => $subCategories,
+        return response()->json(['isSuccess' =>true,
+          'error' => ['message' =>  'Product retrieved successfully'],
+            'data' => $products,
             ], 200);
     }
 }

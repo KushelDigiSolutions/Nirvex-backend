@@ -17,13 +17,23 @@ class CategoryController extends Controller
     public function index()
 {
     $categories = DB::table('categories')->get();
-    if ($categories->isEmpty()) {
-        return response()->json(['message' => 'No categories found.'], 404);
+    if (!$categories) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'No categories found.',
+            ],
+            'data' =>[],
+        ], 401); 
+
     }
 
     return response()->json([
-        'message' => 'Categories retrieved successfully.',
-        'data' => $categories,
+        'isSuccess' => true,
+        'errors' => [
+            'message' => 'Categories retrieved successfully.',
+        ],
+        'data' =>$categories,
     ], 200);
 }
 
@@ -31,15 +41,27 @@ class CategoryController extends Controller
     {
     // $category = Category::find($id);
 
-    $category = DB::table('categories')->where('id',$id)->first();
+    $category = DB::table('categories')->find($id);
 
     if (!$category) {
-        return response()->json(['message' => 'Category not found.'], 404);
+        
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Category not found.',
+            ],
+            'data' =>[],
+        ], 401);
+    
     }
 
-    return response()->json($category, 200);
-}
-
-
-
+    return response()->json([
+        'isSuccess' => true,
+        'errors' => [
+            'message' => 'Categories retrieved successfully.',
+        ],
+        'data' =>$category,
+    ], 200);
+    // return response()->json($category, 200);
+    }
 }

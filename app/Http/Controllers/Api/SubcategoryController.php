@@ -13,31 +13,49 @@ class SubcategoryController extends Controller
     public function index()
     {
         $subcategories = SubCategory::with('category')->orderby('id','desc')->get();
+      
         if ($subcategories->isEmpty()) {
-            return response()->json(['message' => 'No Sub Category found.'], 404);
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'No Sub Category found.',
+                ],
+                'data' =>[],
+            ], 401);
         }
+    
         return response()->json([
-                            'message' =>  'Sub Category retrieved successfully',
-                            'data' => $subcategories,
+            'isSuccess' => true,
+            'errors' => [
+                'message' => 'Sub Categories retrieved successfully.',
+            ],
+            'data' =>$subcategories,
         ], 200);
     }
 
     
     public function show($id)
-    {
-        // $subcategoryId = decrypt($id); 
-        $SubCategory = SubCategory::findOrFail($id);  
-        $categories = SubCategory::with('category')->get();
+    { 
+        // $SubCategory = SubCategory::findOrFail($id);  
+        $subcategories = SubCategory::with('category')->find($id);
     
-        // if ($SubCategory->isEmpty()) {
-        //     return response()->json(['message' => 'No Sub Category found.'], 404);
-        // }
-        return response()->json([
-                            'message' =>  'Sub Category retrieved successfully',
-                            'data' => $categories,
+         if (!$subcategories) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => ' Sub Categories not found.',
+                ],
+                'data' =>[],
+            ], 401);
+         }
+         
+         return response()->json([
+            'isSuccess' => true,
+            'errors' => [
+                'message' => 'Sub Categories retrieved successfully.',
+            ],
+            'data' =>$subcategories,
         ], 200);
 
     }
-
-
 }

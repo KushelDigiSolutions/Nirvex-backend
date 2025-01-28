@@ -18,12 +18,14 @@ class ServiceController extends Controller
     public function index()
     {
         $services = Service::all();
-          if ($services->isEmpty()) {
-        return response()->json(['message' => 'No Service found.'], 404);
-    }
+          if (!$services) {
+            return response()->json(['isSuccess' =>false,
+            'error' => ['message' => 'Services not found.'],
+            'data' => [],], 401);
+        }
 
-    return response()->json([
-        'message' => 'Service retrieved successfully.',
+    return response()->json(['isSuccess' =>true,
+        'error' => ['message' => 'Services retreived successfully.'],
         'data' => $services,
     ], 200);
     }
@@ -32,13 +34,16 @@ class ServiceController extends Controller
     public function show(string $id)
     {
         // $serviceId = decrypt($id); 
-        $services = Service::findOrFail($id); 
-         if (!$services) {
-        return response()->json(['message' => 'Category not found.'], 404);
+        $services = Service::find($id); 
+        if(!$services) {
+        return response()->json(['isSuccess' =>false,
+                    'error' => ['message' => 'Services not found.'],
+                    'data' =>[],
+         ], 401);
     }
 
-     return response()->json([
-        'message' => 'Service retrieved successfully.',
+     return response()->json(['isSuccess' =>true,
+        'error' => ['message' => 'Services Retreived successfully.'],
         'data' => $services,
     ], 200);
    
