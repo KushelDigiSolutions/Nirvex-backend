@@ -8,6 +8,7 @@ use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\SubcategoryController;
 use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\api\ServiceController;
+use App\Http\Controllers\api\OrderApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -28,6 +29,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::apiResource('subcategories', SubcategoryController::class);
         Route::apiResource('products', ProductController::class);
         Route::apiResource('services', ServiceController::class);
+        Route::apiResource('orders', OrderApiController::class);
         
     });
 });
