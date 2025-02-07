@@ -12,11 +12,7 @@
                             <div class="pull-left">
                                 <h2>Customers</h2>
                             </div>
-                            <div class="pull-right">
-                                @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i>Customers</a>
-                                @endcan
-                            </div>
+                           
                         </div>
                     <div class="card mydatatable">
                         <div class="table-responsive">

@@ -15,11 +15,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Http;
 
 class LoginController extends Controller
 {
 
-    public function login(Request $request)
+public function login(Request $request)
 {
     try {
         $request->validate([
@@ -71,10 +72,10 @@ class LoginController extends Controller
     }
 
     $otp = rand(100000, 999999);
-
+    $this->sendSms($request->phone, $otp);
     Otp::create([
         'user_id' => $user->id,
-        'otp' => '999999', 
+        'otp' => $otp, 
         'status' => 'pending',
         'expiry' => Carbon::now()->addMinutes(10),
         'complete' => false,
@@ -94,6 +95,40 @@ class LoginController extends Controller
     ]);
 }
 
+
+public function sendSms($phone, $otp)
+{
+    $url = 'http://37.59.76.46/api/mt/SendSMS';
+
+    // Build the SMS message using the OTP
+    $message = "Dear Customer, your OTP to access your Nirviex Real Estate account is: {$otp} It will expire in 10 minutes. If you did not request this, please contact support at Info@nirviex.com";
+
+    // Define the query parameters. Consider moving sensitive values to your .env file.
+    $params = [
+        'user'           => 'Nirviex',
+        'password'       => 'q12345',
+        'senderid'       => 'NRVIEX', // Remove space if not intended
+        'channel'        => 'Trans',
+        'DCS'            => 0,
+        'flashsms'       => 0,
+        'number'         => $phone,
+        'text'           => $message,
+        'DLTTemplateId'  => '1707173564539573448',
+        'TelemarketerId' => '12071651285xxxxxxx',
+        'Peid'           => '1701173553742338688',
+        'route'          => '06'
+    ];
+
+    // Make the HTTP GET request
+    $response = Http::get($url, $params);
+
+    if ($response->successful()) {
+        return $response->body(); // Process response as needed
+    } else {
+        // Log or handle error appropriately
+        return response()->json(['error' => 'Failed to send SMS'], $response->status());
+    }
+}
     
     public function login27012025(Request $request)
     {
