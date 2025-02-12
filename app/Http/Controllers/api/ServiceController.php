@@ -49,4 +49,24 @@ class ServiceController extends Controller
    
     }
 
+        public function getServices(Request $request)
+    {
+    
+    $request->validate([
+        'type' => 'nullable|integer', 
+    ]);
+
+    $type = $request->query('type');
+    $query = Service::query();
+    if (!is_null($type)) {
+        $query->where('type', $type);
+    }
+
+    $services = $query->get();
+    return response()->json(['isSuccess' => true,
+        'error' => ['message' => 'Services Retreived successfully'],
+        'data' => $services
+    ], 200);
+}
+
 }

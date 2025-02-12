@@ -14,101 +14,58 @@ class ServiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+        public function index()
     {
         $services = Service::all();
-        return view('admin.services.index', compact('services'));
+          if (!$services) {
+            return response()->json(['isSuccess' =>false,
+            'error' => ['message' => 'Services not found.'],
+            'data' => [],], 401);
+        }
+
+    return response()->json(['isSuccess' =>true,
+        'error' => ['message' => 'Services retreived successfully.'],
+        'data' => $services,
+    ], 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('admin.services.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'status' => ['required'],
-            'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
-        ]);
-
-        $imageName = time() . '.' . $request->image->extension();
-        $request->image->move(public_path('uploads/services'), $imageName);
-
-        $service = Service::create([
-            'name' => $request->name,
-            'status' => $request->status,
-            'image' => 'uploads/services/' . $imageName ?? null
-        ]);
-
-        return redirect()->route('services.index')->with('success', 'Services created successfully.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
+   
     public function show(string $id)
     {
-        //
+        // $serviceId = decrypt($id); 
+        $services = Service::find($id); 
+        if(!$services) {
+        return response()->json(['isSuccess' =>false,
+                    'error' => ['message' => 'Services not found.'],
+                    'data' =>[],
+         ], 401);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+     return response()->json(['isSuccess' =>true,
+        'error' => ['message' => 'Services Retreived successfully.'],
+        'data' => $services,
+    ], 200);
+   
+    }
+
+    public function getServices(Request $request)
     {
-        $serviceId = decrypt($id); 
-        $services = Service::findOrFail($serviceId); 
     
-        return view('admin.services.edit', compact('services'));
+    $request->validate([
+        'type' => 'nullable|integer', 
+    ]);
+
+    $type = $request->query('type');
+    $query = Service::query();
+    if (!is_null($type)) {
+        $query->where('type', $type);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'status' => ['required'],
-            'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
-        ]);
+    $services = $query->get();
+    return response()->json(['isSuccess' => true,
+        'error' => ['message' => 'Services Retreived successfully'],
+        'data' => $services
+    ], 200);
+}
 
-        $services = DB::table('services')->where('id', $id)->first();
-
-        if ($request->hasFile('image')) {
-            if ($services->image && file_exists(public_path($services->image))) {
-                unlink(public_path($services->image));
-            }
-
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads/services'), $imageName);
-            $services->image = 'uploads/services/' . $imageName;
-        }
-        DB::table('services')
-        ->where('id', $id) 
-        ->update([
-            'name' => $request->name,
-            'status' => $request->status,
-            'image' => isset($imageName) ? 'uploads/services/' . $imageName : null,
-        ]);
-
-        return redirect()->route('services.index')->with('success', 'Service updated successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        Service::where('id',decrypt($id))->delete();
-        return redirect()->back()->with('success','Service deleted successfully.');
-    }
 }

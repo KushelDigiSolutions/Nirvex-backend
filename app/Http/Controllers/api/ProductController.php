@@ -20,7 +20,7 @@ class ProductController extends Controller
         
         if ($products->isEmpty()) {
             return response()->json(['isSuccess'=>false,
-                'error' => ['message' => 'No Sub Category found.'],
+                'error' => ['message' => 'No Product found.'],
                 'data' =>[],
             ], 401);
         }
