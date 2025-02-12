@@ -41,12 +41,26 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col">
+                                <label for="status" class="form-label">Descriptions:</label>
+                                 <textarea class="form-control" id="editor1" name="description" rows="10"></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
                         <div class="col">
                             <label for="image" class="form-label">Service Images:</label>
-                                <input type="file" class="form-control @error('image.*') is-invalid @enderror" name="image">
+                                <input type="file" class="form-control @error('image.*') is-invalid @enderror" name="image[]" multiple>
                                 @error('image')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+                        <div class="col">
+                            <label for="type" class="form-label">Type:</label>
+                            <select class="form-select {{ $errors->has('type') ? 'is-invalid' : '' }}" name="type">
+                                <option value="">Select Type</option>
+                                <option value="1">Services</option>
+                                <option value="2">Properties</option>
+                            </select>
                         </div>
                         </div>
                         <div class="col">

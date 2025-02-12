@@ -8,6 +8,7 @@ use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\SubcategoryController;
 use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\api\ServiceController;
+use App\Http\Controllers\api\EcommerceApiController;
 use App\Http\Controllers\api\OrderApiController;
 
 Route::get('/user', function (Request $request) {
@@ -30,7 +31,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::apiResource('products', ProductController::class);
         Route::apiResource('services', ServiceController::class);
         Route::apiResource('orders', OrderApiController::class);
-        
+        Route::post('addresses', [EcommerceApiController::class, 'createAddress']);
+        Route::get('get-addresses', [EcommerceApiController::class, 'getAddressesCustomer']);
+        Route::get('services', [ServiceController::class, 'getServices']);
+       
     });
 });
 
