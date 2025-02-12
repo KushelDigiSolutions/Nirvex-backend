@@ -35,6 +35,21 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('get-addresses', [EcommerceApiController::class, 'getAddressesCustomer']);
         Route::get('services', [ServiceController::class, 'getServices']);
        
+
+                
+        Route::post('/addresses', [EcommerceApiController::class, 'createAddress']);
+        Route::get('/addresses', [EcommerceApiController::class, 'getAddresses']);
+        Route::put('/address/{id}', [EcommerceApiController::class, 'updateAddress']);
+        Route::delete('/address/{id}', [EcommerceApiController::class, 'deleteAddress']);
+        Route::get('/setAddress/{id}', [EcommerceApiController::class, 'setAddress']);
+        Route::get('/products/search', [EcommerceApiController::class, 'search']);        
+        Route::post('/cart/add', [EcommerceApiController::class, 'addToCart']);
+        Route::post('/cart/remove', [EcommerceApiController::class, 'removeFromCart']);
+        Route::delete('/cart/delete-item', [EcommerceApiController::class, 'deleteCartItem']);
+        Route::delete('/cart/clear', [EcommerceApiController::class, 'clearCart']);
+        Route::get('/cart', [EcommerceApiController::class, 'getCartItems']);
+        Route::get('/checkout', [EcommerceApiController::class, 'checkout']);
+        Route::post('/orderCreate', [EcommerceApiController::class, 'orderCreate']);
     });
 });
 
