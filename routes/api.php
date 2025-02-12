@@ -31,8 +31,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::apiResource('products', ProductController::class);
         Route::apiResource('services', ServiceController::class);
         Route::apiResource('orders', OrderApiController::class);
-        Route::post('addresses', [EcommerceApiController::class, 'createAddress']);
-        Route::get('get-addresses', [EcommerceApiController::class, 'getAddressesCustomer']);
         Route::get('services', [ServiceController::class, 'getServices']);
        
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Models\User;
 use App\Models\Otp;
+use App\Models\Address;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -222,8 +223,23 @@ public function validateOtp(Request $request)
     $user->makeHidden(['created_at', 'updated_at']);
     $token = auth('api')->login($user);
 
-    return response()->json(['isSuccess' => true, 'error' => ['message' => 'Login Successfully'],
-    'data' =>$user, 'token' => $token],200);
+     $addresses = Address::where('user_id', $user->id)->get();
+
+    // Generate authentication token
+    // $token = auth('api')->login($user);
+
+    return response()->json([
+        'isSuccess' => true,
+        'error' => ['message' => 'Login Successfully'],
+        'data' => [
+            'user' => $user,
+            'addresses' => $addresses, // Include addresses in response
+        ],
+        'token' => $token,
+    ], 200);
+
+    // return response()->json(['isSuccess' => true, 'error' => ['message' => 'Login Successfully'],
+    // 'data' =>$user, 'token' => $token],200);
 
     // return $this->createToken($token);
 }
