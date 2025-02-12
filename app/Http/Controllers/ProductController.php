@@ -73,8 +73,8 @@ class ProductController extends Controller
              foreach ($request->options as $option) {
                  $variantData = [
                      'product_id' => $product->id,
-                     'type' => $option['type'],
-                     'name' => $option['name'],
+                     'size' => $option['type'],
+                     'variant_name' => $option['name'],
                      'short_description' => $option['short_description'] ?? null,
                      'sku' => 'nirvix' . '/' . '0' . $product->id,
                  ];
@@ -130,7 +130,7 @@ class ProductController extends Controller
         \Log::info('Update method triggered');
         \Log::info($request->all());
     
-        dd($request->all());
+        // dd($request->all());
         
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
