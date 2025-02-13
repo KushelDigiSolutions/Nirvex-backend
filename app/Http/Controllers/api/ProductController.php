@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Product;
+use App\Models\Variant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['category', 'SubCategory'])->get();
+        $products = Product::with(['category', 'SubCategory', 'variants'])->get();
         
         if ($products->isEmpty()) {
             return response()->json(['isSuccess'=>false,
@@ -35,7 +36,7 @@ class ProductController extends Controller
     {
         $categories = Category::all();
         $subCategories = SubCategory::all();
-        $products = Product::with(['category', 'SubCategory'])->find($id);
+        $products = Product::with(['category', 'SubCategory', 'variants'])->find($id);
         if(!$products){
             return response()->json(['isSuccess' =>false,
             'error' => ['message' =>  'Product not found'],

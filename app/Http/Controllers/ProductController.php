@@ -44,6 +44,7 @@ class ProductController extends Controller
              'cat_id' => 'required|integer',
              'sub_cat_id' => 'required|integer',
              'status' => 'required|boolean',
+             // 'sku' => 'required|boolean',
              'mrp' => 'required|numeric',
              'availability' => 'required|string',
              'specification' => 'required|string',
@@ -73,8 +74,8 @@ class ProductController extends Controller
              foreach ($request->options as $option) {
                  $variantData = [
                      'product_id' => $product->id,
-                     'size' => $option['type'],
-                     'variant_name' => $option['name'],
+                     'name' => $option['name'],
+                     'type' => $option['type'],
                      'short_description' => $option['short_description'] ?? null,
                      'sku' => 'nirvix' . '/' . '0' . $product->id,
                  ];

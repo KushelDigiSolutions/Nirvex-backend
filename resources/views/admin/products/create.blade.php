@@ -136,6 +136,12 @@
                                 <label for="image" class="form-label">Image:</label>
                                 <input type="file" class="form-control" name="options[0][image]">
                             </div>
+                            <!-- </div>
+                            <div class="row mb-3">
+                            <div class="col">
+                                <label for="description" class="form-label">Sku:</label>
+                                <input type="text" class="form-control" name="options[0][sku]" placeholder="Enter Sku">
+                            </div> -->
                             <div class="col">
                                 <label for="description" class="form-label">Short Description:</label>
                                 <input type="text" class="form-control" name="options[0][short_description]" placeholder="Short description">
@@ -187,6 +193,7 @@
                     <label for="image" class="form-label">Image:</label>
                     <input type="file" class="form-control" name="options[${fieldCount}][image]">
                 </div>
+               
                 <div class="col">
                     <label for="description" class="form-label">Short Description:</label>
                     <input type="text" class="form-control" name="options[${fieldCount}][short_description]" placeholder="Short description">
