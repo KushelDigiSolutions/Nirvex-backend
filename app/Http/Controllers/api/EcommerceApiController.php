@@ -108,33 +108,7 @@ class EcommerceApiController extends Controller
         ], 200);
     }
 
-    public function getAddresses(Request $request)
-    {
-        // Get authenticated user's ID from JWT token
-        $user = auth()->user();
     
-        // Fetch the default address ID from customer_details for the authenticated user
-        $defaultAddressId = \App\Models\CustomerDetail::where('user_id', $user->id)->value('address_id');
-    
-        // Fetch all addresses belonging to the user
-        $addresses = \App\Models\Address::where('user_id', $user->id)
-            ->where('status', 1)
-            ->get()
-            ->map(function ($address) use ($defaultAddressId) {
-                // Map address_type to human-readable format
-                $address->address_type_label = $address->address_type == 0 ? 'Home' : 'Office';
-                
-                // Add default_address flag
-                $address->default_address = ($address->id == $defaultAddressId);
-                
-                return $address;
-            });
-    
-        return response()->json([
-            'success' => true,
-            'data' => $addresses,
-        ], 200);
-    }
     
     
     

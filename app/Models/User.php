@@ -66,4 +66,24 @@ class User extends Authenticatable implements JWTSubject
 
         return $this->belongsToMany(\Spatie\Permission\Models\Role::class, 'model_has_roles', 'model_id', 'role_id');
     }
+    
+    public function customerDetails()
+    {
+        return $this->hasOne(CustomerDetail::class);
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }
