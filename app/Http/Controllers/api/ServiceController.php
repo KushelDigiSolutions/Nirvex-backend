@@ -49,24 +49,40 @@ class ServiceController extends Controller
    
     }
 
-        public function getServices(Request $request)
+    public function getServices(Request $request)
     {
-    
-    $request->validate([
-        'type' => 'nullable|integer', 
-    ]);
+        // Validate the request parameters
+        $request->validate([
+            'type' => 'nullable|integer', 
+            'limit' => 'nullable|integer|min:1', // Validate limit as an integer greater than 0
+            'sort' => 'nullable|string|in:asc,desc', // Validate sort direction
+        ]);
 
-    $type = $request->query('type');
-    $query = Service::query();
-    if (!is_null($type)) {
-        $query->where('type', $type);
+        // Retrieve query parameters
+        $type = $request->query('type');
+        $limit = $request->query('limit', 10); // Default limit is 10
+        $sort = $request->query('sort', 'asc'); // Default sorting is ascending
+
+        // Build the query
+        $query = Service::query();
+
+        // Filter by type if provided
+        if (!is_null($type)) {
+            $query->where('type', $type);
+        }
+
+        // Apply sorting and limit
+        $services = $query->orderBy('name', $sort) // Sort alphabetically by name
+                        ->limit($limit) // Limit the number of results
+                        ->get();
+
+        // Return the response
+        return response()->json([
+            'isSuccess' => true,
+            'error' => ['message' => 'Services retrieved successfully'],
+            'data' => $services,
+        ], 200);
     }
 
-    $services = $query->get();
-    return response()->json(['isSuccess' => true,
-        'error' => ['message' => 'Services Retreived successfully'],
-        'data' => $services
-    ], 200);
-}
 
 }

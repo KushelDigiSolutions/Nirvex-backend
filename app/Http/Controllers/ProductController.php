@@ -36,66 +36,68 @@ class ProductController extends Controller
      */
 
      public function store(Request $request)
-     {
-         // Validate the request data
-         $validatedData = $request->validate([
-             'name' => 'required|string|max:255',
-             'description' => 'required|string',
-             'cat_id' => 'required|integer',
-             'sub_cat_id' => 'required|integer',
-             'status' => 'required|boolean',
-             // 'sku' => 'required|boolean',
-             'mrp' => 'required|numeric',
-             'availability' => 'required|string',
-             'specification' => 'required|string',
-             'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
-             'options.*.type' => 'required|string',
-             'options.*.name' => 'required|string|max:255',
-             'options.*.description' => 'nullable|string|max:255',
-             'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
-         ]);
-     
-         // Process product images
-         $imagePaths = [];
-         if ($request->hasFile('image')) {
-             foreach ($request->file('image') as $image) {
-                 $fileName = time() . '_' . $image->getClientOriginalName(); 
-                 $path = $image->move(public_path('uploads/products'), $fileName); 
-                 $imagePaths[] = 'uploads/products/' . $fileName; 
-             }
-         }
-         $validatedData['image'] = implode(',', $imagePaths);
-     
-         // Create the product
-         $product = Product::create($validatedData);
-     
-         // Process dynamic form values for variants
-         if ($request->has('options')) {
-             foreach ($request->options as $option) {
-                 $variantData = [
-                     'product_id' => $product->id,
-                     'name' => $option['name'],
-                     'type' => $option['type'],
-                     'short_description' => $option['short_description'] ?? null,
-                     'sku' => 'nirvix' . '/' . '0' . $product->id,
-                 ];
+    {
+        // Validate the request data
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'cat_id' => 'required|integer',
+            'sub_cat_id' => 'required|integer',
+            'status' => 'required|boolean',
+            'mrp' => 'required|numeric',
+            'availability' => 'required|string',
+            'specification' => 'required|string',
+            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'options.*.type' => 'required|string',
+            'options.*.name' => 'required|string|max:255',
+            'options.*.short_description' => 'nullable|string|max:255',
+            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+        ]);
 
-                //  dd($variantData);
-     
-                 // Process variant image
-                 if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
-                     $fileName = time() . '_' . $option['image']->getClientOriginalName();
-                     $path = $option['image']->move(public_path('uploads/variants'), $fileName);
-                     $variantData['images'] = 'uploads/variants/' . $fileName;
-                 }
-     
-                 // Store variant in the database
-                 Variant::create($variantData);
-             }
-         }
-     
-         return redirect()->route('products.create')->with('success', 'Product created successfully.');
-     }
+        // Process product images
+        $imagePaths = [];
+        if ($request->hasFile('image')) {
+            foreach ($request->file('image') as $image) {
+                $fileName = time() . '_' . $image->getClientOriginalName();
+                $path = $image->move(public_path('uploads/products'), $fileName);
+                $imagePaths[] = 'uploads/products/' . $fileName;
+            }
+        }
+        $validatedData['image'] = implode(',', $imagePaths);
+
+        // Create the product
+        $product = Product::create($validatedData);
+
+        // Process dynamic form values for variants
+        if ($request->has('options')) {
+            foreach ($request->options as $option) {
+                // Prepare variant data
+                $variantData = [
+                    'product_id' => $product->id,
+                    'name' => $option['name'],
+                    'type' => $option['type'],
+                    'short_description' => $option['short_description'] ?? null,
+                ];
+
+                // Process variant image
+                if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
+                    $fileName = time() . '_' . $option['image']->getClientOriginalName();
+                    $path = $option['image']->move(public_path('uploads/variants'), $fileName);
+                    $variantData['images'] = 'uploads/variants/' . $fileName;
+                }
+
+                // Create the variant in the database
+                $variant = Variant::create($variantData);
+
+                // Update the SKU with the correct format (NVX0.{product.id}.{variant.id})
+                $variant->sku = "NVX0.{$product->id}.{$variant->id}";
+                $variant->save();
+            }
+        }
+
+        return redirect()->route('products.create')->with('success', 'Product created successfully.');
+    }
+
      
     /**
      * Display the specified resource.

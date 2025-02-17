@@ -35,12 +35,19 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
        
 
                 
+        Route::get('/sliders', [EcommerceApiController::class, 'listSliders']);
+        Route::get('/listProductsBySubCategory', [EcommerceApiController::class, 'listProductsBySubCategory']);
+        Route::get('/product-detail/{productId}', [EcommerceApiController::class, 'getProductDetail']);
+        Route::post('/add-rating', [EcommerceApiController::class, 'addRating']);
+        Route::put('/update-rating/{ratingId}', [EcommerceApiController::class, 'updateRating']); // Update review/rating
+        Route::delete('/delete-rating/{ratingId}', [EcommerceApiController::class, 'deleteRating']); // Delete review/rating
+        Route::get('/variant-reviews/{variantId}', [EcommerceApiController::class, 'getVariantReviews']); 
         Route::post('/addresses', [EcommerceApiController::class, 'createAddress']);
         Route::get('/addresses', [EcommerceApiController::class, 'getAddresses']);
         Route::put('/address/{id}', [EcommerceApiController::class, 'updateAddress']);
         Route::delete('/address/{id}', [EcommerceApiController::class, 'deleteAddress']);
         Route::get('/setAddress/{id}', [EcommerceApiController::class, 'setAddress']);
-        Route::get('/products/search', [EcommerceApiController::class, 'search']);        
+        Route::get('/search', [EcommerceApiController::class, 'search']);        
         Route::post('/cart/add', [EcommerceApiController::class, 'addToCart']);
         Route::post('/cart/remove', [EcommerceApiController::class, 'removeFromCart']);
         Route::delete('/cart/delete-item', [EcommerceApiController::class, 'deleteCartItem']);
@@ -48,6 +55,13 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('/cart', [EcommerceApiController::class, 'getCartItems']);
         Route::get('/checkout', [EcommerceApiController::class, 'checkout']);
         Route::post('/orderCreate', [EcommerceApiController::class, 'orderCreate']);
+        Route::post('/cart/add-to-cart', [EcommerceApiController::class, 'addToCart']);
+        Route::delete('/cart/remove/{itemId}', [EcommerceApiController::class, 'deleteFromCart']);
+        Route::delete('/cart/clear', [EcommerceApiController::class, 'clearCart']);
+        Route::post('/cart/checkout', [EcommerceApiController::class, 'calculateCheckout']);
+        Route::get('/all-coupons', [EcommerceApiController::class, 'listAvailableCoupons']);
+        Route::post('/apply-new-coupon', [EcommerceApiController::class, 'applyCoupon']);
+        Route::post('/remove-coupon', [EcommerceApiController::class, 'removeCoupon']);
     });
 });
 
