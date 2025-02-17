@@ -1049,11 +1049,11 @@ class EcommerceApiController extends Controller
         }
     
         $address = Address::find($user->default_address);
-        if (!$address || !$address->pincode) {
+        if (!$address) {
             return response()->json([
                 'isSuccess' => false,
                 'errors' => [
-                    'message' => 'Address or pincode not found.',
+                    'message' => 'Address not found.',
                 ],
             ], 404);
         }
@@ -1126,14 +1126,54 @@ class EcommerceApiController extends Controller
             ];
         }
     
-        // Calculate grand total (without discount since no coupon applied yet)
-        $discount = 0; // No discount applied yet
+
+        
+        $discount = 0;
+        $appliedCouponObject = null;
+    
+        if ($cart->coupon_id) {
+            // Fetch coupon details
+            $coupon = Coupon::find($cart->coupon_id);
+    
+            if ($coupon && now()->lessThanOrEqualTo($coupon->expiry_date) && $coupon->status == 1) {
+                // Check if cart meets minimum value for coupon
+                if ($totalPrice >= $coupon->min_cart_value) {
+                    // Calculate discount based on coupon type
+                    if ($coupon->type == 'flat') {
+                        $discount = min($coupon->value, ($coupon->max_discount_value ?? PHP_INT_MAX));
+                    } elseif ($coupon->type == 'percentage') {
+                        $discount = min(($totalPrice * ($coupon->value / 100)), ($coupon->max_discount_value ?? PHP_INT_MAX));
+                    }
+    
+                    // Prepare applied coupon object for response
+                    $appliedCouponObject = [
+                        "id" => $coupon->id,
+                        "name" => $coupon->name,
+                        "type" => ucfirst($coupon->type),
+                        "value" => round($coupon->value, 2),
+                        "max_discount_value" => round($coupon->max_discount_value ?? 0, 2),
+                        "min_cart_value" => round($coupon->min_cart_value, 2),
+                        "expiry_date" => (string)$coupon->expiry_date,
+                    ];
+                } else {
+                    // Remove invalid coupon from cart
+                    $cart->coupon_id = null;
+                    $cart->save();
+                    return response()->json([
+                        "isSuccess" => false,
+                        "errors" => [
+                            "message" => "The applied coupon does not meet the minimum cart value requirements.",
+                        ],
+                    ], 400);
+                }
+            }
+        }
+
         $grandTotal = max(($totalPrice + $totalShipping - $discount), 0);
     
-        // Step 4: Update Cart Totals in Database
-        // Store all calculated values in the cart table
-        
+        // Step 4: Update Cart Totals in Database (manually save values)
         try {
+            // Manually assign values and save
             $cart->total_quantity = round($totalQuantity);
             $cart->total_mrp = round($totalMrp, 2);
             $cart->total_price = round($totalPrice, 2);
@@ -1142,16 +1182,17 @@ class EcommerceApiController extends Controller
             $cart->discount = round($discount, 2);
             $cart->grand_total = round($grandTotal, 2);
             
+            // Save cart updates
             $cart->save();
         } catch (\Exception $e) {
             return response()->json([
                 'isSuccess' => false,
                 'errors' => [
-                    'message' => $e->getMessage(),
+                    'message' => "Failed to update cart: {$e->getMessage()}",
                 ],
             ], 500);
         }
-        
+
     
         return response()->json([
             "isSuccess" => true,
@@ -1165,11 +1206,25 @@ class EcommerceApiController extends Controller
                     "total_taxes" => round($totalTaxes, 2),
                     "total_shipping_charges" => round($totalShipping, 2),
                     "discount" => round($discount, 2),
+                    "coupon" => (!empty($coupon))?$coupon:[],
                     "grand_total" => round($grandTotal, 2)
+                ],
+                "active_address" => [
+                    "id" => $address->id,
+                    "name" => $address->name,
+                    "phone" => $address->phone,
+                    "address_line_1" => $address->address1,
+                    "address_line_2" => isset($address->address2) ? trim($address->address2) : '',
+                    "landmark" => isset($address->landmark) ? trim($address->landmark) : '',
+                    "city" => trim($address->city),
+                    "state" => trim($address->state),
+                    "country" => isset($address->country) ? trim($address->country) : '',
+                    "zip_code" => trim($address->pincode),
                 ]
             ]
         ]);
     }
+    
     
     
 
