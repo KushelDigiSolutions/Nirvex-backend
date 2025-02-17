@@ -1411,41 +1411,26 @@ public function removeCoupon(Request $request)
 
 
 
-
 public function createOrder(Request $request)
 {
-    $user = $request->user(); // Get authenticated user
+    $user = $request->user();
 
-    // Fetch the user's cart
-    $cart = Cart::with('items.variant')->where('user_id', $user->id)->first();
+    // Fetch the user's cart with items and variants
+    $cart = Cart::with(['items.variant', 'coupon'])->where('user_id', $user->id)->first();
+
+    // Validation checks
     if (!$cart || !$cart->items->count()) {
-        return response()->json([
-            'isSuccess' => false,
-            'errors' => [
-                'message' => 'Your cart is empty.',
-            ],
-        ], 400);
+        return response()->json(['error' => 'Cart is empty'], 400);
     }
 
-    // Restrict user if no default address is set
+    // Address validation
     if (!$user->default_address) {
-        return response()->json([
-            'isSuccess' => false,
-            'errors' => [
-                'message' => 'No default address found. Please set a default address before proceeding.',
-            ],
-        ], 400);
+        return response()->json(['error' => 'Default address not set'], 400);
     }
-
-    // Fetch the user's default address
+    
     $address = Address::find($user->default_address);
     if (!$address) {
-        return response()->json([
-            'isSuccess' => false,
-            'errors' => [
-                'message' => 'Default address not found. Please set a valid address.',
-            ],
-        ], 404);
+        return response()->json(['error' => 'Address not found'], 404);
     }
 
     // Initialize Razorpay API
@@ -1477,75 +1462,91 @@ public function createOrder(Request $request)
         ], 500);
     }
 
-        DB::beginTransaction(); // Start transaction
 
-        // Step 1: Create Order in `orders` table
+    try {
+        DB::beginTransaction();
+
+        // Create the order with all required fields
         $order = Order::create([
             'user_id' => $user->id,
-            'total_amount' => round($cart->grand_total, 2),
-            'total_mrp' => round($cart->total_mrp, 2),
-            'total_tax' => round($cart->total_taxes, 2),
-            'total_price' => round($cart->total_price, 2),
-            'total_discount' => round($cart->discount, 2),
+            'total_mrp' => $cart->total_mrp,
+            'total_tax' => $cart->total_taxes,
+            'total_price' => $cart->total_price,
+            'total_discount' => $cart->discount,
             'coupon_id' => $cart->coupon_id,
-            'grand_total' => round($cart->grand_total, 2),
+            'grand_total' => $cart->grand_total,
             'status' => 'pending',
-            'order_status' => 0, // Created
-            'payment_id' => null,
-            'razor_order_id' => $razorpayOrderId,
+            'order_status' => 0,
             'address_id' => $address->id,
+            'razor_order_id' =>  $razorpayOrderId,
         ]);
 
-        // Step 2: Add Items to `order_items` table
+        // Create order items from cart items
         foreach ($cart->items as $item) {
-            // Fetch pricing for each variant based on SKU and pincode
-            $pricing = Pricing::where('pincode', $address->pincode)
-                ->where('product_sku_id', $item->variant->sku)
-                ->where('status', 1)
-                ->first();
-
-            if (!$pricing) {
-                throw new \Exception("Pricing not found for variant SKU {$item->variant->sku}.");
-            }
-
+            $pricing = $this->getVariantPricing($item->variant, $address->pincode);
+            
             OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $item->product_id,
                 'variant_id' => $item->variant_id,
                 'qty' => $item->quantity,
-                'tax' => ($pricing->tax_type == 0) ? ($pricing->price * ($pricing->tax_value / 100)) : $pricing->tax_value,
-                'sale_price' => round($pricing->price, 2),
-                'total_price' => round(($pricing->price * $item->quantity), 2),
-                'delivery_status' => 0, // Default to cancelled/delivered status depending on your logic
+                'tax' => $this->calculateTax($pricing),
+                'sale_price' => $pricing->price,
+                'total_price' => $pricing->price * $item->quantity,
+                'delivery_status' => 0
             ]);
         }
 
-        // Step 3: Delete Cart and Cart Items
-        CartItem::where('cart_id', $cart->id)->delete(); // Delete all cart items
-        $cart->delete(); // Delete the cart itself
+        // Soft delete cart and items
+        $cart->items()->delete();
+        $cart->delete();
 
-        DB::commit(); // Commit transaction
+        DB::commit();
 
         return response()->json([
-            "isSuccess" => true,
-            "errors" => null,
-            "data" => [
-                "message" => "Order created successfully.",
-                "order" => [
-                    "id" => $order->id,
-                    "razor_order_id" => $razorpayOrderId,
-                    "total_amount" => round($order->total_amount, 2),
-                    "grand_total" => round($order->grand_total, 2),
-                    "status" => "pending",
-                    "address" => [
-                        "id" => (int)$address['id'],
-                        "name" =>$address['name'],
-                        ]
-                 ]
-             ]
-         ]);
+            'order' => $order,
+            'razorpay_order_id' => $order->razor_order_id
+        ]);
 
-
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
 }
+
+// Helper function to create Razorpay order
+private function createRazorpayOrder($razorpay, $cart)
+{
+    return $razorpay->order->create([
+        'amount' => $cart->grand_total * 100,
+        'currency' => 'INR',
+        'receipt' => 'order_'.Str::random(10),
+    ])['id'];
+}
+
+// Helper function to get variant pricing
+private function getVariantPricing($variant, $pincode)
+{
+    $pricing = Pricing::where('product_sku_id', $variant->sku)
+        ->where('pincode', $pincode)
+        ->first();
+
+    if (!$pricing) {
+        throw new \Exception("Pricing not found for variant {$variant->sku}");
+    }
+
+    return $pricing;
+}
+
+// Helper function to calculate tax
+private function calculateTax($pricing)
+{
+    return $pricing->tax_type === 0 
+        ? ($pricing->price * $pricing->tax_value / 100)
+        : $pricing->tax_value;
+}
+
+
+
 
 }

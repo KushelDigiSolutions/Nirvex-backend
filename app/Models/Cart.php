@@ -15,4 +15,8 @@ class Cart extends Model
     {
         return $this->hasMany(CartItem::class);
     }
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class, 'coupon_id');
+    }
 }
