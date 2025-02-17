@@ -61,7 +61,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('/cart/checkout', [EcommerceApiController::class, 'calculateCheckout']);
         Route::get('/all-coupons', [EcommerceApiController::class, 'listAvailableCoupons']);
         Route::post('/apply-new-coupon', [EcommerceApiController::class, 'applyCoupon']);
-        Route::post('/remove-coupon', [EcommerceApiController::class, 'removeCoupon']);
+        Route::post('/remove-coupon', [EcommerceApiController ::class, 'removeCoupon']);
+        Route::get('/create-order', [EcommerceApiController ::class, 'createOrder']);
     });
 });
 

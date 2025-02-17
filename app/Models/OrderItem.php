@@ -7,7 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class OrderItem extends Model
 {
     protected $hidden = ['created_at', 'updated_at', 'deleted_at']; 
-
+    protected $fillable = [
+        'order_id',
+        'product_id',
+        'variant_id',
+        'qty',
+        'tax',
+        'total_price',
+        'sale_price',
+        'delivery_status',
+    ];
     public function orders(){
         return $this->belongsTo(Order::class, 'order_id');
     }

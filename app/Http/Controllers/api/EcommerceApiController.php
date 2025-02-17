@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Razorpay\Api\Api;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
@@ -1408,5 +1409,143 @@ public function removeCoupon(Request $request)
     ], 200);
 }
 
+
+
+
+public function createOrder(Request $request)
+{
+    $user = $request->user(); // Get authenticated user
+
+    // Fetch the user's cart
+    $cart = Cart::with('items.variant')->where('user_id', $user->id)->first();
+    if (!$cart || !$cart->items->count()) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Your cart is empty.',
+            ],
+        ], 400);
+    }
+
+    // Restrict user if no default address is set
+    if (!$user->default_address) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'No default address found. Please set a default address before proceeding.',
+            ],
+        ], 400);
+    }
+
+    // Fetch the user's default address
+    $address = Address::find($user->default_address);
+    if (!$address) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Default address not found. Please set a valid address.',
+            ],
+        ], 404);
+    }
+
+    // Initialize Razorpay API
+    $apiKey = env('RAZORPAY_KEY');
+    $apiSecret = env('RAZORPAY_SECRET');
+    $razorpay = new Api($apiKey, $apiSecret);
+
+    // Prepare Razorpay order payload
+    $razorpayOrderPayload = [
+        'amount' => round($cart->grand_total * 100), // Amount in paise
+        'currency' => 'INR',
+        'receipt' => 'order_' . uniqid(),
+        'notes' => [
+            'user_id' => $user->id,
+            'email' => $user->email,
+        ],
+    ];
+
+    try {
+        // Create Razorpay order
+        $razorpayOrder = $razorpay->order->create($razorpayOrderPayload);
+        $razorpayOrderId = $razorpayOrder['id'];
+    } catch (\Exception $e) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => "Failed to create Razorpay order: {$e->getMessage()}",
+            ],
+        ], 500);
+    }
+
+        DB::beginTransaction(); // Start transaction
+
+        // Step 1: Create Order in `orders` table
+        $order = Order::create([
+            'user_id' => $user->id,
+            'total_amount' => round($cart->grand_total, 2),
+            'total_mrp' => round($cart->total_mrp, 2),
+            'total_tax' => round($cart->total_taxes, 2),
+            'total_price' => round($cart->total_price, 2),
+            'total_discount' => round($cart->discount, 2),
+            'coupon_id' => $cart->coupon_id,
+            'grand_total' => round($cart->grand_total, 2),
+            'status' => 'pending',
+            'order_status' => 0, // Created
+            'payment_id' => null,
+            'razor_order_id' => $razorpayOrderId,
+            'address_id' => $address->id,
+        ]);
+
+        // Step 2: Add Items to `order_items` table
+        foreach ($cart->items as $item) {
+            // Fetch pricing for each variant based on SKU and pincode
+            $pricing = Pricing::where('pincode', $address->pincode)
+                ->where('product_sku_id', $item->variant->sku)
+                ->where('status', 1)
+                ->first();
+
+            if (!$pricing) {
+                throw new \Exception("Pricing not found for variant SKU {$item->variant->sku}.");
+            }
+
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product_id,
+                'variant_id' => $item->variant_id,
+                'qty' => $item->quantity,
+                'tax' => ($pricing->tax_type == 0) ? ($pricing->price * ($pricing->tax_value / 100)) : $pricing->tax_value,
+                'sale_price' => round($pricing->price, 2),
+                'total_price' => round(($pricing->price * $item->quantity), 2),
+                'delivery_status' => 0, // Default to cancelled/delivered status depending on your logic
+            ]);
+        }
+
+        // Step 3: Delete Cart and Cart Items
+        CartItem::where('cart_id', $cart->id)->delete(); // Delete all cart items
+        $cart->delete(); // Delete the cart itself
+
+        DB::commit(); // Commit transaction
+
+        return response()->json([
+            "isSuccess" => true,
+            "errors" => null,
+            "data" => [
+                "message" => "Order created successfully.",
+                "order" => [
+                    "id" => $order->id,
+                    "razor_order_id" => $razorpayOrderId,
+                    "total_amount" => round($order->total_amount, 2),
+                    "grand_total" => round($order->grand_total, 2),
+                    "status" => "pending",
+                    "address" => [
+                        "id" => (int)$address['id'],
+                        "name" =>$address['name'],
+                        ]
+                 ]
+             ]
+         ]);
+
+
+}
 
 }
