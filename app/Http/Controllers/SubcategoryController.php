@@ -99,7 +99,7 @@ class SubcategoryController extends Controller
 
     public function destroy(string $id)
     {
-        $categories = DB::table('categories')->where('id', decrypt($id))->delete();
+        $categories = DB::table('subcategories')->where('id', decrypt($id))->delete();
         return redirect()->back()->with('success','Email deleted successfully.');
     }
 
