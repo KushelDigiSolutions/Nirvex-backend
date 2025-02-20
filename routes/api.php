@@ -11,12 +11,12 @@ use App\Http\Controllers\api\ServiceController;
 use App\Http\Controllers\api\EcommerceApiController;
 use App\Http\Controllers\api\OrderApiController;
 
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
-
+Route::middleware(['check.token.expiration'])->group(function () {
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::get('/register/getuser', [RegisterController::class, 'getUser']);
     Route::post('/register', [RegisterController::class, 'register']);
@@ -26,15 +26,13 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('/update-pincode', [LoginController::class, 'updatePincode']);
 
     Route::middleware('auth:api')->group(function () {
-        Route::apiResource('categories', CategoryController::class);
+        Route::apiResource('/categories', CategoryController::class);
         Route::apiResource('subcategories', SubcategoryController::class);
         Route::apiResource('products', ProductController::class);
         Route::apiResource('services', ServiceController::class);
         Route::apiResource('orders', OrderApiController::class);
         Route::get('services', [ServiceController::class, 'getServices']);
-       
-
-                
+                    
         Route::get('/sliders', [EcommerceApiController::class, 'listSliders']);
         Route::get('/listProductsBySubCategory', [EcommerceApiController::class, 'listProductsBySubCategory']);
         Route::get('/product-detail/{productId}', [EcommerceApiController::class, 'getProductDetail']);
@@ -65,6 +63,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('/create-order', [EcommerceApiController ::class, 'createOrder']);
     });
 });
+}); 
 
 
 

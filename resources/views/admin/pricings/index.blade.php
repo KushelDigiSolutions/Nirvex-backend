@@ -14,7 +14,7 @@
                             </div>
                             <div class="pull-right">
                                 @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href="http://localhost/nirvex-backend/public/admin/pricings/create"><i class="fa fa-plus"></i> Create Price</a>
+                                <a class="btn btn-success btn-sm mb-2" href="{{ route('pricings.create') }}" class="btn btn-primary mb-3"><i class="fa fa-plus"></i> Create New Pricings</a>
                                     <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i> Upload Bulk Pricings</a>
                                 @endcan
                             </div>
@@ -23,40 +23,51 @@
                         <div class="table-responsive">
                             <table id="datatable-basic" class="display nowrap" style="width:100%">
                                 <thead>
-                                    <tr>
-                                        <th>So.No.</th>
-                                        <th>PinCodes</th>
-                                        <th>Product SKU</th>
-                                        <th>Price</th>
-                                        <th>Created at</th>
-                                        <th>Edit</th>
-                                        <th>Delete</th>
-                                    </tr>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Pincode</th>
+                                    <th>Product ID</th>
+                                    <th>SKU</th>
+                                    <th>MRP</th>
+                                    <th>Price</th>
+                                    <th>Tax Type</th>
+                                    <th>Tax Value</th>
+                                    <th>Shipping Charges</th>
+                                    <th>Valid Upto</th>
+                                    <th>Status</th>
+                                    <th>Cash</th>
+                                    <th>Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                
-                                    <tr>
-                                        <td>1.</td>
-                                        <td>110011</td>
-                                        <td>1</td>
-                                        <td>₹ 25</td>
-                                        <td>2025-01-04 07:17:05</td>
-                                        <td><a href="" class="btn btn-sm btn-secondary"><i class="far fa-edit"></i></a></td>
-                                        <td>
-                                            <form action=""method="POST" onclick="confirm('Are you sure')">
-                                            @method('DELETE')
+                                @foreach($pricings as $pricing)
+                                <tr>
+                                    <td>{{ $pricing->id }}</td>
+                                    <td>{{ $pricing->pincode }}</td>
+                                    <td>{{ $pricing->product_id }}</td>
+                                    <td>{{ $pricing->product_sku_id }}</td>
+                                    <td>{{ $pricing->mrp }}</td>
+                                    <td>{{ $pricing->price }}</td>
+                                    <td>{{ $pricing->tax_type == 0 ? 'Percentage' : 'Flat' }}</td>
+                                    <td>{{ $pricing->tax_value }}</td>
+                                    <td>{{ $pricing->ship_charges }}</td>
+                                    <td>{{ $pricing->valid_upto }}</td>
+                                    <td>{{ $pricing->status ? 'Active' : 'Inactive' }}</td>
+                                    <td>{{ $pricing->is_cash ? 'Yes' : 'No' }}</td>
+                                    <td>
+                                        <a href="{{ route('pricings.edit', encrypt($pricing->id)) }}" class="btn btn-warning btn-sm">Edit</a>
+                                        <form action="{{ route('pricings.destroy', encrypt($pricing->id)) }}" method="POST" style="display:inline;">
                                             @csrf
-                                                <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
-                                            </form>
-                                        </td>
-                                    </tr>
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
-
-
                     </div>
                 </div>
             </div>

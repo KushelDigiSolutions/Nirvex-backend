@@ -3,16 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use App\Models\Pricing;
 
 class PriceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return view('admin.pricings.index');
-    }
+        public function index()
+        {
+            $pricings = Pricing::all();
+            return view('admin.pricings.index', compact('pricings'));
+        }
+
+     
 
     /**
      * Show the form for creating a new resource.
@@ -27,42 +35,34 @@ class PriceController extends Controller
      */
     public function store(Request $request)
     {
-            $request->validate([
-                'search_product' => 'required|string|max:255',
-                'variant_name' => 'required|string',
-                'pin_code' => 'nullable|string|max:10',
-                'sku' => 'nullable|string|max:50',
-                'short_description' => 'nullable|string|max:500',
-                'mrp' => 'required|numeric',
-                'sale_price' => 'nullable|numeric',
-                'tax_type' => 'required|string',
-                'tax_value' => 'nullable|numeric',
-                'valid_upto' => 'nullable|date',
-            ]);
+        $request->validate([
+            'pincode' => 'required|string',
+            'product_id' => 'required|integer',
+            'product_sku_id' => 'required|string',
+            'mrp' => 'required|numeric',
+            'price' => 'required|numeric',
+            'tax_type' => 'required|in:0,1',
+            'tax_value' => 'required|numeric',
+            'ship_charges' => 'required|numeric',
+            'valid_upto' => 'required|date',
+            'status' => 'required|boolean',
+            'is_cash' => 'required|boolean',
+        ]);
     
-            $pricing = new Pricing();
-            $pricing->product_name = $request->input('search_product');
-            $pricing->variant_name = $request->input('variant_type');
-            $pricing->pin_code = $request->input('pin_code');
-            $pricing->sku = $request->input('sku');
-            $pricing->short_description = $request->input('short_description');
-            $pricing->mrp = $request->input('mrp');
-            $pricing->sale_price = $request->input('sale_price');
-            $pricing->tax_type = $request->input('tax_type');
-            $pricing->tax_value = $request->input('tax_value');
-            $pricing->valid_upto = $request->input('valid_upto');
-            
-            $pricing->save(); 
-    
-            return redirect()->route('pricings.index')->with('success', 'Pricing saved successfully.');
+        Pricing::create($request->all());
+        return redirect()->route('pricings.index')->with('success', 'Pricing created successfully.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    // public function show(string $id)
+    // {
+    // }
+
+    public function show(Pricing $pricing)
     {
-        //
+        return view('pricings.show', compact('pricing'));
     }
 
     /**
@@ -70,22 +70,72 @@ class PriceController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $pricing = DB::table('pricings')->where('id', decrypt($id))->first();
+        return view('admin.pricings.edit', compact('pricing'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
 
+
+public function update(Request $request, string $id)
+{
+    // dd($id);
+    $request->validate([
+        'pincode' => 'required|string',
+        'product_id' => 'required|integer',
+        'product_sku_id' => 'required|string',
+        'mrp' => 'required|numeric',
+        'price' => 'required|numeric',
+        'tax_type' => 'required|in:0,1',
+        'tax_value' => 'required|numeric',
+        'ship_charges' => 'required|numeric',
+        'valid_upto' => 'required|date',
+        'status' => 'required|boolean',
+    ]);
+
+    
+    $pricing = Pricing::find($id);
+
+    if (!$pricing) {
+        return redirect()->back()->with('error', 'Pricing not found.');
+    }
+    // dd($pricing);
+    // Update fields
+    DB::table('pricings')->where('id', $id)->update([
+        'pincode' => $request->pincode,
+        'product_id' => $request->product_id,
+        'product_sku_id' => $request->product_sku_id,
+        'mrp' => $request->mrp,
+        'price' => $request->price,
+        'tax_type' => $request->tax_type,
+        'tax_value' => $request->tax_value,
+        'ship_charges' => $request->ship_charges,
+        'valid_upto' => $request->valid_upto,
+        'status' => $request->status,
+        'is_cash' => $request->is_cash,
+        'updated_at' => now(), // Manually update timestamp
+    ]);
+    return redirect()->route('pricings.index')->with('success', 'Pricing updated successfully.');
+}
+
+
+public function destroy(string $id)
+{
+    $pricing = DB::table('pricings')->where('id', decrypt($id))->delete();
+    return redirect()->back()->with('success','Email deleted successfully.');
+}
+
+    // public function destroy(Price $pricing)
+    // {
+    //     $pricing->delete();
+    //     return redirect()->route('pricings.index')->with('success', 'Pricing deleted successfully.');
+    // }
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-    }
+    // public function destroy(string $id)
+    // {
+    // }
 }

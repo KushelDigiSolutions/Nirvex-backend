@@ -42,6 +42,7 @@ class Kernel extends HttpKernel
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\CheckTokenExpiration::class,
         ],
     ];
 
@@ -68,4 +69,12 @@ class Kernel extends HttpKernel
         'is_login' => \App\Http\Middleware\UserAuthentication::class,
         'admin' => \App\Http\Middleware\CheckAdmin::class,
     ];
+
+
+    protected $routeMiddleware = [
+        // Other route middleware...
+        'check.token.expiration' => \App\Http\Middleware\CheckTokenExpiration::class,
+    ];
+    
+
 }

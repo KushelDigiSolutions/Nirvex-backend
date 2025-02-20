@@ -125,7 +125,7 @@
                                     <form action="{{ route('product.image.delete') }}" method="POST" class="mt-2">
                                         @csrf
                                         @method('DELETE')
-                                        <input type="hidden" name="product_id" value="{{ $products->id }}">
+                                        <input type="hidden" name="product_id" value="{{ encrypt($products->id) }}">
                                         <input type="hidden" name="image_path" value="{{ $images }}">
                                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                     </form>
