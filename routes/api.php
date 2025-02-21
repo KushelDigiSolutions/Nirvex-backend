@@ -16,7 +16,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::middleware(['check.token.expiration'])->group(function () {
+// Route::middleware(['check.token.expiration'])->group(function () {
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::get('/register/getuser', [RegisterController::class, 'getUser']);
     Route::post('/register', [RegisterController::class, 'register']);
@@ -63,7 +63,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('/create-order', [EcommerceApiController ::class, 'createOrder']);
     });
 });
-}); 
+
+// }); // 
 
 
 
