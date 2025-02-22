@@ -229,7 +229,7 @@ class ProductController extends Controller
     }
 
     public function deleteImage(Request $request)
-    {
+{
     $imagePath = $request->input('image_path');
 
     if (file_exists(public_path($imagePath))) {

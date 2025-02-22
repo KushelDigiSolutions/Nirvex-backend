@@ -20,12 +20,13 @@
                             @endif
         <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
             @csrf
-           
-
             <div class="form-group">
             <label for="search-product">Search Product</label>
             <!-- <input type="text" id="search-product" name="search_product"> -->
-            <input type="text" id="search-product" name="search_product" onkeyup="searchProduct(this.value)">
+            <input type="text" id="search-product" name="search_product" onkeyup="searchProduct(this.value)" class="form-control @error('search-product') is-invalid @enderror">
+            @error('search-product')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
             <div id="search-results"></div>
         </div>
 

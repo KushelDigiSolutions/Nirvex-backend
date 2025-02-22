@@ -27,14 +27,14 @@
             <div class="row">
                 <div class="col">
                     <label for="name" class="form-label">Product Name:</label>
-                    <input type="text" class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}" id="name" placeholder="Enter Product" name="name">
+                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" placeholder="Enter Product" name="name">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="col">
                     <label for="mrp" class="form-label">MRP (RS.):</label>
-                    <input type="text" class="form-control {{ $errors->has('mrp') ? 'is-invalid' : '' }}" id="mrp" placeholder="Enter MRP" name="mrp">
+                    <input type="text" class="form-control @error('mrp') is-invalid @enderror" id="mrp" placeholder="Enter MRP" name="mrp">
                     @error('mrp')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -54,7 +54,7 @@
                             </div>
                             <div class="col">
                             <label for="sub_cat_id" class="form-label">Sub Category:</label>
-                            <select class="form-select {{ $errors->has('sub_cat_id') ? 'is-invalid' : '' }}" id="sub_cat_id" name="sub_cat_id">
+                            <select class="form-select @error('sub_cat_id') is-invalid @enderror" id="sub_cat_id" name="sub_cat_id">
                             <option value="">Select Sub Category</option>                      
                             </select>
                             @error('sub_cat_id')
@@ -66,7 +66,7 @@
                         <div class="row">
                         <div class="col">
                             <label for="description" class="form-label">Discription:</label>
-                            <textarea  id="editor" class="form-control {{ $errors->has('description') ? 'is-invalid' : '' }}" name="description" placeholder="discription">{{ old('description') }}</textarea>
+                            <textarea  id="editor" class="form-control @error('description') is-invalid @enderror" name="description" placeholder="discription">{{ old('description') }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -76,7 +76,7 @@
                         <div class="row">
                         <div class="col">
                             <label for="specification" class="form-label">Specifications:</label>
-                            <textarea class="form-control {{ $errors->has('specification') ? 'is-invalid' : '' }}" name="specification" placeholder="Specifications"></textarea>
+                            <textarea class="form-control @error('specification') is-invalid @enderror" name="specification" placeholder="Specifications"></textarea>
                             @error('specification')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -85,18 +85,18 @@
 
                         <div class="row">
                             <div class="col">
-                            <label for="delivery" class="form-label">Delivery Days:</label>
-                                <input type="text" class="form-control {{ $errors->has('delivery') ? 'is-invalid' : '' }}" id="delivery" placeholder="Enter Delivery Days" name="availability">
-                            @error('delivery')
+                            <label for="availability" class="form-label">Delivery Days:</label>
+                                <input type="text" class="form-control @error('availability') is-invalid @enderror" id="availability" placeholder="Enter Delivery Days" name="availability">
+                            @error('availability')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             </div>
                             <div class="col">
                             <label for="status" class="form-label">Status:</label>
-                            <select class="form-select {{ $errors->has('status') ? 'is-invalid' : '' }}" name="status">
-                                <option value="">Select status</option>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
+                            <select class="form-select @error('status') is-invalid @enderror" name="status">
+                                <option value="">Select Status</option>
+                                <option value="1" {{ old('status') == "1" ? 'selected' : '' }}>Active</option>
+                                <option value="0" {{ old('status') == "0" ? 'selected' : '' }}>Inactive</option>
                             </select>
                             @error('status')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -123,7 +123,7 @@
                             <div class="col">
                                 <label for="type" class="form-label">Type:</label>
                                 <select class="form-select" name="options[0][type]">
-                                <option value="1">Quality</option>
+                                    <option value="1">Quality</option>
                                     <option value="2">Color</option>
                                     <option value="3">Size</option>
                                 </select>
