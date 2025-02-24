@@ -28,6 +28,7 @@ class EcommerceApiController extends Controller
 {
     public function createAddress(Request $request)
     {
+        // Validate the incoming request data;
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'address1' => 'required|string|max:255',
@@ -39,9 +40,10 @@ class EcommerceApiController extends Controller
             'address_type' => 'required|integer|in:0,1', // 0: Home, 1: Office
             'pincode' => 'required|string|max:10',
         ]);
-
-        $user = auth()->user();
-
+       
+        $user = auth()->user(); // Get the authenticated user
+    
+        // Create a new address entry
         $address = Address::create([
             'user_id' => $user->id,
             'name' => $validatedData['name'],
@@ -51,42 +53,32 @@ class EcommerceApiController extends Controller
             'phone' => $validatedData['phone'],
             'city' => $validatedData['city'],
             'state' => $validatedData['state'],
-            'address_type' => $validatedData['address_type'],
+            'address_type' => $validatedData['address_type'], // 0 for Home, 1 for Office
             'pincode' => $validatedData['pincode'],
-            'status' => 1, 
+            'status' => 1, // Active status by default
         ]);
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Address created successfully.',
-            'data' => $address,
+            'data' => [
+                "id" => $address->id,
+                "user_id" => $address->user_id,
+                "name" => $address->name,
+                "address1" => $address->address1,
+                "address2" => $address->address2,
+                "landmark" => $address->landmark,
+                "phone" => $address->phone,
+                "city" => $address->city,
+                "state" => $address->state,
+                "pincode" => $address->pincode,
+                "status" => (bool)$address->status, // Convert status to boolean
+                "address_type_label" =>
+                    ($address->address_type == 0) ? "Home" : "Office", // Add label for address type
+            ],
         ], 201);
     }
-
-    public function getAddressesCustomer(Request $request)
-    {
-        $user = auth()->user();
     
-        // Commented out, so we define a default value to prevent errors
-        $defaultAddressId = null;
-    
-        $addresses = \App\Models\Address::where('user_id', $user->id)
-            ->where('status', 1)
-            ->get()
-            ->map(function ($address) use ($defaultAddressId) {
-                $address->address_type_label = $address->address_type == 0 ? 'Home' : 'Office';
-                
-                // Only check default address if $defaultAddressId is not null
-                $address->default_address = ($defaultAddressId !== null && $address->id == $defaultAddressId);
-    
-                return $address;
-            });
-    
-        return response()->json([
-            'success' => true,
-            'data' => $addresses,
-        ], 200);
-    }
     
 
     
@@ -96,7 +88,7 @@ class EcommerceApiController extends Controller
         $user = auth()->user();
 
         // Fetch the default address ID from customer_details for the authenticated user
-        $defaultAddressId = \App\Models\CustomerDetail::where('user_id', $user->id)->value('address_id');
+        $defaultAddressId = $user->default_address;
 
         // Fetch all addresses belonging to the user
         $addresses = \App\Models\Address::where('user_id', $user->id)
@@ -122,43 +114,75 @@ class EcommerceApiController extends Controller
     
     
     
-        public function updateAddress(Request $request, $id)
-        {
-            // Get authenticated user's ID from JWT token
-            $user = auth()->user();
+    public function updateAddress(Request $request, $id)
+    {
+        // Get authenticated user
+        $user = auth()->user();
     
-            // Validate input data
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'address1' => 'required|string|max:255',
-                'address2' => 'nullable|string|max:255',
-                'landmark' => 'nullable|string|max:255',
-                'phone' => 'required|string|max:12',
-                'city' => 'required|string|max:255',
-                'state' => 'required|string|max:255',
-                'address_type' => 'required|integer|in:0,1', // 0: Home, 1: Office
-                'pincode' => 'required|string|max:10',
-            ]);
+        // Validate input data
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'address1' => 'required|string|max:255',
+            'address2' => 'nullable|string|max:255',
+            'landmark' => 'nullable|string|max:255',
+            'phone' => 'required|string|max:15', // Increased max length to 15 for international numbers
+            'city' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'address_type' => 'required|integer|in:0,1', // 0: Home, 1: Office
+            'pincode' => 'required|string|max:10',
+        ]);
     
-            // Find the address and check ownership
-            $address = Address::where('id', $id)->where('user_id', $user->id)->first();
+        // Find the address and check ownership
+        $address = Address::where('id', $id)->where('user_id', $user->id)->first();
     
-            if (!$address) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Address not found or does not belong to the user.',
-                ], 404);
-            }
+        if (!$address) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Address not found or does not belong to the user.',
+            ], 404);
+        }
     
+        try {
             // Update the address
-            $address->update($validatedData);
+            $address->update([
+                'name' => $validatedData['name'],
+                'address1' => $validatedData['address1'],
+                'address2' => $validatedData['address2'] ?? null,
+                'landmark' => $validatedData['landmark'] ?? null,
+                'phone' => $validatedData['phone'],
+                'city' => $validatedData['city'],
+                'state' => $validatedData['state'],
+                'address_type' => $validatedData['address_type'], // 0 for Home, 1 for Office
+                'pincode' => $validatedData['pincode'],
+            ]);
     
             return response()->json([
                 'success' => true,
                 'message' => 'Address updated successfully.',
-                'data' => $address,
+                'data' => [
+                    "id" => $address->id,
+                    "user_id" => $address->user_id,
+                    "name" => $address->name,
+                    "address1" => $address->address1,
+                    "address2" => $address->address2,
+                    "landmark" => $address->landmark,
+                    "phone" => $address->phone,
+                    "city" => $address->city,
+                    "state" => $address->state,
+                    "pincode" => $address->pincode,
+                    "status" => (bool)$address->status, // Convert status to boolean
+                    "address_type_label" =>
+                        ($address->address_type == 0) ? "Home" : "Office", // Add label for address type
+                ],
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Failed to update address: {$e->getMessage()}",
+            ], 500);
         }
+    }
+    
     
         public function setAddress(Request $request, $id)
         {
@@ -176,7 +200,7 @@ class EcommerceApiController extends Controller
             }
     
             // Find the customer's details associated with the authenticated user
-            $customerDetails = CustomerDetails::where('user_id', $user->id)->first();
+            $customerDetails = User::where('id', $user->id)->first();
     
             if (!$customerDetails) {
                 return response()->json([
@@ -186,7 +210,7 @@ class EcommerceApiController extends Controller
             }
     
             // Update the address_id with the provided id
-            $customerDetails->address_id = $id;
+            $customerDetails->default_address = $id;
             $customerDetails->save();
     
             return response()->json([
