@@ -54,7 +54,7 @@
                 <a class="nav-link text-white {{ $activePage == 'products' ? 'active bg-gradient-primary' : '' }} "
                     href="{{ route('products.index') }}">
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i style="font-size: 1.2rem;" class="fas fa-hard-hat ps-2 pe-2 text-center"></i>
+                    <i style="font-size: 1.2rem;" class="fas fa-hard-hat ps-2 pe-2 text-center"></i>
                     </div>
                     <span class="nav-link-text ms-1">Product</span>
                 </a>

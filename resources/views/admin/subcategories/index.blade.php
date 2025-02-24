@@ -46,8 +46,9 @@
                                         <td>Inactive</td>
                                         @endif
                                         <td><a href="{{ route('subcategories.edit', encrypt($rs->id)) }}" class="btn btn-sm btn-secondary"> <i class="far fa-edit"></i></a></td>
-                                        <td><form action="{{ route('subcategories.destroy', encrypt($rs->id)) }}"
-                                        method="POST" onclick="confirm('Are you sure')">
+                                        <td>
+                                            <form action="{{ route('subcategories.destroy', encrypt($rs->id)) }}"
+                                        method="POST" onsubmit="return confirmDelete(event)">
                                         @method('DELETE')
                                         @csrf
                                             <button type="submit" class="btn btn-danger">
@@ -69,9 +70,6 @@
     </main>
     <x-plugins></x-plugins>
     </div>
-
-
-
     <style>
         .mydatatable .dataTables_length,.mydatatable .dataTables_filter{
             padding:20px;
@@ -83,7 +81,6 @@
             padding: 10px;
         }
     </style>
-
 
     @push('js')
     <script>
@@ -99,6 +96,15 @@
             });
         });
     </script>
+<script>
+    function confirmDelete(event) {
+        if (!confirm('Are you sure?')) {
+            event.preventDefault(); 
+            return false;
+        }
+        return true;
+    }
+</script>
     <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
     @endpush
 </x-layout>

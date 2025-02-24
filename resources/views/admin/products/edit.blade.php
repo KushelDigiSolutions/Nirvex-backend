@@ -119,18 +119,23 @@
                 <div class="col mt-3">
                     <label class="form-label">Existing Images:</label>
                     <div class="row">
-                            @foreach($products->image as $images)
-                                <div class="col-md-3">
-                                    <img src="{{ url('/').'/'.$images }}" alt="Product Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
-                                    <form action="{{ route('product.image.delete') }}" method="POST" class="mt-2">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input type="hidden" name="product_id" value="{{ encrypt($products->id) }}">
-                                        <input type="hidden" name="image_path" value="{{ $images }}">
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                    </form>
+                        @if($products && is_array($products->image))
+                            @forelse($products->image as $images)
+                                <div class="col-md-3
+                                ">
+
+                                        <div class="image-container">
+                                            <img src="{{ url('/') . '/' . $images }}" alt="Product Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                                            <button type="button" class="btn btn-danger btn-sm delete-image" data-image="{{ $images }}">Delete</button>
+                                            <input type="hidden" name="delete_images[]" value="{{ $images }}" class="delete-input">
+                                        </div>
                                 </div>
-                            @endforeach
+                            @empty
+                                <p>No images uploaded for this product.</p>
+                            @endforelse
+                        @else
+                            <p>No images available.</p>
+                        @endif
                     </div>
                 </div>
                 <div class="col">

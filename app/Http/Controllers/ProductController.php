@@ -47,10 +47,14 @@ class ProductController extends Controller
             'mrp' => 'required|numeric',
             'availability' => 'required|string',
             'specification' => 'required|string',
+            'return' => 'required|string',
+            'physically_property' => 'required|string',
+            'standard' => 'required|string',
+            'benefits' => 'required|string',
             'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
             'options.*.type' => 'required|string',
             'options.*.name' => 'required|string|max:255',
-            'options.*.short_description' => 'nullable|string|max:255',
+            'options.*.description' => 'nullable|string|max:255',
             'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
         ]);
 
@@ -127,8 +131,94 @@ class ProductController extends Controller
      * Update the specified resource in storage.
      */
 
+     public function update(Request $request, string $id)
+     {
+         $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'cat_id' => 'required|integer',
+            'sub_cat_id' => 'required|integer',
+            'status' => 'required|boolean',
+            'mrp' => 'required|numeric',
+            'availability' => 'required|string',
+            'specification' => 'required|string',
+            'return' => 'required|string',
+            'physically_property' => 'required|string',
+            'standard' => 'required|string',
+            'benefits' => 'required|string',
+            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'options.*.type' => 'required|string',
+            'options.*.name' => 'required|string|max:255',
+            'options.*.description' => 'nullable|string|max:255',
+            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+         ]);
+        
+         try {
+             $product = Product::withTrashed()->findOrFail($id);
+           
+           if(empty($request->delete_images)){
+                $existingImages = explode(',', $product->image);
+                foreach ($existingImages as $image) {
+                    if (!empty($image) && file_exists(public_path($image))) {
+                        unlink(public_path($image));
+                    }
+                }
+                $product->image = null;
+            }else if($request->has('delete_images') && is_array($request->delete_images)) {
+                $existingImages = explode(',', $product->image); 
+                $imagesToKeep = $request->delete_images; 
+                $imagesToDelete = array_diff($existingImages, $imagesToKeep);
+                foreach ($imagesToDelete as $image) {
+                    if (file_exists(public_path($image))) {
+                        unlink(public_path($image));
+                    }
+                }
+                $product->image = implode(',', $imagesToKeep);
+            } 
+            if ($request->hasFile('image')) {
+                $newImagePaths = [];
+                foreach ($request->file('image') as $image) {
+                    $fileName = time() . '_' . $image->getClientOriginalName();
+                    $path = $image->move(public_path('uploads/products'), $fileName);
+                    $newImagePaths[] = 'uploads/products/' . $fileName;
+                }
+                if (!empty($product->image)) {
+                    $existingImages = explode(',', $product->image);
+                    $newImagePaths = array_merge($existingImages, $newImagePaths); 
+                }
+                $product->image = implode(',', $newImagePaths);
+            }
+             $product->name = $validatedData['name'];
+             $product->description = $validatedData['description'];
+             $product->cat_id = $validatedData['cat_id'];
+             $product->sub_cat_id = $validatedData['sub_cat_id'];
+             $product->status = $validatedData['status'];
+             $product->mrp = $validatedData['mrp'];
+             $product->availability = $validatedData['availability'];
+             $product->return_policy = $validatedData['return_policy'];
+             $product->specification = $validatedData['specification'];
+             $product->physical_property = $validatedData['physical_property'];
+             $product->standards = $validatedData['key_benefits'];
+   
+             if (isset($newImagePaths)) {
+                 $product->image = implode(',', array_filter($newImagePaths));
+             }
+             
+             if (!$product->save()) {
+                 throw new \Exception('Failed to save the product.');
+             }
+     
+             return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+         } catch (\Exception $e) {
+             \Log::error('Error updating product: '.$e->getMessage());
+          
+            return redirect()
+                  ->back()
+                  ->withErrors(['message'=>__("Try again later. Error Details".$e)]);
+         }
+     }
 
-    public function update(Request $request, string $id)
+    public function update22(Request $request, string $id)
      {
         \Log::info('Update method triggered');
         \Log::info($request->all());
@@ -150,8 +240,6 @@ class ProductController extends Controller
             'options.*.description' => 'nullable|string|max:255',
             'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
          ]);
-     
-
 
          try {
              $product = Product::findOrFail($id);

@@ -50,7 +50,7 @@
                             </td>
                             <td>
                                 <form action="{{ route('services.destroy', encrypt($rs->id)) }}"
-                                    method="POST" onclick="confirm('Are you sure')">
+                                    method="POST" onsubmit="return confirmDelete(event)">
                                     @method('DELETE')
                                     @csrf
                                     <button type="submit" class="btn btn-danger">
@@ -99,6 +99,15 @@
             });
         });
     </script>
+    <script>
+    function confirmDelete(event) {
+        if (!confirm('Are you sure?')) {
+            event.preventDefault(); 
+            return false;
+        }
+        return true;
+    }
+</script>
     <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
     @endpush
 </x-layout>

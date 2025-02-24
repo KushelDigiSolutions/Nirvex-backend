@@ -15,7 +15,7 @@
                             <div class="pull-right">
                                 @can('role-create')
                                 <a class="btn btn-success btn-sm mb-2" href="{{ route('pricings.create') }}" class="btn btn-primary mb-3"><i class="fa fa-plus"></i> Create New Pricings</a>
-                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i> Upload Bulk Pricings</a>
+                                    <!-- <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i> Upload Bulk Pricings</a> -->
                                 @endcan
                             </div>
                         </div>

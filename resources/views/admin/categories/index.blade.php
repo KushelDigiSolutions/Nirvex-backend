@@ -45,14 +45,15 @@
                                         <td>Inactive</td>
                                         @endif
                                         <td><a href="{{ route('categories.edit', encrypt($rs->id)) }}" class="btn btn-sm btn-secondary"><i class="far fa-edit"></i></a></td>
-                                        <td><form action="{{ route('categories.destroy', encrypt($rs->id)) }}"
-                                    method="POST" onclick="confirm('Are you sure')">
+                                        <td>
+                                        <form action="{{ route('categories.destroy', encrypt($rs->id)) }}" method="POST" onsubmit="return confirmDelete(event)">
                                     @method('DELETE')
                                     @csrf
                                     <button type="submit" class="btn btn-danger">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
-                                </form></td>
+                                </form>
+                            </td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -98,6 +99,15 @@
             });
         });
     </script>
+    <script>
+    function confirmDelete(event) {
+        if (!confirm('Are you sure?')) {
+            event.preventDefault(); // Stop form submission
+            return false;
+        }
+        return true;
+    }
+</script>
     <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
     @endpush
 </x-layout>

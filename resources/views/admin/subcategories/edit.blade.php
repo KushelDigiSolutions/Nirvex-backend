@@ -25,8 +25,8 @@
                         @method('PUT')
                         <div class="row">
                             <div class="col">
-                            <label for="category" class="form-label">Category:</label>
-                                <input type="text" class="form-control" id="name" placeholder="Enter category" name="name"
+                            <label for="category" class="form-label">Sub Category:</label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter Sub category" name="name"
                                 value="{{ old('name', $SubCategory->name) }}">
                             </div>
                             <div class="col">
