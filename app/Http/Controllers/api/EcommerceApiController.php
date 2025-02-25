@@ -1151,8 +1151,8 @@ class EcommerceApiController extends Controller
                
                 // Include product and variant images
                 'product_name' => optional($item->variant?->product)->name, // Product name
-                'product_image_url' => explode(",",optional($item->variant?->product)->image) ?? '', // Product image URL
-                'variant_image_url' => explode(",",optional($item?->variant)->images) ?? '', // Variant image URL
+                'product_image_url' => explode(",",optional($item->variant?->product)->image) ?? [], // Product image URL
+                'variant_image_url' => explode(",",optional($item?->variant)->images) ?? [], // Variant image URL
             ];
         }
     
