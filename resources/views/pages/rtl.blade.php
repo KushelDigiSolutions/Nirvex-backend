@@ -160,16 +160,16 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="nav-item px-3 d-flex align-items-center">
+                        <!-- <li class="nav-item px-3 d-flex align-items-center">
                             <a href="javascript:;" class="nav-link text-body p-0">
                                 <i class="fa fa-cog fixed-plugin-button-nav cursor-pointer"></i>
                             </a>
-                        </li>
+                        </li> -->
                         <li class="nav-item dropdown ps-2 d-flex align-items-center">
-                            <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton"
+                            <!-- <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fa fa-bell cursor-pointer"></i>
-                            </a>
+                            </a> -->
                             <ul class="dropdown-menu  px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
                                 <li class="mb-2">
                                     <a class="dropdown-item border-radius-md" href="javascript:;">
@@ -866,9 +866,9 @@
         </div>
     </main>
     <div class="fixed-plugin">
-        <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
+        <!-- <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
             <i class="material-icons py-2">settings</i>
-        </a>
+        </a> -->
         <div class="card shadow-lg">
             <div class="card-header pb-0 pt-3">
                 <div class="float-end">

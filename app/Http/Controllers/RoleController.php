@@ -59,13 +59,16 @@ class RoleController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|unique:roles,name',
+            'permission' => 'required|array|min:1',
+            'permission.*' => 'exists:permissions,id'
+
             // 'permission' => 'required',
         ]);
 
-        // $permissionsID = array_map(
-        //     function($value) { return (int)$value; },
-        //     $request->input('permission')
-        // );
+        $permissionsID = array_map(
+            function($value) { return (int)$value; },
+            $request->input('permission')
+        );
     
         $role = Role::create(['name' => $request->input('name')]);
         $role->syncPermissions($permissionsID);
