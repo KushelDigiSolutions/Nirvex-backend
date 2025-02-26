@@ -39,7 +39,10 @@
         <div class="inline-group">
         <div class="form-group">
             <label for="pin-code">Pin Code</label>
-            <input type="text" id="pin-code" name="pin_code">
+            <input type="text" id="pin_code" name="pin_code">
+            @error('pin_code')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
         <div class="form-group datetime-selector">
             <label for="valid-upto">Valid Upto</label>

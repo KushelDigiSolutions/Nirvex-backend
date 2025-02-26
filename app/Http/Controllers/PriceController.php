@@ -36,7 +36,7 @@ class PriceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'pincode' => 'required|string',
+            'pin_code' => 'required|digits:6',
             'product_id' => 'required|integer',
             'product_sku_id' => 'required|string',
             'mrp' => 'required|numeric',
@@ -47,6 +47,15 @@ class PriceController extends Controller
             'valid_upto' => 'required|date',
             'status' => 'required|boolean',
             'is_cash' => 'required|boolean',
+        ], [
+            'pin_code.digits' => 'The Pin Code must be exactly 6 digits.',
+            'mrp.numeric' => 'The MRP must be a valid numeric value.',
+            'price.numeric' => 'The Sale Price must be a valid numeric value.',
+            'tax_value.numeric' => 'The Tax Value must be a valid numeric value.',
+            'ship_charges.numeric' => 'Shipping charges must be a valid numeric value.',
+            'valid_upto.date' => 'The Valid Upto field must be a valid date.',
+            'status.boolean' => 'The Status field must be true or false.',
+            'is_cash.boolean' => 'The Cash Payment field must be true or false.',
         ]);
     
         Pricing::create($request->all());

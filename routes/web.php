@@ -40,6 +40,7 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::get('customers', [UserController::class, 'getCustomer'])->name('customers.index');
         Route::get('clients', [UserController::class, 'getClient'])->name('clients.index');
         Route::get('/search-product', [ProductController::class, 'search']);
+        Route::post('/orders/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::match(['get', 'post'], '/profile/update', [ProfileController::class, 'updateProfile']);
 
         

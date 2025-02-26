@@ -1131,13 +1131,13 @@ class EcommerceApiController extends Controller
             $totalPrice += ($pricing->price * $item->quantity);
             $totalTaxes += ($tax * $item->quantity);
             $totalShipping += ($pricing->ship_charges * $item->quantity);
-    
+            //dd($item->variant?->product->image);
             // Add product details to the response object
             $productPricingDetails[] = [
                 'variant_id' => $item->variant_id,
-                'product_id' => $item->product_id,
-                'name' => $item->variant->name,
-                'sku' => $item->variant->sku,
+                'product_id' => optional($item->variant)->product_id,
+                'name' => optional($item->variant)->name, // Variant name
+                'sku' => optional($item->variant)->sku,
                 'quantity' => $item->quantity,
                 'mrp' => round($pricing->mrp, 2),
                 'price' => round($pricing->price, 2),
@@ -1148,6 +1148,11 @@ class EcommerceApiController extends Controller
                 'subtotal_price' => round(($pricing->price * $item->quantity), 2),
                 'subtotal_tax' => round(($tax * $item->quantity), 2),
                 'subtotal_shipping' => round(($pricing->ship_charges * $item->quantity), 2),
+               
+                // Include product and variant images
+                'product_name' => optional($item->variant?->product)->name, // Product name
+                'product_image_url' => explode(",",optional($item->variant?->product)->image) ?? [], // Product image URL
+                'variant_image_url' => explode(",",optional($item?->variant)->images) ?? [], // Variant image URL
             ];
         }
     

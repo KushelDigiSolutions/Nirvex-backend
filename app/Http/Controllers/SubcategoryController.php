@@ -25,22 +25,24 @@ class SubcategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'cat_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'status' => ['required'],
+            'cat_id' => 'required|exists:categories,id',
             'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]);
 
+        // dd($request);
+
         $imageName = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads/subcategories'), $imageName);
-
-        // SubCategory::create($request->all());
+        
         $blog = SubCategory::create([
             'cat_id' => $request->cat_id,
             'name' => $request->name,
             'status' => $request->status,
             'image' => 'uploads/subcategories/' . $imageName ?? null
         ]);
+
         return redirect()->route('subcategories.index')->with('success', 'SubCategory created successfully.');
     }
 
@@ -70,8 +72,8 @@ class SubcategoryController extends Controller
     {
         
         $request->validate([
-            'cat_id' => ['required'],
             'name' => 'required|string|max:255',
+            'cat_id' => ['required'],
             'status' => ['required'],
             'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]); 

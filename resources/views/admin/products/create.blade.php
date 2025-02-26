@@ -80,9 +80,10 @@
                 <div class="col">
                     <label for="cat_id" class="form-label">Category:</label>
                         <select class="form-select @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
-                            @foreach($categories as $data)
-                                <option value="{{ $data->id }}">{{ $data->name }}</option>
-                            @endforeach
+                            <option value="">Select Sub Category</option> 
+                                @foreach($categories as $data)
+                                    <option value="{{ $data->id }}">{{ $data->name }}</option>
+                                @endforeach
                         </select>
                             @error('cat_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
