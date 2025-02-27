@@ -11,18 +11,17 @@ class Pricing extends Model
     protected $table = 'pricings';
 
     protected $fillable = [
-        'pincode',
-        'product_id',
-        'product_sku_id',
-        'mrp',
-        'price',
-        'tax_type',
-        'tax_value',
-        'ship_charges',
-        'valid_upto',
-        'status',
-        'is_cash',
-    ];
+                    'pincode',
+                    'product_id',
+                    'product_sku_id',
+                    'mrp',
+                    'price',
+                    'tax_value',
+                    'ship_charges',
+                    'valid_upto',
+                    'status',
+                    'is_cash'
+                ];
 
     // Cast attributes to their proper data types
     // protected $casts = [

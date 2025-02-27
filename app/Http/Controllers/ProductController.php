@@ -344,8 +344,10 @@ public function search(Request $request)
     //     ->get();
 
     $products = Product::where('name', 'LIKE', '%' . $query . '%')
-    ->with('variant') 
-    ->get();
+    ->with(['variants:id,product_id,name,sku'])
+    ->first();
+
+    // echo '<pre>'; print_r($products); die;
 
     return response()->json($products);
 }

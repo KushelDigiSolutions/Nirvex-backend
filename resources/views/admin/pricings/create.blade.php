@@ -18,68 +18,94 @@
                                 {{ session('success') }}
                             </div>
                             @endif
-        <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
+        <form action="{{ route('pricings.store') }}" method="post" enctype="multipart/form-data">
             @csrf
-            <div class="form-group">
+            <div class="row">
+            <div class="col">
             <label for="search-product">Search Product</label>
             <!-- <input type="text" id="search-product" name="search_product"> -->
-            <input type="text" id="search-product" name="search_product" onkeyup="searchProduct(this.value)" class="form-control @error('search-product') is-invalid @enderror">
+            <!-- <input type="text" id="search-product" name="search_product" onkeyup="searchProduct(this.value)" class="form-control @error('search-product') is-invalid @enderror">
+            <input type="hidden" id="product_id" name="product_id"> -->
+            <select id="search-product" name="product_id" class="form-control">
+            <option value="">Select Products</option>
+                    @foreach($products as $product)
+                        <option value="{{ $product->id }}">{{ $product->name }}</option>
+                    @endforeach
+                </select>
             @error('search-product')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
             <div id="search-results"></div>
         </div>
-
-        <div class="form-group">
-    <label for="variant-name">Variant Type</label>
-    <select id="variant-type" name="variant_type">
-        <option value="">Select Variant</option>
-    </select>
-</div>
-        <div class="inline-group">
-        <div class="form-group">
+        <div class="col">
+            <label for="variant-name">Select Product Sku</label>
+            <select id="product-sku-id" name="product_sku_id" class="form-control">
+            <option value="">Select Product SKU</option>
+                </select>
+        </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="mrp">MRP</label>
+                <input type="text" id="mrp" class="form-control" name="mrp">
+            </div>
+            <div class="col">
+                <label for="sale-price">Sale Price</label>
+                <input type="text" id="sale-price" class="form-control" name="price">
+            </div>
+        </div>
+        <div class="row">
+          
+            <div class="col">
+                <label for="tax-value">Tax Value(%)</label>
+                <select class="form-select" id="tax-value" name="tax_value">
+                    @for($i = 1; $i <= 100; $i++)
+                        <option value="{{ $i }}">{{ $i }}</option>
+                    @endfor
+                </select>
+            </div>
+            <div class="col">
+                <label for="tax-value">Ship Charges</label>
+                <input type="text" id="ship-charges" name="ship_charges" class="form-control" >
+            </div>
+           
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="status">Product Status:</label>
+                    <select class="form-select @error('status') is-invalid @enderror" name="status">
+                        <option value="">Select Status</option>
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                    @error('status')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+            </div>
+            <div class="col">
+                <label for="valid-upto">Valid Upto</label>
+                <input type="datetime-local" id="valid-upto" class="form-control" name="valid_upto">
+            </div>
+        </div>
+        <div class="row">
+        <div class="col">
             <label for="pin-code">Pin Code</label>
-            <input type="text" id="pin_code" name="pin_code">
-            @error('pin_code')
+            <input type="text" id="pin_code" class="form-control" name="pincode">
+            @error('pincode')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
-        <div class="form-group datetime-selector">
-            <label for="valid-upto">Valid Upto</label>
-            <input type="datetime-local" id="valid-upto" name="valid_upto">
-        </div>
-        </div>
-
-       
-        <div class="inline-group">
-            <div class="form-group">
-                <label for="mrp">MRP</label>
-                <input type="text" id="mrp" name="mrp">
-            </div>
-
-            <div class="form-group">
-                <label for="sale-price">Sale Price</label>
-                <input type="text" id="sale-price" name="sale_price">
-            </div>
-        </div>
-
-        <div class="inline-group">
-            <div class="form-group">
-                <label for="tax-type">Tax Type</label>
-                <select id="tax-type" name="tax_type">
-                    <option value="type1">Percentage</option>
-                    <option value="type2">Flat</option>
+        <div class="col">
+            <label for="status">Cash On Delivery:</label>
+                <select class="form-select @error('is_cash') is-invalid @enderror" name="is_cash">
+                    <option value="1">Avaiable</option>
+                    <option value="0">Not Available</option>
                 </select>
-            </div>
-
-            <div class="form-group">
-                <label for="tax-value">Tax Value</label>
-                <input type="text" id="tax-value" name="tax_value">
+                    @error('is_cash')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
             </div>
         </div>
-
-      
-
         <div class="form-group datetime-selector">
         <button type="submit" class="btn btn-primary btn-sm">Submit</button>
         </div>
@@ -126,29 +152,31 @@
         }
     </style>
 <script>
-
 $(document).ready(function () {
-    $('#search-product').on('keyup', function () {
-        let query = $(this).val();
+    $('#search-product').on('change', function () {
+        let productId = $(this).val();
+        var baseUrl = "{{ url('admin/search-product') }}";
 
-        if (query.length > 2) {
+        if (productId) {
             $.ajax({
-                url: 'http://localhost/nvbackend/public/admin/search-product',
+                url: baseUrl,
                 type: 'GET',
-                data: { query: query },
+                data: { product_id: productId }, 
                 success: function (response) {
-                    if (response.length > 0) {
-                        const product = response[0]; 
-                        const variants = product.variant; 
+                    console.log("Product Response:", response); // Debugging log
 
+                    if (response) {
+                        const product = response; 
+                        const variants = product.variants || [];  
+
+                        $('#product_id').val(product.id);
                         $('#product-name').val(product.name || '');
                         $('#mrp').val(product.mrp || '');
 
-                        if (variants && variants.length > 0) {
-                            populateVariantFields(variants[0]); 
-                            populateVariantDropdown(variants); 
+                        if (variants.length > 0) {
+                            populateVariantDropdown(variants);
                         } else {
-                            clearVariantFields(); 
+                            clearVariantDropdown();
                         }
                     } else {
                         clearAllFields(); 
@@ -159,62 +187,40 @@ $(document).ready(function () {
                 }
             });
         } else {
-            clearAllFields(); 
-        }
-    });
-
-    $('#variant-name').on('change', function () {
-        const selectedVariantId = $(this).val();
-
-        const selectedVariant = loadedVariants.find(v => v.id == selectedVariantId);
-        if (selectedVariant) {
-            populateVariantFields(selectedVariant);
-        } else {
-            clearVariantFields();
+            clearAllFields();
         }
     });
 
     let loadedVariants = [];
 
-    function populateVariantFields(variant) {
-        $('#variant-sku').val(variant.sku || '');
-        $('#variant-description').val(variant.short_description || '');
-        $('#variant-name').val(variant.name || '');
+    function populateVariantDropdown(variants) {
+        console.log("Variants:", variants); // Debugging log
+
+        loadedVariants = variants;
+        $('#product-sku-id').empty(); // Clear existing options
+        $('#product-sku-id').append('<option value="">Select Product SKU</option>');
+
+        variants.forEach(variant => {
+            $('#product-sku-id').append(
+                `<option value="${variant.sku}">${variant.sku}</option>`
+            );
+        });
+
+        console.log("#product-sku-id:", $('#product-sku-id').html()); // Check if options are added
     }
 
-    function populateVariantDropdown(variants) {
-    loadedVariants = variants; 
-    $('#variant-type').empty(); 
-    $('#variant-type').append('<option value="">Select Variant</option>');
-
-    const typeMap = {
-        1: 'Quality',
-        2: 'Color',
-        3: 'Size'
-    };
-
-    variants.forEach(variant => {
-        const typeName = typeMap[variant.type] || 'Unknown'; 
-        $('#variant-type').append(
-            `<option value="${variant.id}">${typeName}</option>`
-        );
-    });
-}
+    function clearVariantDropdown() {
+        $('#product-sku-id').empty();
+        $('#product-sku-id').append('<option value="">Select Product SKU</option>');
+    }
 
     function clearAllFields() {
+        $('#product_id').val('');
         $('#product-name').val('');
         $('#mrp').val('');
-        clearVariantFields();
-    }
-
-    function clearVariantFields() {
-        $('#variant-sku').val('');
-        $('#variant-description').val('');
-        $('#variant-name').empty();
-        $('#variant-name').append('<option value="">Select Variant</option>');
+        clearVariantDropdown();
     }
 });
 
 
 </script>
-

@@ -25,7 +25,6 @@
                                         <th>Seller</th>
                                         <th>Order Status</th>
                                         <th>Created at</th>
-                                        <th></th>
                                         <th>View</th>
                                     </tr>
                                 </thead>
@@ -38,14 +37,8 @@
                                         <td><img src="{{ url('/').'/'.('/uploads/products/1736022006_drake.jpg') }}" class="avatar avatar-sm me-3"></td>
                                         <td>2025-01-04 07:17:05</td>
                                         <td>Active</td>
-                                        <td><a href="" class="btn btn-sm btn-secondary"><i class="far fa-edit"></i></a></td>
-                                        <td>
-                                            <form action=""method="POST" onclick="confirm('Are you sure')">
-                                            @method('DELETE')
-                                            @csrf
-                                                <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
-                                            </form>
-                                        </td>
+                                        <td><a href="" class="btn btn-sm btn-secondary"><i class="far fa-eye"></i></a></td>
+                                        
                                     </tr>
                                 </tbody>
                             </table>

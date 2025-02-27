@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Models\Pricing;
+use App\Models\Product;
 
 class PriceController extends Controller
 {
@@ -27,7 +28,8 @@ class PriceController extends Controller
      */
     public function create()
     {
-        return view('admin.pricings.create');
+        $products = Product::orderBy('id', 'desc')->get();
+        return view('admin.pricings.create', compact('products'));
     }
 
     /**
@@ -35,19 +37,21 @@ class PriceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'pin_code' => 'required|digits:6',
-            'product_id' => 'required|integer',
+       
+        $validatedData = $request->validate([
+            'product_id' => 'required|integer', 
             'product_sku_id' => 'required|string',
+            'pincode' => 'required|digits:6',
             'mrp' => 'required|numeric',
             'price' => 'required|numeric',
-            'tax_type' => 'required|in:0,1',
             'tax_value' => 'required|numeric',
             'ship_charges' => 'required|numeric',
-            'valid_upto' => 'required|date',
+            'valid_upto' => 'required|date_format:Y-m-d\TH:i',
             'status' => 'required|boolean',
             'is_cash' => 'required|boolean',
-        ], [
+        
+        ], 
+        [
             'pin_code.digits' => 'The Pin Code must be exactly 6 digits.',
             'mrp.numeric' => 'The MRP must be a valid numeric value.',
             'price.numeric' => 'The Sale Price must be a valid numeric value.',
@@ -57,8 +61,8 @@ class PriceController extends Controller
             'status.boolean' => 'The Status field must be true or false.',
             'is_cash.boolean' => 'The Cash Payment field must be true or false.',
         ]);
-    
-        Pricing::create($request->all());
+        // dd($request->all());
+        Pricing::create($validatedData);
         return redirect()->route('pricings.index')->with('success', 'Pricing created successfully.');
     }
 
