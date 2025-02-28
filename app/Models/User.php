@@ -62,7 +62,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function roles()
     {
-        // return $this->belongsToMany('App\Models\Role');
 
         return $this->belongsToMany(\Spatie\Permission\Models\Role::class, 'model_has_roles', 'model_id', 'role_id');
     }
@@ -74,7 +73,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function addresses()
     {
-        return $this->hasMany(Address::class);
+        return $this->hasOne(Address::class, 'user_id');
     }
 
     public function favorites()
@@ -84,6 +83,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Order::class, 'user_id');
     }
 }

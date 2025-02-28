@@ -20,26 +20,35 @@
                                 <thead>
                                     <tr>
                                         <th>So.No.</th>
-                                        <th>Order No.</th>
+                                        <th>Order Id</th>
                                         <th>Customer</th>
+                                        <th>Pincode</th>
                                         <th>Seller</th>
-                                        <th>Order Status</th>
-                                        <th>Created at</th>
+                                        <th>Count</th>
+                                        <th>Total Amount</th>
+                                        <th>Ordered</th>
+                                        <th>Status</th>
                                         <th>View</th>
+                                        <th>Download Invoice</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 
+                                @foreach($totalOrders as $data)
                                     <tr>
-                                        <td>1.</td>
-                                        <td>Bricks</td>
-                                        <td>123456086576575</td>
-                                        <td><img src="{{ url('/').'/'.('/uploads/products/1736022006_drake.jpg') }}" class="avatar avatar-sm me-3"></td>
-                                        <td>2025-01-04 07:17:05</td>
-                                        <td>Active</td>
-                                        <td><a href="" class="btn btn-sm btn-secondary"><i class="far fa-eye"></i></a></td>
-                                        
+                                        <td>{{ $data['so_no'] }}</td>
+                                        <td>{{ $data['order_id'] }}</td>
+                                        <td>{{ $data['customer'] }}</td>
+                                        <td>{{ $data['pincode'] }}</td>
+                                        <td>{{ $data['seller'] }}</td>
+                                        <td>{{ $data['count'] }}</td>
+                                        <td>{{ $data['total_amount'] }}</td>
+                                        <td>{{ $data['ordered'] }}</td>
+                                        <td>{{ $data['status'] }}</td>
+                                        <td><a href="{{ route('orders.show', encrypt($data['order_id'])) }}" class="btn btn-sm btn-secondary"><i class="far fa-eye"></i></a></td>
+                                        <td><a class="btn btn-success btn-sm mb-2" href="" target="_blabk">Download</a></td>
                                     </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
