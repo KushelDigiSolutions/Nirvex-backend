@@ -5,7 +5,7 @@
 <x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <!-- Navbar -->
-        <x-navbars.navs.auth titlePage="Dashboard"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="Sub Category"></x-navbars.navs.auth>
         <!-- End Navbar -->
         <div class="container-fluid py-4" style="background-color:#fff">
         <div class="d-flex justify-content-between mb-2">
@@ -43,7 +43,7 @@
                         <label for="category" class="form-label">Category:</label>
                             <select class="form-select" name="cat_id">
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ $category->id == $category->cat_id ? 'selected' : '' }}>{{ $category->name }}</option>
+                            <option value="{{ $category->id }}" {{ $category->id == $SubCategory->cat_id ? 'selected' : '' }}>{{ $category->name }}</option>
                             @endforeach
                             </select>
                         </div>

@@ -66,32 +66,28 @@ class CategoryController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'status' => ['required'],
-            'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096'],
+            // 'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]);
-
         $categories = DB::table('categories')->where('id', $id)->first();
-
+        $imagePath = $categories->image;
         if ($request->hasFile('image')) {
             if ($categories->image && file_exists(public_path($categories->image))) {
                 unlink(public_path($categories->image));
             }
-
             $imageName = time() . '.' . $request->image->extension();
             $request->image->move(public_path('uploads/categories'), $imageName);
-            $categories->image = 'uploads/categories/' . $imageName;
+            // $categories->image = 'uploads/categories/' . $imageName;
+            $imagePath = 'uploads/categories/' . $imageName;
         }
         DB::table('categories')
         ->where('id', $id) 
         ->update([
             'name' => $request->name,
             'status' => $request->status,
-            'image' => isset($imageName) ? 'uploads/categories/' . $imageName : null,
+            'image' => $imagePath,
+            // 'image' => isset($imageName) ? 'uploads/categories/' . $imageName : null,
         ]);
-
-        // if ($request->hasFile('image')) {
-        //     $categories->save();
-        // }
-
         return redirect()->route('categories.index')->with('success', 'Categories updated successfully.');
     }
 

@@ -30,9 +30,6 @@ class SubcategoryController extends Controller
             'cat_id' => 'required|exists:categories,id',
             'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]);
-
-        // dd($request);
-
         $imageName = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads/subcategories'), $imageName);
         
@@ -50,10 +47,8 @@ class SubcategoryController extends Controller
     {
         $subcategoryId = decrypt($id); 
         $SubCategory = SubCategory::findOrFail($subcategoryId); 
-
-        // $categories = Category::all(); 
-        $categories = SubCategory::with('category')->get();
-    return view('admin.subcategories.edit', compact('SubCategory', 'categories'));
+        $categories = Category::all(); 
+        return view('admin.subcategories.edit', compact('SubCategory', 'categories'));
     }
 
 
@@ -75,10 +70,11 @@ class SubcategoryController extends Controller
             'name' => 'required|string|max:255',
             'cat_id' => ['required'],
             'status' => ['required'],
-            'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]); 
         
         $subcategories = DB::table('subcategories')->where('id', $id)->first();
+        $imagePath = $subcategories->image;
         if ($request->hasFile('image')) {
             if ($subcategories->image && file_exists(public_path($subcategories->image))) {
                 unlink(public_path($subcategories->image));
@@ -86,7 +82,7 @@ class SubcategoryController extends Controller
 
             $imageName = time() . '.' . $request->image->extension();
             $request->image->move(public_path('uploads/subcategories'), $imageName);
-            $subcategories->image = 'uploads/subcategories/' . $imageName;
+            $imagePath = 'uploads/subcategories/' . $imageName;
         }
         DB::table('subcategories')
         ->where('id', $id) 
@@ -94,7 +90,8 @@ class SubcategoryController extends Controller
             'cat_id' => $request->cat_id,
             'name' => $request->name,
             'status' => $request->status,
-            'image' => isset($imageName) ? 'uploads/subcategories/' . $imageName : null,
+            'image' => $imagePath,
+            // 'image' => isset($imageName) ? 'uploads/subcategories/' . $imageName : null,
         ]);
         return redirect()->route('subcategories.index')->with('success', 'SubCategory updated successfully.');
     }
