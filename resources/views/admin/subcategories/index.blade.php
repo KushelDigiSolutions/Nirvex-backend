@@ -25,9 +25,9 @@
                                 <thead>
                                     <tr>
                                         <th>Sr.No</th>
-                                        <th>Category </th>
-                                        <th>Sub Category </th>
                                         <th>Images</th>
+                                        <th>Name</th>
+                                        <th>Category </th>
                                         <th>Status</th>
                                         <th>Edit</th>
                                         <th>Delete</th>
@@ -37,9 +37,9 @@
                                     @foreach ($subcategories as $rs)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $rs->category->name ?? 'No Category' }}</td>
-                                        <td>{{ $rs->name }}</td>
                                         <td><img src="{{ url('/').'/'.$rs->image }}" class="avatar avatar-sm me-3"></td>
+                                        <td>{{ $rs->name }}</td>
+                                        <td>{{ $rs->category->name ?? 'No Category' }}</td>
                                         @if($rs->status === 1)
                                         <td>Active</td>
                                         @else

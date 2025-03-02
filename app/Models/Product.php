@@ -19,6 +19,11 @@ class Product extends Model
         'image',
         'mrp',
         'availability',
+        'return_policy',
+        'physical_property',
+        'key_benefits',
+        'specification',
+        'availability',
         'specification',
     ];
     

@@ -24,8 +24,9 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.No</th>
-                                            <th>Service Name</th>
                                             <th>Images</th>
+                                            <th>Service Name</th>
+                                            <th>Type</th>
                                             <th>Status</th>
                                             <th>Edit</th>
                                             <th>Delete</th>
@@ -35,7 +36,6 @@
                                     @foreach ($services as $rs)
                                     <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $rs->name }}</td>
                                     <td>
                                     @php
                                         $images = explode(',', $rs->image); 
@@ -44,6 +44,15 @@
                                         <img src="{{ asset(trim($images[0])) }}" class="avatar avatar-sm me-3" style="width:50px; height:50px;">
                                     @endif
                                     </td>
+                                    <td>{{ $rs->name }}</td>
+                                    <td>
+                                         @if($rs->type === 1) 
+                                            Service
+                                        @else  
+                                            Property
+                                        @endif</td>
+                                
+                                   
                                     @if($rs->status === 1)
                                         <td>Active</td>
                                         @else

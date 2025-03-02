@@ -46,7 +46,7 @@ public function store(Request $request)
          $service = Service::create($validatedData);
      
      
-         return redirect()->route('services.create')->with('success', 'Services created successfully.');
+         return redirect()->to('/admin/services')->with('success', 'Services updated successfully.');
      }
 
 
