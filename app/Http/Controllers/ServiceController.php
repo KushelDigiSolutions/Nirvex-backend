@@ -14,7 +14,7 @@ class ServiceController extends Controller
 
     public function index()
     {
-        $services = Service::all();
+        $services = Service::orderBy('id', 'desc')->get();
         return view('admin.services.index', compact('services'));
     }
 
@@ -68,7 +68,76 @@ public function store(Request $request)
         return view('admin.services.edit', compact('services'));
     }
 
+    
     public function update(Request $request, string $id)
+     {
+         $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'status' => 'required|in:0,1', 
+            'type' => 'required|in:1,2',
+            'image' => 'nullable|array', 
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif|max:4096',
+         ]);
+        
+         try {
+            $service = Service::findOrFail($id);
+           
+           if(empty($request->delete_images)){
+                $existingImages = explode(',', $service->image);
+                foreach ($existingImages as $image) {
+                    if (!empty($image) && file_exists(public_path($image))) {
+                        unlink(public_path($image));
+                    }
+                }
+                $service->image = null;
+            }else if($request->has('delete_images') && is_array($request->delete_images)) {
+                $existingImages = explode(',', $service->image); 
+                $imagesToKeep = $request->delete_images; 
+                $imagesToDelete = array_diff($existingImages, $imagesToKeep);
+                foreach ($imagesToDelete as $image) {
+                    if (file_exists(public_path($image))) {
+                        unlink(public_path($image));
+                    }
+                }
+                $service->image = implode(',', $imagesToKeep);
+            } 
+            if ($request->hasFile('image')) {
+                $newImagePaths = [];
+                foreach ($request->file('image') as $image) {
+                    $fileName = time() . '_' . $image->getClientOriginalName();
+                    $path = $image->move(public_path('uploads/products'), $fileName);
+                    $newImagePaths[] = 'uploads/products/' . $fileName;
+                }
+                if (!empty($service->image)) {
+                    $existingImages = explode(',', $service->image); 
+                    $newImagePaths = array_merge($existingImages, $newImagePaths); 
+                }
+                $service->image = implode(',', $newImagePaths);
+            }
+             $service->name = $validatedData['name'];
+             $service->type = $validatedData['type'];
+             $service->description = $validatedData['description'];
+             $service->status = (bool) $validatedData['status'];
+             
+             if (isset($newImagePaths)) {
+                 $service->image = implode(',', array_filter($newImagePaths));
+             }
+             if (!$service->save()) {
+                 throw new \Exception('Failed to save the Services.');
+             }
+             return redirect()->to('/admin/services')->with('success', 'Services updated successfully.');
+            //  return redirect()->route('admin.services.index')->with('success', 'Services updated successfully.');
+         } catch (\Exception $e) {
+             \Log::error('Error updating Services: '.$e->getMessage());
+            return redirect()
+                  ->back()
+                  ->withErrors(['message'=>__("Try again later. Error Details".$e)]);
+         }
+     }
+
+
+    public function update02032025(Request $request, string $id)
     {
         \Log::info('Update method triggered');
         \Log::info($request->all());
@@ -76,11 +145,11 @@ public function store(Request $request)
         $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'required|string',
-                'status' => 'required|boolean',
-                'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
-                'type'    => 'required|boolean',
+                'status' => 'required|in:0,1',
+                'type' => 'required|in:1,2',
+                'images' => 'nullable|array',
+                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:4096',
          ]);
-
          try {
              $service = Service::findOrFail($id);
              $imagePaths = [];
@@ -93,13 +162,9 @@ public function store(Request $request)
                  $validatedData['image'] = implode(',', $imagePaths);
              }
              $service->update($validatedData);
-     
              return redirect()->route('services.index')->with('success', 'Services updated successfully.');
          } catch (\Exception $e) {
-              \Log::error('Error updating service: ' . $e->getMessage());
-
-            // \Log::info('Request data:', $request->all());
-     
+              \Log::error('Error updating service: ' . $e->getMessage());     
              return redirect()->back()->withErrors('An error occurred while updating the service. Please try again.');
          }
     }

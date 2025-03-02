@@ -130,17 +130,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id): RedirectResponse
-    {
-        User::find($id)->delete();
-        return redirect()->route('users.index')
-                        ->with('success','User deleted successfully');
-    }
 
-    public function getSelller(){
-        $data = User::role('seller')->get();
-        return view('admin.sellers.index',compact('data'));
-    }
 
 
     public function getCustomer(){
@@ -152,4 +142,7 @@ class UserController extends Controller
         $data = User::withoutRole(['seller', 'customers'])->get();
         return view('admin.clients.index',compact('data'));
     }
+
+
+
 }

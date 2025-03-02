@@ -18,13 +18,11 @@
                 </div>
             </div>
         </div>
-
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
         @endif
-
             <form action="{{ route('services.update', $services->id) }}" method="post" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -48,25 +46,21 @@
                             @enderror
                 </div>
             </div>
-
             <div class="row">
                 <div class="col">
                     <label for="type" class="form-label">Type:</label>
-                    <select class="form-select {{ $errors->has('type') ? 'is-invalid' : '' }}" name="type">
-                        <option value="" {{ $services->status === null ? 'selected' : '' }}>Select Type</option>
+                    <select class="form-select" name="type">
                         <option value="1" {{ $services->type == 1 ? 'selected' : '' }}>Services</option>
-                        <option value="0" {{ $services->type == 2 ? 'selected' : '' }}>Properties</option>
+                        <option value="2" {{ $services->type == 2 ? 'selected' : '' }}>Properties</option>
                     </select>
                 </div>
                 <div class="col">
                     <label for="description" class="form-label">Descriptions:</label>
-                        <textarea class="form-control" id="editor1" name="description" rows="10">{{ $services->description }}</textarea>
+                        <textarea class="form-control" id="editor1" name="description">{{ $services->description }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                 </div>
-
-
             <div class="row">
                 <div class="col mt-3">
                     <label class="form-label">Existing Images:</label>
@@ -119,5 +113,4 @@
         document.querySelector(`input[value="${imagePath}"]`).remove();
     });
 });
-
 </script>

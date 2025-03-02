@@ -24,7 +24,9 @@ class User extends Authenticatable implements JWTSubject
         'last_name',
         'email',
         'phone',
+        'user_type',
         'password',
+        'pincode',
     ];
 
     /**
@@ -66,14 +68,19 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(\Spatie\Permission\Models\Role::class, 'model_has_roles', 'model_id', 'role_id');
     }
     
+    // public function customerDetails()
+    // {
+    //     return $this->hasOne(CustomerDetail::class);
+    // }
+
     public function customerDetails()
     {
-        return $this->hasOne(CustomerDetail::class);
+        return $this->hasone(CustomerDetail::class, 'user_id');
     }
 
     public function addresses()
     {
-        return $this->hasOne(Address::class, 'user_id');
+        return $this->hasMany(Address::class, 'user_id');
     }
 
     public function favorites()

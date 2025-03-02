@@ -36,7 +36,14 @@
                                     <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $rs->name }}</td>
-                                    <td><img src="{{ url('/').'/'.$rs->image }}" class="avatar avatar-sm me-3"></td>
+                                    <td>
+                                    @php
+                                        $images = explode(',', $rs->image); 
+                                    @endphp
+                                    @if (!empty($images[0]))  
+                                        <img src="{{ asset(trim($images[0])) }}" class="avatar avatar-sm me-3" style="width:50px; height:50px;">
+                                    @endif
+                                    </td>
                                     @if($rs->status === 1)
                                         <td>Active</td>
                                         @else

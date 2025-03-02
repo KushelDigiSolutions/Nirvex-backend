@@ -1,18 +1,22 @@
 <x-layout bodyClass="g-sidenav-show  bg-gray-200">
     @section('title')
-        {{ 'Customers List' }}
+        {{ 'Seller List' }}
     @endsection
-    <x-navbars.sidebar activePage='customers'></x-navbars.sidebar>
+    <x-navbars.sidebar activePage='seller'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        <x-navbars.navs.auth titlePage="customers"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="Seller"></x-navbars.navs.auth>
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
                         <div class="d-flex justify-content-between mb-2">
                             <div class="pull-left">
-                                <h2>Customers</h2>
+                                <h2>Seller</h2>
                             </div>
-                           
+                            <div class="pull-right">
+                                @can('role-create')
+                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('sellers.create') }}"><i class="fa fa-plus"></i>Sellers</a>
+                                @endcan
+                            </div>
                         </div>
                     <div class="card mydatatable">
                         <div class="table-responsive">
