@@ -1,6 +1,6 @@
 <x-layout bodyClass="g-sidenav-show bg-gray-200">
     @section('title')
-        {{ 'Sellers' }}
+        {{ 'Customers' }}
     @endsection
     <x-navbars.sidebar activePage='customers'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
@@ -10,12 +10,12 @@
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
                     <div class="d-flex justify-content-between mb-2">
                         <div class="pull-left">
-                            <h2>Seller Management</h2>
+                            <h2>Customers Management</h2>
                         </div>
                         <div class="pull-right">
                             @can('customer-create')
                                 <a class="btn btn-success btn-sm mb-2" href="{{ route('customers.create') }}">
-                                    <i class="fa fa-plus"></i> Create New Seller
+                                    <i class="fa fa-plus"></i> Create New Customer
                                 </a>
                             @endcan
                         </div>
