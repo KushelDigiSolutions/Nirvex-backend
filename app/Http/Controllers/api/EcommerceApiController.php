@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Pricing;
 use App\Models\Slider;
+use App\Models\Service;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Cart;
@@ -1575,6 +1576,30 @@ private function calculateTax($pricing)
         : $pricing->tax_value;
 }
 
+
+public function getServiceDetails($id){
+    // Fetch all active and non-expired coupons
+    $service = Service::where('status', 1) // Active coupons only
+        ->where('id', '=', $id) // Coupons that have not expired
+        ->get();
+
+    if ($service->isEmpty()) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Invalid Service or Property found.',
+            ],
+            'data' => [],
+        ], 404);
+    }
+
+    return response()->json([
+        'isSuccess' => true,
+        'errors' => null,
+        'data' => $service,
+    ], 200);
+
+}
 
 
 

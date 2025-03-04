@@ -32,7 +32,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::apiResource('services', ServiceController::class);
         Route::apiResource('orders', OrderApiController::class);
         Route::get('services', [ServiceController::class, 'getServices']);
-        Route::get('service-detail/{serviceId}', [ServiceController::class, 'getServiceDetails']);
+        Route::get('service-detail/{serviceId}', [EcommerceApiController::class, 'getServiceDetails']);
                     
         Route::get('/sliders', [EcommerceApiController::class, 'listSliders']);
         Route::get('/listProductsBySubCategory', [EcommerceApiController::class, 'listProductsBySubCategory']);
