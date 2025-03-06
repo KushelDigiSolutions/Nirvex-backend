@@ -28,4 +28,9 @@ class Variant extends Model
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+    public function pricing()
+    {
+        return $this->hasOne(Pricing::class, 'product_sku_id', 'sku');
+    }
+
 }

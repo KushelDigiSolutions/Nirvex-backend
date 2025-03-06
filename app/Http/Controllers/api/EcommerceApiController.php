@@ -41,7 +41,6 @@ class EcommerceApiController extends Controller
             'address_type' => 'required|integer|in:0,1', // 0: Home, 1: Office
             'pincode' => 'required|string|max:10',
         ]);
-       
         $user = auth()->user(); // Get the authenticated user
     
         // Create a new address entry
@@ -191,7 +190,7 @@ class EcommerceApiController extends Controller
             $user = auth()->user();
     
             // Validate the request to ensure 'address_id' is provided
-             $addressExists = \DB::table('addresses')->where('id', $id)->exists();
+            $addressExists = \DB::table('addresses')->where('id', $id)->exists();
     
             if (!$addressExists) {
                 return response()->json([
@@ -489,7 +488,7 @@ class EcommerceApiController extends Controller
         // Search in products table
         $productsFromProductsTable = Product::where(function ($q) use ($query) {
             $q->where('name', 'LIKE', "%{$query}%")
-              ->orWhere('availability', 'LIKE', "%{$query}%");
+            ->orWhere('availability', 'LIKE', "%{$query}%");
         })
             ->where('status', 1)
             ->select('id', 'name', 'image')
@@ -507,8 +506,8 @@ class EcommerceApiController extends Controller
         $productsFromVariantsTable = Product::join('variants', 'products.id', '=', 'variants.product_id')
             ->where(function ($q) use ($query) {
                 $q->where('variants.name', 'LIKE', "%{$query}%")
-                  ->orWhere('variants.sku', 'LIKE', "%{$query}%")
-                  ->orWhere('variants.short_description', 'LIKE', "%{$query}%");
+                ->orWhere('variants.sku', 'LIKE', "%{$query}%")
+                ->orWhere('variants.short_description', 'LIKE', "%{$query}%");
             })
             ->where('products.status', 1)
             ->select('products.id', 'products.name', 'products.image')
@@ -1149,7 +1148,6 @@ class EcommerceApiController extends Controller
                 'subtotal_price' => round(($pricing->price * $item->quantity), 2),
                 'subtotal_tax' => round(($tax * $item->quantity), 2),
                 'subtotal_shipping' => round(($pricing->ship_charges * $item->quantity), 2),
-               
                 // Include product and variant images
                 'product_name' => optional($item->variant?->product)->name, // Product name
                 'product_image_url' => explode(",",optional($item->variant?->product)->image) ?? [], // Product image URL
@@ -1444,7 +1442,7 @@ public function removeCoupon(Request $request)
 public function createOrder(Request $request)
 {
     $user = $request->user();
-
+   
     // Fetch the user's cart with items and variants
     $cart = Cart::with(['items.variant', 'coupon'])->where('user_id', $user->id)->first();
 
@@ -1458,7 +1456,7 @@ public function createOrder(Request $request)
         return response()->json(['error' => 'Default address not set'], 400);
     }
     
-    $address = Address::find($user->default_address);
+    $address = Address::find($request->address_id);
     if (!$address) {
         return response()->json(['error' => 'Address not found'], 404);
     }
@@ -1600,7 +1598,299 @@ public function getServiceDetails($id){
     ], 200);
 
 }
+    /**
+     * Update user's first name and last name.
+     */
+    public function updateProfile(Request $request)
+    {
+        // Validate request data
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Update user profile details
+        $user->first_name = $request->input('first_name');
+        $user->last_name = $request->input('last_name');
+        $user->save();
+
+        return response()->json(['message' => 'Profile updated successfully!', 'user' => $user], 200);
+    }
+
+    public function updateProfilePhoto(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048', // Ensure it's an image file
+        ]);
+
+        // Get the authenticated user
+        $user = auth()->user();
+
+        if ($request->hasFile('photo')) {
+            // Retrieve the uploaded file
+            $file = $request->file('photo');
+
+            // Generate a unique name for the file
+            $fileName = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+
+            // Define the destination path in the public folder
+            $destinationPath = public_path('profile');
+
+            // Move the file to the destination path
+            $file->move($destinationPath, $fileName);
+
+            // Update the user's profile photo path in the database
+            $user->profile_photo = 'profile/' . $fileName;
+            $user->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Profile photo updated successfully!',
+                'photo_url' => url('profile/' . $fileName),
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => 'failure',
+            'message' => 'No image file uploaded!',
+        ], 400);
+    }
 
 
+    public function orderHistory(Request $request){
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile photo updated successfully!',
+        ], 200);
+    }
+
+
+    public function mobileUpdate(Request $request){
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile photo updated successfully!',
+        ], 200);
+    }
+
+
+    public function orderDetail($orderId){
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile photo updated successfully!',
+        ], 200);
+    }
+
+    public function orderTransaction($orderId){
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile photo updated successfully!',
+        ], 200);
+    }
+
+    public function verifyMobile(Request $request){
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile photo updated successfully!',
+        ], 200);
+    }
+
+    public function verifyEmail(Request $request){
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile photo updated successfully!',
+        ], 200);
+    }
+
+    public function searchVendorOrder(Request $request, $orderId)
+    {
+        // Get the authenticated user
+        $user = $request->user();
+
+        $order = Order::with('orderItems.product.variants.pricing')
+            ->where('id', $orderId)
+            ->where('vendor_id', $user->id)
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'Order not found or you do not have access to this order.',
+                ],
+                'data' => null,
+            ], 404);
+        }
+        $orderItems = $order->orderItems->map(function ($orderItem) {
+            $product = $orderItem->product;
+          /*   $pricing = Pricing::where('pincode', $user->pincode)
+            ->where('product_sku_id', $item->variant->sku)
+            ->where('status', 1)
+            ->first();
+            dd($product->variants->with('')); */
+            // Map product variants with pricing
+            if(!empty($product->variants)){
+            $variants = $product->variants->map(function ($variant) {
+                return [
+                    'id' => $variant->id,
+                    'name' => $variant->name,
+                    'image' => explode(',', $variant->image ?? ''), // Convert image string to array
+                    'type' => $variant->name,
+                    'sku' => $variant->sku,
+                    'short_description' => $variant->short_description,
+                    'min_quantity' => $variant->min_quantity,
+                    'price' => $variant->pricing ? [
+                        'mrp' => $variant->pricing->mrp,
+                        'price' => $variant->pricing->price,
+                        'tax_type' => $variant->pricing->tax_type,
+                        'tax_value' => $variant->pricing->tax_value,
+                        'ship_charges' => $variant->pricing->ship_charges,
+                        'valid_upto' => $variant->pricing->valid_upto,
+                        'is_cash' => $variant->pricing->is_cash,
+                    ] : null, // If no pricing is found, return null
+                ];
+            });}
+           // dd($variants);
+        });
+          // Prepare the response data
+          return response()->json([
+            'isSuccess' => true,
+            'errors' => [
+                'message' => null,
+            ],
+            'data' => [
+                'order_id' => $order->id,
+                'vendor_id' => $order->vendor_id,
+                'total_amount' => $order->total_amount,
+                'status' => $order->status,
+                'created_at' => $order->created_at,
+                'updated_at' => $order?->updated_at,
+                'order_items' => $orderItems, // Include mapped order items
+            ],
+        ], 200);
+    }
+    
+
+
+private function __getProductDetail(Request $request, $productId)
+{
+    // Fetch the product by ID with its relationships
+    $product = Product::with('category', 'subcategory', 'variants')->find($productId);
+
+    // Check if the product exists
+    if (!$product) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Product not found.',
+            ],
+            'data' => null,
+        ], 404);
+    }
+
+    // Convert the image field to an array
+    $images = $product->image ? explode(',', $product->image) : [];
+
+    // Get the authenticated user's default address
+    $user = $request->user(); // Assuming user is authenticated
+    $defaultPincode = null;
+
+    if ($user && $user->default_address) {
+        $address = Address::find($user->default_address);
+        if ($address) {
+            $defaultPincode = $address->pincode;
+        }
+    }
+
+    // Safely map variants with pricing based on pincode
+    $variants = optional($product)->variants->map(function ($variant) use ($defaultPincode, $product) {
+        // Fetch pricing based on pincode
+        $pricing = null;
+        if ($defaultPincode) {
+            $pricing = Pricing::where('pincode', $defaultPincode)
+                ->where('product_id', $product->id)
+                ->where('product_sku_id', $variant->sku)
+                ->where('status', 1)
+                ->first();
+        }
+
+        // Map the type field to human-readable values
+        $typeMapping = [
+            1 => 'Quality',
+            2 => 'Colour',
+            3 => 'Size',
+        ];
+        $typeName = $typeMapping[$variant->type] ?? 'Unknown'; // Default to "Unknown" if type is not mapped
+
+        return [
+            'id' => $variant->id,
+            'name' => $variant->name,
+            'sku' => $variant->sku,
+            'short_description' => $variant->short_description,
+            'min_quantity' => $variant->min_quantity,
+            'type' => $typeName, // Add the mapped type name
+            'price' => $pricing ? [
+                'mrp' => $pricing->mrp,
+                'price' => $pricing->price,
+                'tax_type' => $pricing->tax_type,
+                'tax_value' => $pricing->tax_value,
+                'ship_charges' => $pricing->ship_charges,
+                'valid_upto' => $pricing->valid_upto,
+                'is_cash' => $pricing->is_cash,
+            ] : null, // If no pricing is found, return null
+        ];
+    });
+
+    // Prepare the response with all necessary data
+    return response()->json([
+        'isSuccess' => true,
+        'errors' => [
+            'message' => null,
+        ],
+        'data' => [
+            ...$product->toArray(),
+            'image' => $images,
+            'category' => [
+                'id' => optional($product->category)->id, // Use optional chaining to avoid errors if category is null
+                'name' => optional($product->category)->name,
+            ],
+            'subcategory' => [
+                'id' => optional($product->subcategory)->id, // Use optional chaining to avoid errors if subcategory is null
+                'name' => optional($product->subcategory)->name,
+            ],
+            'variants' => $variants, // Include safely mapped variants
+        ],
+    ], 200);
+}
+
+
+public function vendorDashboard(Request $request){
+
+    $neworder = 0;
+    $processing = 0;
+    $completeOrder = 0;
+    $rejectOrder = 0;
+
+
+    return response()->json([
+        'isSuccess' => true,
+        'errors' => [
+            'message' => null,
+        ],
+        'data' => [
+            'new_order' => $neworder,
+            'process_order' => $processing,
+            'complete_order' => $completeOrder,
+            'reject_order' => $rejectOrder, // Include mapped order items
+        ],
+    ], 200);
+}
 
 }

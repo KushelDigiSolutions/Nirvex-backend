@@ -61,7 +61,21 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('/all-coupons', [EcommerceApiController::class, 'listAvailableCoupons']);
         Route::post('/apply-new-coupon', [EcommerceApiController::class, 'applyCoupon']);
         Route::post('/remove-coupon', [EcommerceApiController ::class, 'removeCoupon']);
-        Route::get('/create-order', [EcommerceApiController ::class, 'createOrder']);
+        Route::post('/create-order', [EcommerceApiController ::class, 'createOrder']);
+        Route::post('/update-profile', [EcommerceApiController ::class, 'updateProfile']);
+        Route::put('/update-profile-photo', [EcommerceApiController ::class, 'updateProfilePhoto']);
+        Route::get('/my-orders', [EcommerceApiController ::class, 'orderHistory']);
+        Route::put('/mobile-update', [EcommerceApiController ::class, 'mobileUpdate']);
+        Route::get('/order-detail/{orderId}', [EcommerceApiController ::class, 'orderDetail']);
+        Route::get('/order-txn/{orderId}', [EcommerceApiController ::class, 'orderTransaction']);
+        Route::get('/verify-mobile/', [EcommerceApiController ::class, 'verifyMobile']);
+        Route::get('/verify-email/', [EcommerceApiController ::class, 'verifyEmail']);
+
+
+        //vendor level api
+
+        Route::get('/search-vendor-order/{orderId}', [EcommerceApiController ::class, 'searchVendorOrder']);
+        Route::get('/vendor-dashboard/', [EcommerceApiController ::class, 'vendorDashboard']);
     });
 });
 
