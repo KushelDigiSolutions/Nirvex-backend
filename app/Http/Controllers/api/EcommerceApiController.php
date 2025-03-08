@@ -11,10 +11,14 @@ use App\Models\Slider;
 use App\Models\Service;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Otp;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Rating;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -1710,8 +1714,41 @@ public function getServiceDetails($id){
         ]);
     }
 
+    public function sendSms($phone, $otp)
+{
+    $url = 'http://37.59.76.46/api/mt/SendSMS';
 
-    public function updateEmail(Request $request)
+    // Build the SMS message using the OTP
+    $message = "Dear Customer, your OTP to access your Nirviex Real Estate account is: {$otp} It will expire in 10 minutes. If you did not request this, please contact support at Info@nirviex.com";
+
+    // Define the query parameters. Consider moving sensitive values to your .env file.
+    $params = [
+        'user'           => 'Nirviex',
+        'password'       => 'q12345',
+        'senderid'       => 'NRVIEX', // Remove space if not intended
+        'channel'        => 'Trans',
+        'DCS'            => 0,
+        'flashsms'       => 0,
+        'number'         => $phone,
+        'text'           => $message,
+        'DLTTemplateId'  => '1707173564539573448',
+        'TelemarketerId' => '12071651285xxxxxxx',
+        'Peid'           => '1701173553742338688',
+        'route'          => '06'
+    ];
+
+    // Make the HTTP GET request
+    $response = Http::get($url, $params);
+
+    if ($response->successful()) {
+        return $response->body(); // Process response as needed
+    } else {
+        // Log or handle error appropriately
+        return response()->json(['error' => 'Failed to send SMS'], $response->status());
+    }
+}
+
+    public function emailUpdate(Request $request)
     {
         try {
             $request->validate([
@@ -1748,7 +1785,7 @@ public function getServiceDetails($id){
         $user->save();
 
         // Send email verification notification
-        $user->sendEmailVerificationNotification();
+        $this->sendEmailWithOtp();
 
         // Generate and send OTP
         $otp = rand(100000, 999999);
