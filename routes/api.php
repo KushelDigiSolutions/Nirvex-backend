@@ -66,6 +66,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::put('/update-profile-photo', [EcommerceApiController ::class, 'updateProfilePhoto']);
         Route::get('/my-orders', [EcommerceApiController ::class, 'orderHistory']);
         Route::put('/mobile-update', [EcommerceApiController ::class, 'mobileUpdate']);
+        Route::put('/email-update', [EcommerceApiController ::class, 'emailUpdate']);
         Route::get('/order-detail/{orderId}', [EcommerceApiController ::class, 'orderDetail']);
         Route::get('/order-txn/{orderId}', [EcommerceApiController ::class, 'orderTransaction']);
         Route::get('/verify-mobile/', [EcommerceApiController ::class, 'verifyMobile']);

@@ -1673,11 +1673,109 @@ public function getServiceDetails($id){
     }
 
 
-    public function mobileUpdate(Request $request){
+    public function mobileUpdate(Request $request)
+    {
+        try {
+            $request->validate([
+                'phone' => 'required|digits:10|unique:users,phone,' . auth()->id(), // Assuming you're using Laravel's auth system
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation errors occurred',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
+        $user = auth()->user();
+        $user->phone = $request->phone;
+        $user->save();
+
+        $otp = rand(100000, 999999);
+        Otp::create([
+            'user_id' => $user->id,
+            'otp' => $otp,
+            'status' => 'pending',
+            'expiry' => Carbon::now()->addMinutes(10),
+            'complete' => false,
+        ]);
+
+        Log::info("OTP for user {$user->phone}: {$otp}");
+
+        $this->sendSms($user->phone, $otp);
+
         return response()->json([
-            'status' => 'success',
-            'message' => 'Profile photo updated successfully!',
-        ], 200);
+            'success' => true,
+            'message' => 'Mobile number updated successfully. OTP has been sent to your new mobile number.',
+        ]);
+    }
+
+
+    public function updateEmail(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email|unique:users,email',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'Validation errors occurred',
+                    'details' => $e->errors(),
+                ],
+                'data' => [],
+            ], 422);
+        }
+
+        $email = $request->email;
+
+        // Check if email exists
+        if (User::where('email', $email)->exists()) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'Email address already exists.',
+                ],
+                'data' => [],
+            ], 400);
+        }
+
+        // Update user's email and set email_verified_at to null
+        $user = auth()->user();
+        $user->email = $email;
+        $user->email_verified_at = null;
+        $user->save();
+
+        // Send email verification notification
+        $user->sendEmailVerificationNotification();
+
+        // Generate and send OTP
+        $otp = rand(100000, 999999);
+        $this->sendEmailWithOtp($user->email, $otp);
+
+        // Optionally store OTP in database
+        Otp::create([
+            'user_id' => $user->id,
+            'otp' => $otp,
+            'status' => 'pending',
+            'expiry' => Carbon::now()->addMinutes(10),
+            'complete' => false,
+        ]);
+
+        return response()->json([
+            'isSuccess' => true,
+            'errors' => [
+                'message' => 'Email updated successfully. OTP has been sent to your new email address.',
+            ],
+            'data' => [],
+        ]);
+    }
+
+    // Example method to send email with OTP
+    private function sendEmailWithOtp($email, $otp)
+    {
+        Mail::to($email)->send(new OtpEmail($otp));
     }
 
 
@@ -1892,5 +1990,7 @@ public function vendorDashboard(Request $request){
         ],
     ], 200);
 }
+
+
 
 }
