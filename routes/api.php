@@ -66,8 +66,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('/update-profile', [EcommerceApiController ::class, 'updateProfile']);
         Route::put('/update-profile-photo', [EcommerceApiController ::class, 'updateProfilePhoto']);
         Route::get('/my-orders', [EcommerceApiController ::class, 'orderHistory']);
-        Route::put('/mobile-update', [EcommerceApiController ::class, 'mobileUpdate']);
-        Route::put('/email-update', [EcommerceApiController ::class, 'emailUpdate']);
+        Route::post('/mobile-update', [EcommerceApiController ::class, 'mobileUpdate']);
+        Route::post('/email-update', [EcommerceApiController ::class, 'emailUpdate']);
         Route::get('/order-detail/{orderId}', [EcommerceApiController ::class, 'orderDetail']);
         Route::get('/order-txn/{orderId}', [EcommerceApiController ::class, 'orderTransaction']);
         Route::get('/verify-mobile/', [EcommerceApiController ::class, 'verifyMobile']);
@@ -78,6 +78,11 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
         Route::get('/search-vendor-order/{orderId}', [EcommerceApiController ::class, 'searchVendorOrder']);
         Route::get('/vendor-dashboard/', [EcommerceApiController ::class, 'vendorDashboard']);
+        Route::get('/vendor-orders/', [EcommerceApiController ::class, 'vendorOrders']);
+        Route::get('/update-order-status/', [EcommerceApiController ::class, 'updateVendorOrderStatus']);
+        Route::get('/get-vendor-stock/', [EcommerceApiController ::class, 'getVendorStocks']);
+        Route::get('/update-vendor-stocks/', [EcommerceApiController ::class, 'updateVendorEarnings']);
+        Route::get('/get-vendor-earnings/', [EcommerceApiController ::class, 'getVendorEarnings']);
     });
 });
 

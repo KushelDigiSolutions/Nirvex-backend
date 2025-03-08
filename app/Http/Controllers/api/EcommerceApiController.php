@@ -11,10 +11,14 @@ use App\Models\Slider;
 use App\Models\Service;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Otp;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Rating;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -348,61 +352,88 @@ class EcommerceApiController extends Controller
     }
 
     public function uploadProfileImage(Request $request)
-    {
-        // Validate the request to ensure an image is provided
-        $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048', // Max size: 2MB
-        ]);
+{
+    // Validate the request to ensure an image is provided
+    $validator = Validator::make($request->all(), [
+        'photo' => 'required',
+    ]);
 
-        if ($validator->fails()) {
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => $validator->errors()->first(),
+        ], 400);
+    }
+
+    // Retrieve the authenticated user from the JWT token
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not authenticated.',
+        ], 401);
+    }
+
+    // Process the uploaded image
+    $photoData = $request->input('photo');
+    if (isset($photoData['_parts'])) {
+        $fileData = $photoData['_parts'][0][1];
+        $fileUri = $fileData['uri'];
+        $fileName = $fileData['name'];
+        $fileType = $fileData['type'];
+
+        // Check if the file is an image
+        if (!in_array($fileType, ['image/jpeg', 'image/jpg', 'image/png'])) {
             return response()->json([
                 'success' => false,
-                'message' => $validator->errors()->first(),
+                'message' => 'Only JPEG, JPG, and PNG images are allowed.',
             ], 400);
         }
 
-        // Retrieve the authenticated user from the JWT token
-        $user = Auth::user();
-
-        if (!$user) {
+        // Check the file size
+        $fileSize = filesize($fileUri);
+        if ($fileSize > 2048 * 1024) { // Max size: 2MB
             return response()->json([
                 'success' => false,
-                'message' => 'User not authenticated.',
-            ], 401);
+                'message' => 'Image size exceeds the maximum allowed size of 2MB.',
+            ], 400);
         }
 
-        // Process the uploaded image
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
+        // Generate a unique file name with timestamp
+        $newFileName = time() . '_' . uniqid() . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
 
-            // Generate a unique file name with timestamp
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        // Define the upload path
+        $uploadPath = public_path('upload/profiles');
 
-            // Define the upload path
-            $uploadPath = public_path('upload/profiles');
-
-            // Move the file to the upload path
-            $file->move($uploadPath, $fileName);
-
-            // Generate the file URL (relative path)
-            $fileUrl = "/upload/profiles/$fileName";
-
-            // Update the user's image column in the database
-            $user->image = $fileUrl;
-            $user->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile image uploaded successfully.',
-                'image_url' => $fileUrl,
-            ]);
+        // Move the file to the upload path
+        // Since the file is not directly accessible via Laravel's file handling,
+        // you might need to use PHP's built-in functions to copy the file.
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
         }
+        copy($fileUri, $uploadPath . '/' . $newFileName);
+
+        // Generate the file URL (relative path)
+        $fileUrl = "/upload/profiles/$newFileName";
+
+        // Update the user's image column in the database
+        $user->image = $fileUrl;
+        $user->save();
 
         return response()->json([
-            'success' => false,
-            'message' => 'No image file found in the request.',
-        ], 400);
-    } 
+            'success' => true,
+            'message' => 'Profile image uploaded successfully.',
+            'image_url' => $fileUrl,
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'No image file found in the request.',
+    ], 400);
+}
+
 
     
     public function search(Request $request)
@@ -1710,8 +1741,41 @@ public function getServiceDetails($id){
         ]);
     }
 
+    public function sendSms($phone, $otp)
+{
+    $url = 'http://37.59.76.46/api/mt/SendSMS';
 
-    public function updateEmail(Request $request)
+    // Build the SMS message using the OTP
+    $message = "Dear Customer, your OTP to access your Nirviex Real Estate account is: {$otp} It will expire in 10 minutes. If you did not request this, please contact support at Info@nirviex.com";
+
+    // Define the query parameters. Consider moving sensitive values to your .env file.
+    $params = [
+        'user'           => 'Nirviex',
+        'password'       => 'q12345',
+        'senderid'       => 'NRVIEX', // Remove space if not intended
+        'channel'        => 'Trans',
+        'DCS'            => 0,
+        'flashsms'       => 0,
+        'number'         => $phone,
+        'text'           => $message,
+        'DLTTemplateId'  => '1707173564539573448',
+        'TelemarketerId' => '12071651285xxxxxxx',
+        'Peid'           => '1701173553742338688',
+        'route'          => '06'
+    ];
+
+    // Make the HTTP GET request
+    $response = Http::get($url, $params);
+
+    if ($response->successful()) {
+        return $response->body(); // Process response as needed
+    } else {
+        // Log or handle error appropriately
+        return response()->json(['error' => 'Failed to send SMS'], $response->status());
+    }
+}
+
+    public function emailUpdate(Request $request)
     {
         try {
             $request->validate([
@@ -1746,9 +1810,6 @@ public function getServiceDetails($id){
         $user->email = $email;
         $user->email_verified_at = null;
         $user->save();
-
-        // Send email verification notification
-        $user->sendEmailVerificationNotification();
 
         // Generate and send OTP
         $otp = rand(100000, 999999);
