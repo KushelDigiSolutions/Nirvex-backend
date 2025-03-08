@@ -352,61 +352,88 @@ class EcommerceApiController extends Controller
     }
 
     public function uploadProfileImage(Request $request)
-    {
-        // Validate the request to ensure an image is provided
-        $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048', // Max size: 2MB
-        ]);
+{
+    // Validate the request to ensure an image is provided
+    $validator = Validator::make($request->all(), [
+        'photo' => 'required',
+    ]);
 
-        if ($validator->fails()) {
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => $validator->errors()->first(),
+        ], 400);
+    }
+
+    // Retrieve the authenticated user from the JWT token
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not authenticated.',
+        ], 401);
+    }
+
+    // Process the uploaded image
+    $photoData = $request->input('photo');
+    if (isset($photoData['_parts'])) {
+        $fileData = $photoData['_parts'][0][1];
+        $fileUri = $fileData['uri'];
+        $fileName = $fileData['name'];
+        $fileType = $fileData['type'];
+
+        // Check if the file is an image
+        if (!in_array($fileType, ['image/jpeg', 'image/jpg', 'image/png'])) {
             return response()->json([
                 'success' => false,
-                'message' => $validator->errors()->first(),
+                'message' => 'Only JPEG, JPG, and PNG images are allowed.',
             ], 400);
         }
 
-        // Retrieve the authenticated user from the JWT token
-        $user = Auth::user();
-
-        if (!$user) {
+        // Check the file size
+        $fileSize = filesize($fileUri);
+        if ($fileSize > 2048 * 1024) { // Max size: 2MB
             return response()->json([
                 'success' => false,
-                'message' => 'User not authenticated.',
-            ], 401);
+                'message' => 'Image size exceeds the maximum allowed size of 2MB.',
+            ], 400);
         }
 
-        // Process the uploaded image
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
+        // Generate a unique file name with timestamp
+        $newFileName = time() . '_' . uniqid() . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
 
-            // Generate a unique file name with timestamp
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        // Define the upload path
+        $uploadPath = public_path('upload/profiles');
 
-            // Define the upload path
-            $uploadPath = public_path('upload/profiles');
-
-            // Move the file to the upload path
-            $file->move($uploadPath, $fileName);
-
-            // Generate the file URL (relative path)
-            $fileUrl = "/upload/profiles/$fileName";
-
-            // Update the user's image column in the database
-            $user->image = $fileUrl;
-            $user->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile image uploaded successfully.',
-                'image_url' => $fileUrl,
-            ]);
+        // Move the file to the upload path
+        // Since the file is not directly accessible via Laravel's file handling,
+        // you might need to use PHP's built-in functions to copy the file.
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
         }
+        copy($fileUri, $uploadPath . '/' . $newFileName);
+
+        // Generate the file URL (relative path)
+        $fileUrl = "/upload/profiles/$newFileName";
+
+        // Update the user's image column in the database
+        $user->image = $fileUrl;
+        $user->save();
 
         return response()->json([
-            'success' => false,
-            'message' => 'No image file found in the request.',
-        ], 400);
-    } 
+            'success' => true,
+            'message' => 'Profile image uploaded successfully.',
+            'image_url' => $fileUrl,
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'No image file found in the request.',
+    ], 400);
+}
+
 
     
     public function search(Request $request)
@@ -1783,8 +1810,6 @@ public function getServiceDetails($id){
         $user->email = $email;
         $user->email_verified_at = null;
         $user->save();
-
-      
 
         // Generate and send OTP
         $otp = rand(100000, 999999);
