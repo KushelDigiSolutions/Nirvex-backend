@@ -1784,8 +1784,7 @@ public function getServiceDetails($id){
         $user->email_verified_at = null;
         $user->save();
 
-        // Send email verification notification
-        $this->sendEmailWithOtp();
+      
 
         // Generate and send OTP
         $otp = rand(100000, 999999);

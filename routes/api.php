@@ -77,6 +77,11 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
         Route::get('/search-vendor-order/{orderId}', [EcommerceApiController ::class, 'searchVendorOrder']);
         Route::get('/vendor-dashboard/', [EcommerceApiController ::class, 'vendorDashboard']);
+        Route::get('/vendor-orders/', [EcommerceApiController ::class, 'vendorOrders']);
+        Route::get('/update-order-status/', [EcommerceApiController ::class, 'updateVendorOrderStatus']);
+        Route::get('/get-vendor-stock/', [EcommerceApiController ::class, 'getVendorStocks']);
+        Route::get('/update-vendor-stocks/', [EcommerceApiController ::class, 'updateVendorEarnings']);
+        Route::get('/get-vendor-earnings/', [EcommerceApiController ::class, 'getVendorEarnings']);
     });
 });
 
