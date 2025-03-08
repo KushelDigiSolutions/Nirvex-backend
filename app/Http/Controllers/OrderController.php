@@ -43,7 +43,6 @@ class OrderController extends Controller
                 'view' => '<a href="' . route('orders.show', $order->id) . '" class="btn btn-sm btn-primary">View</a>',
             ];
         });
-
         //  echo '<pre>'; print_r($totalOrders); die;
 
         return view('admin.orders.index', compact('totalOrders'));
@@ -103,4 +102,59 @@ class OrderController extends Controller
     {
         //
     }
+
+    public function updateStatus(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'order_status' => 'required|integer|min:0|max:9', 
+        ]);
+
+        $order = Order::find($request->order_id);
+        $order->order_status = $request->order_status;
+        $order->save();
+
+    $notificationType = $this->getNotificationType($request->order_status);
+    $message = "Your order #{$order->order_id} status has been updated to: " . $this->getStatusText($request->order_status);
+
+    createUserNotification($order->user_id, $notificationType, $message);
+
+        return response()->json(['message' => 'Order status updated successfully!']);
+    }
+
+    private function getNotificationType($status)
+{
+    $mapping = [
+        1 => 2,  
+        2 => 4,  
+        3 => 4,  
+        4 => 5,  
+        5 => 6,  
+        6 => 11, 
+        7 => 7,  
+        8 => 7,  
+        9 => 7,  
+    ];
+
+    return $mapping[$status] ?? null;
+}
+
+private function getStatusText($status)
+{
+    $statusTexts = [
+        0 => "Created",
+        1 => "Payment Done",
+        2 => "Order Accepted",
+        3 => "Order Preparing",
+        4 => "Order Shipped",
+        5 => "Order Delivered",
+        6 => "Order Completed",
+        7 => "Order Rejected",
+        8 => "Order Returned",
+        9 => "Order Cancelled",
+    ];
+
+    return $statusTexts[$status] ?? "Unknown Status";
+}
+
 }

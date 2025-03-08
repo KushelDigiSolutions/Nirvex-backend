@@ -26,6 +26,9 @@
         "spatie/laravel-ignition": "^2.4"
     },
     "autoload": {
+        "files": [
+        "app/Helpers/CommonHelper.php"
+    ],
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",

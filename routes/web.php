@@ -34,6 +34,7 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::resource('subcategories', SubcategoryController::class);
         Route::delete('/products/image/remove', [ProductController::class, 'deleteImage'])->name('product.image.delete');
         Route::resource('orders', OrderController::class);
+        Route::post('/update-order-status', [OrderController::class,'updateStatus'])->name('update.order.status');
         Route::resource('pricings', PriceController::class);
         Route::resource('settings', SettingController::class);
         Route::resource('services', ServiceController::class);

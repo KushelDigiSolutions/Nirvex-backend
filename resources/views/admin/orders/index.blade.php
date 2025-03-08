@@ -44,7 +44,21 @@
                                         <td>{{ $data['count'] }}</td>
                                         <td>{{ $data['total_amount'] }}</td>
                                         <td>{{ $data['ordered'] }}</td>
-                                        <td>{{ $data['status'] }}</td>
+                                        <td>  
+                                            <select class="status-dropdown" data-id="{{ $data['order_id'] }}">
+                                               <option value="0" {{ $data['status'] == 0 ? 'selected' : '' }}>Created</option>
+                                                <option value="1" {{ $data['status'] == 1 ? 'selected' : '' }}>Payment Done</option>
+                                                <option value="2" {{ $data['status'] == 2 ? 'selected' : '' }}>Order Accepted</option>
+                                                <option value="3" {{ $data['status'] == 3 ? 'selected' : '' }}>Order Preparing</option>
+                                                <option value="4" {{ $data['status'] == 4 ? 'selected' : '' }}>Order Shipped</option>
+                                                <option value="5" {{ $data['status'] == 5 ? 'selected' : '' }}>Order Delivered</option>
+                                                <option value="6" {{ $data['status'] == 6 ? 'selected' : '' }}>Order Completed</option>
+                                                <option value="7" {{ $data['status'] == 7 ? 'selected' : '' }}>Order Rejected</option>
+                                                <option value="8" {{ $data['status'] == 8 ? 'selected' : '' }}>Order Returned</option>
+                                                <option value="9" {{ $data['status'] == 9 ? 'selected' : '' }}>Order Cancelled</option>
+                                            </select>
+                                            <div id="status-message" style="display: none; color: green; margin-top: 10px;"></div>
+                                        </td>
                                         <td><a href="{{ route('orders.show', encrypt($data['order_id'])) }}" class="btn btn-sm btn-secondary"><i class="far fa-eye"></i></a></td>
                                         <td><a class="btn btn-success btn-sm mb-2" href="" target="_blabk">Download</a></td>
                                     </tr>
@@ -92,6 +106,41 @@
             });
         });
     </script>
+
+<script>
+    $(document).ready(function () {
+    $('.status-dropdown').change(function () {
+        let status = $(this).val();
+        let orderId = $(this).data('id');
+
+        if (status === "") {
+            alert("Invalid status selected.");
+            return;
+        }
+        console.log("Updating Order ID:", orderId, "to Status:", status); 
+        $.ajax({
+            url: "{{ route('update.order.status') }}",
+            type: "POST",
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                order_id: orderId,
+                order_status: status 
+            },
+            success: function (response) {
+                console.log("Success response:", response);
+                alert(response.message);
+            },
+            error: function (xhr) {
+                console.log("AJAX Error:", xhr.responseText);
+                alert("Error updating status. Please try again.");
+            }
+        });
+    });
+});
+
+</script>
+
+
     <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
     @endpush
 </x-layout>

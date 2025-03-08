@@ -33,6 +33,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::apiResource('orders', OrderApiController::class);
         Route::get('services', [ServiceController::class, 'getServices']);
         Route::get('service-detail/{serviceId}', [EcommerceApiController::class, 'getServiceDetails']);
+        Route::post('/update-status', [OrderController::class, 'updateStatus']);
                     
         Route::get('/sliders', [EcommerceApiController::class, 'listSliders']);
         Route::get('/listProductsBySubCategory', [EcommerceApiController::class, 'listProductsBySubCategory']);

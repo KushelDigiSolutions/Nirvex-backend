@@ -85,4 +85,55 @@ class OrderApiController extends Controller
     {
         //
     }
+
+    public function updateStatus(Request $request)
+{
+    try {
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'order_status' => 'required|integer|min:0|max:9', 
+        ]);
+
+        $order = Order::find($request->order_id);
+
+        if (!$order) {
+
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'No Order found.',
+                ],
+                'data' =>[],
+            ], 401);
+        }
+
+        $order->order_status = $request->order_status;
+        $order->save();
+
+        $notificationType = $this->getNotificationType($request->order_status);
+        $message = "Your order #{$order->id} status has been updated to: " . $this->getStatusText($request->order_status);
+
+        createUserNotification($order->user_id, $notificationType, $message);
+
+        return response()->json([
+            'isSuccess' => true,
+            'errors' => [
+            'message' => 'Order status updated successfully!',
+            ],
+            'order' => [
+                'order_id' => $order->id,
+                'status' => $this->getStatusText($request->order_status),
+                'updated_at' => $order->updated_at->format('Y-m-d H:i:s'),
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'isSuccess' => false,
+            'message' => 'Something went wrong. Please try again!',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 }

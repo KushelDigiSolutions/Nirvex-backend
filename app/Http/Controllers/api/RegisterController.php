@@ -45,7 +45,15 @@ class RegisterController extends Controller
             ['password'=> bcrypt($request->password)]
         ));
 
+
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        createUserNotification(
+            $user->id,
+            1, 
+            'Welcome to our platform, ' . $user->name . '!',
+            ['registered_at' => now()]
+        );
 
         return response()->json(['isSuccess'=>true,
            'error' => ['message' => 'Registration created successfully'],
