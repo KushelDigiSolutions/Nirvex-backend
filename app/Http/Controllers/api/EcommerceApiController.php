@@ -281,16 +281,16 @@ class EcommerceApiController extends Controller
                 'products.id as product_id',
                 'products.name',
                 DB::raw("SUBSTRING_INDEX(products.image, ',', 1) as image"), // Get the first image
-                'products.sale_price',
+                'products.mrp',
                 'cart_items.quantity',
-                DB::raw('products.sale_price * cart_items.quantity as total_price') // Calculate total price per item
+                DB::raw('products.mrp * cart_items.quantity as total_price') // Calculate total price per item
             )
             ->get();
 
         // Calculate order totals
         $grandTotal = $cartItems->sum('total_price'); // Total price (grand total)
         $salePrice = $cartItems->sum(function ($item) {
-            return $item->sale_price * $item->quantity; // Sale price per item
+            return $item->mrp * $item->quantity; // Sale price per item
         });
         $totalTax = 0; // Assuming no tax calculation for now
 
@@ -318,7 +318,7 @@ class EcommerceApiController extends Controller
                 'qty' => $item->quantity,
                 'tax' => 0,                // Assuming no tax calculation for now
                 'total_price' => $item->total_price, // Total price per item
-                'sale_price' => $item->sale_price,   // Sale price per item
+                'sale_price' => $item->mrp,   // Sale price per item
                 'delivery_status' => 1,   // Default to delivered for now
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -1555,7 +1555,7 @@ public function createOrder(Request $request)
     $razorpay = new Api($apiKey, $apiSecret);
 
     // Prepare Razorpay order payload
-    $razorpayOrderPayload = [
+   /*  $razorpayOrderPayload = [
         'amount' => round($cart->grand_total * 100), // Amount in paise
         'currency' => 'INR',
         'receipt' => 'order_' . uniqid(),
@@ -1564,18 +1564,34 @@ public function createOrder(Request $request)
             'email' => $user->email,
         ],
     ];
-
-    try {
-        // Create Razorpay order
-        $razorpayOrder = $razorpay->order->create($razorpayOrderPayload);
-        $razorpayOrderId = $razorpayOrder['id'];
-    } catch (\Exception $e) {
-        return response()->json([
-            'isSuccess' => false,
-            'errors' => [
-                'message' => "Failed to create Razorpay order: {$e->getMessage()}",
-            ],
-        ], 500);
+ */
+    $cashfreeOrderId = "";
+    $paymentSessionId = "";
+    if(!$request->is_cash){
+        try {
+            // Create Razorpay order
+        //  $razorpayOrder = $razorpay->order->create($razorpayOrderPayload);
+        // $razorpayOrderId = $razorpayOrder['id'];
+            // Generate Cashfree Order ID
+            $cashfreeOrderData = $this->generateCashfreeOrder($user, $cart->total_mrp);
+            if (!$cashfreeOrderData['success']) {
+                return response()->json([
+                    'message' => $cashfreeOrderData['message'],
+                    'status' => false,
+                ], 400);
+                exit;
+            }
+        // dd($cashfreeOrderData);
+            $cashfreeOrderId = $cashfreeOrderData['message']['order_id'];
+            $paymentSessionId = $cashfreeOrderData['message']['payment_session_id'];
+        } catch (\Exception $e) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => "Failed to create Razorpay order: {$e->getMessage()}",
+                ],
+            ], 500);
+        }
     }
 
 
@@ -1594,7 +1610,8 @@ public function createOrder(Request $request)
             'status' => 'pending',
             'order_status' => 0,
             'address_id' => $address->id,
-            'razor_order_id' =>  $razorpayOrderId,
+            'pg_order_id' => $cashfreeOrderId,
+            'pg_session_id' => $paymentSessionId,
         ]);
 
         // Create order items from cart items
@@ -1621,7 +1638,8 @@ public function createOrder(Request $request)
 
         return response()->json([
             'order' => $order,
-            'razorpay_order_id' => $order->razor_order_id
+            'pg_order_id' => $cashfreeOrderId,
+            'pg_session_id' => $paymentSessionId
         ]);
 
     } catch (\Exception $e) {
@@ -1638,6 +1656,55 @@ private function createRazorpayOrder($razorpay, $cart)
         'currency' => 'INR',
         'receipt' => 'order_'.Str::random(10),
     ])['id'];
+}
+
+private function generateCashfreeOrder($user, $grandTotal)
+{
+
+    try {
+        
+        $unixTimestamp = now()->timestamp;
+        $response = Http::withHeaders([
+            'x-client-id' => env('CASHFREE_APP_ID'), // Replace with your APP ID
+            'x-client-secret' => env('CASHFREE_SECRET_KEY'), // Replace with your Secret Key
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'x-api-version' => '2023-08-01',
+        ])->post(env('CASHFREE_API_URL'), [
+            "order_amount" => $grandTotal,
+            "order_currency" => "INR",
+            "order_id" => $user->id."_".$unixTimestamp,
+            "customer_details" => [
+                "customer_id" => $user->first_name,
+                "customer_phone" => $user->phone,
+            ],
+            "order_meta" => [
+                "return_url" => "https://www.cashfree.com/devstudio/preview/pg/web/checkout?order_id={order_id}",
+            ],
+        ]);
+        
+        // Handle the response
+        if ($response->successful()) {
+            $responseData = $response->json();
+            return [
+                'success' => true,
+                'message' => $responseData,
+            ];
+            
+        } else {
+            // Log or handle errors
+            return [
+                'success' => false,
+                'message' => $response->body(),
+            ];
+        }
+
+    } catch (\Exception $e) {
+        return [
+            "success"   => false,
+            "message"   => "Exception: {$e->getMessage()}",
+        ];
+    }
 }
 
 // Helper function to get variant pricing

@@ -53,7 +53,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::delete('/cart/clear', [EcommerceApiController::class, 'clearCart']);
         Route::get('/cart', [EcommerceApiController::class, 'getCartItems']);
         Route::get('/checkout', [EcommerceApiController::class, 'checkout']);
-        Route::post('/orderCreate', [EcommerceApiController::class, 'orderCreate']);
+        Route::post('/orderCreate', [EcommerceApiController::class, 'createOrder']);
         Route::post('/cart/add-to-cart', [EcommerceApiController::class, 'addToCart']);
         Route::delete('/cart/remove/{itemId}', [EcommerceApiController::class, 'deleteFromCart']);
         Route::delete('/cart/clear', [EcommerceApiController::class, 'clearCart']);
