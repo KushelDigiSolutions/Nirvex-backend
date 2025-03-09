@@ -1019,6 +1019,60 @@ class EcommerceApiController extends Controller
         ], 201);
     }
     
+    public function removeFromCart(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'variant_id' => 'required|exists:variants,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+    
+        $user = $request->user();
+    
+        // Get or create a cart for the user
+        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+    
+        // Check if the item is already in the cart
+        $cartItem = CartItem::where('cart_id', $cart->id)
+            ->where('variant_id', $validated['variant_id'])
+            ->first();
+    
+        if ($cartItem) {
+            // Decrease the quantity by requested amount
+            $newQuantity = $cartItem->quantity - $validated['quantity'];
+    
+            if ($newQuantity <= 0) {
+                // Soft delete if quantity is zero or negative
+                $cartItem->delete(); // Ensure CartItem model uses SoftDeletes trait
+            } else {
+                // Update quantity if still positive
+                $cartItem->update(['quantity' => $newQuantity]);
+            }
+        } else {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'Item not found in cart.',
+                ],
+                'data' => [],
+            ], 404);
+        }
+    
+        // Count the total number of distinct variants in the cart (excluding soft-deleted items)
+        $itemCount = CartItem::where('cart_id', $cart->id)->count();
+    
+        return response()->json([
+            'isSuccess' => true,
+            'errors' => [
+                'message' => 'Item removed from cart successfully.',
+            ],
+            'data' => [
+                'item_count' => $itemCount,
+            ],
+        ], 200);
+    }
+    
+    
 
 
     public function deleteFromCart(Request $request, $itemId)
