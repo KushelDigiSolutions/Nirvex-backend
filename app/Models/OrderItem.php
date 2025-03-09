@@ -31,5 +31,10 @@ class OrderItem extends Model
     }
 
     
+    public function variant()
+    {
+        return $this->belongsTo(Variant::class, 'variant_id');
+    }
+    
     
 }

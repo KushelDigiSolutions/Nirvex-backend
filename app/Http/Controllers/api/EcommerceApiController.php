@@ -2129,7 +2129,7 @@ public function getServiceDetails($id){
         // Get the authenticated user
         $user = $request->user();
 
-        $order = Order::with('orderItems.product.variants.pricing')
+        $order = Order::with(['orderItems.product','orderItems.variant'])
             ->where('id', $orderId)
             ->where('vendor_id', $user->id)
             ->first();
@@ -2143,39 +2143,12 @@ public function getServiceDetails($id){
                 'data' => null,
             ], 404);
         }
-        $orderItems = $order->orderItems->map(function ($orderItem) {
-            $product = $orderItem->product;
-          /*   $pricing = Pricing::where('pincode', $user->pincode)
-            ->where('product_sku_id', $item->variant->sku)
-            ->where('status', 1)
-            ->first();
-            dd($product->variants->with('')); */
-            // Map product variants with pricing
-            if(!empty($product->variants)){
-            $variants = $product->variants->map(function ($variant) {
-                return [
-                    'id' => $variant->id,
-                    'name' => $variant->name,
-                    'image' => explode(',', $variant->image ?? ''), // Convert image string to array
-                    'type' => $variant->name,
-                    'sku' => $variant->sku,
-                    'short_description' => $variant->short_description,
-                    'min_quantity' => $variant->min_quantity,
-                    'price' => $variant->pricing ? [
-                        'mrp' => $variant->pricing->mrp,
-                        'price' => $variant->pricing->price,
-                        'tax_type' => $variant->pricing->tax_type,
-                        'tax_value' => $variant->pricing->tax_value,
-                        'ship_charges' => $variant->pricing->ship_charges,
-                        'valid_upto' => $variant->pricing->valid_upto,
-                        'is_cash' => $variant->pricing->is_cash,
-                    ] : null, // If no pricing is found, return null
-                ];
-            });}
-           // dd($variants);
+        $totalProducts = [];
+        $order->orderItems->each(function ($item) use (&$totalProducts) {
+            $totalProducts[] = $item;
         });
-          // Prepare the response data
-          return response()->json([
+
+        return response()->json([
             'isSuccess' => true,
             'errors' => [
                 'message' => null,
@@ -2187,7 +2160,7 @@ public function getServiceDetails($id){
                 'status' => $order->status,
                 'created_at' => $order->created_at,
                 'updated_at' => $order?->updated_at,
-                'order_items' => $orderItems, // Include mapped order items
+                'order_items' => $totalProducts, // Include mapped order items
             ],
         ], 200);
     }
