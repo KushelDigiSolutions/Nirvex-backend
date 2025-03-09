@@ -28,6 +28,9 @@ use Razorpay\Api\Api;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyOtpMail;
+
 
 class EcommerceApiController extends Controller
 {
@@ -1718,12 +1721,23 @@ public function getServiceDetails($id){
             ], 422);
         }
 
+        if (User::where('phone', $request->phone)->exists()) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'Phone number already exists.',
+                ],
+                'data' => [],
+            ], 400);
+        }
+
+
         $user = auth()->user();
-        $user->phone = $request->phone;
+        $user->dummy_phone = $request->phone;
         $user->save();
 
         $otp = rand(100000, 999999);
-        Otp::create([
+        $otpCreate = Otp::create([
             'user_id' => $user->id,
             'otp' => $otp,
             'status' => 'pending',
@@ -1733,7 +1747,7 @@ public function getServiceDetails($id){
 
         Log::info("OTP for user {$user->phone}: {$otp}");
 
-        $this->sendSms($user->phone, $otp);
+        $this->sendSms($user->dummy_phone, $otp);
 
         return response()->json([
             'success' => true,
@@ -1742,38 +1756,38 @@ public function getServiceDetails($id){
     }
 
     public function sendSms($phone, $otp)
-{
-    $url = 'http://37.59.76.46/api/mt/SendSMS';
+    {
+        $url = 'http://37.59.76.46/api/mt/SendSMS';
 
-    // Build the SMS message using the OTP
-    $message = "Dear Customer, your OTP to access your Nirviex Real Estate account is: {$otp} It will expire in 10 minutes. If you did not request this, please contact support at Info@nirviex.com";
+        // Build the SMS message using the OTP
+        $message = "Dear Customer, your OTP to access your Nirviex Real Estate account is: {$otp} It will expire in 10 minutes. If you did not request this, please contact support at Info@nirviex.com";
 
-    // Define the query parameters. Consider moving sensitive values to your .env file.
-    $params = [
-        'user'           => 'Nirviex',
-        'password'       => 'q12345',
-        'senderid'       => 'NRVIEX', // Remove space if not intended
-        'channel'        => 'Trans',
-        'DCS'            => 0,
-        'flashsms'       => 0,
-        'number'         => $phone,
-        'text'           => $message,
-        'DLTTemplateId'  => '1707173564539573448',
-        'TelemarketerId' => '12071651285xxxxxxx',
-        'Peid'           => '1701173553742338688',
-        'route'          => '06'
-    ];
+        // Define the query parameters. Consider moving sensitive values to your .env file.
+        $params = [
+            'user'           => 'Nirviex',
+            'password'       => 'q12345',
+            'senderid'       => 'NRVIEX', // Remove space if not intended
+            'channel'        => 'Trans',
+            'DCS'            => 0,
+            'flashsms'       => 0,
+            'number'         => $phone,
+            'text'           => $message,
+            'DLTTemplateId'  => '1707173564539573448',
+            'TelemarketerId' => '12071651285xxxxxxx',
+            'Peid'           => '1701173553742338688',
+            'route'          => '06'
+        ];
 
-    // Make the HTTP GET request
-    $response = Http::get($url, $params);
+        // Make the HTTP GET request
+        $response = Http::get($url, $params);
 
-    if ($response->successful()) {
-        return $response->body(); // Process response as needed
-    } else {
-        // Log or handle error appropriately
-        return response()->json(['error' => 'Failed to send SMS'], $response->status());
+        if ($response->successful()) {
+            return $response->body(); // Process response as needed
+        } else {
+            // Log or handle error appropriately
+            return response()->json(['error' => 'Failed to send SMS'], $response->status());
+        }
     }
-}
 
     public function emailUpdate(Request $request)
     {
@@ -1807,13 +1821,13 @@ public function getServiceDetails($id){
 
         // Update user's email and set email_verified_at to null
         $user = auth()->user();
-        $user->email = $email;
+        $user->dummy_email = $email;
         $user->email_verified_at = null;
         $user->save();
 
         // Generate and send OTP
         $otp = rand(100000, 999999);
-        $this->sendEmailWithOtp($user->email, $otp);
+       
 
         // Optionally store OTP in database
         Otp::create([
@@ -1823,7 +1837,7 @@ public function getServiceDetails($id){
             'expiry' => Carbon::now()->addMinutes(10),
             'complete' => false,
         ]);
-
+        $this->sendEmailWithOtp($otp);
         return response()->json([
             'isSuccess' => true,
             'errors' => [
@@ -1834,9 +1848,10 @@ public function getServiceDetails($id){
     }
 
     // Example method to send email with OTP
-    private function sendEmailWithOtp($email, $otp)
+    private function sendEmailWithOtp($otp)
     {
-        Mail::to($email)->send(new OtpEmail($otp));
+        $user = auth()->user();
+        Mail::to($user->dummy_email)->send(new VerifyOtpMail($user,$otp));
     }
 
 
@@ -1855,16 +1870,136 @@ public function getServiceDetails($id){
     }
 
     public function verifyMobile(Request $request){
+        $request->validate([
+            'otp' => 'required|string|size:6',
+        ]);
+        $user = auth()->user();
+        
+        $otpRecord = Otp::where('user_id', $user->id)
+        ->where('otp', $request['otp'])
+        ->where('status', '!=', 'used') 
+        ->where(function ($query) {
+            $query->whereNull('expiry') 
+            ->orWhere('expiry', '>=', Carbon::now()); 
+        })
+        ->orderBy('id', 'desc') 
+        ->limit(1) 
+        ->first(); 
+    
+        if (!$otpRecord) {
+            return response()->json(['isSuccess' => false,
+                                'error' => ['message' => 'Invalid OTP.'],
+                                'data' => [], ], 401);
+        }
+    
+        if ($otpRecord->expiry && Carbon::now()->greaterThan($otpRecord->expiry)) {
+            return response()->json(['isSuccess' =>false, 
+                                'error' => ['message' => 'OTP has expired.'], 
+                                'data' => [],
+                            ], 401);
+        }
+    
+        if ($otpRecord->status === 'used') {
+            return response()->json(['isSuccess' =>false,
+                                'error' => ['message' => 'OTP has already been used.'],
+                                'data' => [], 
+                            ], 401);
+        }
+    
+        $otpRecord->update([
+            'status' => 'used',
+            'complete' => true,
+        ]);
+    
+        $user->phone =  $user->dummy_phone;
+        $user->dummy_phone = null;
+        $user->save();
+
+        $user = User::findOrFail($user->id);
+        $user->makeHidden(['created_at', 'updated_at']);
+        $token = auth('api')->login($user);
+    
+        $addresses = Address::where('user_id', $user->id)->get();
+    
+        // Generate authentication token
+        // $token = auth('api')->login($user);
+    
         return response()->json([
-            'status' => 'success',
-            'message' => 'Profile photo updated successfully!',
+            'isSuccess' => true,
+            'error' => ['message' => 'Login Successfully'],
+            'data' => [
+                'user' => $user,
+                'addresses' => $addresses, // Include addresses in response
+            ],
+            'token' => $token,
         ], 200);
     }
 
     public function verifyEmail(Request $request){
+        $request->validate([
+            'otp' => 'required|string|size:6',
+        ]);
+        $user = auth()->user();
+        
+        $otpRecord = Otp::where('user_id', $user->id)
+        ->where('otp', $request['otp'])
+        ->where('status', '!=', 'used') 
+        ->where(function ($query) {
+            $query->whereNull('expiry') 
+            ->orWhere('expiry', '>=', Carbon::now()); 
+        })
+        ->orderBy('id', 'desc') 
+        ->limit(1) 
+        ->first(); 
+    
+        if (!$otpRecord) {
+            return response()->json(['isSuccess' => false,
+                                'error' => ['message' => 'Invalid OTP.'],
+                                'data' => [], ], 401);
+        }
+    
+        if ($otpRecord->expiry && Carbon::now()->greaterThan($otpRecord->expiry)) {
+            return response()->json(['isSuccess' =>false, 
+                                'error' => ['message' => 'OTP has expired.'], 
+                                'data' => [],
+                            ], 401);
+        }
+    
+        if ($otpRecord->status === 'used') {
+            return response()->json(['isSuccess' =>false,
+                                'error' => ['message' => 'OTP has already been used.'],
+                                'data' => [], 
+                            ], 401);
+        }
+    
+        $otpRecord->update([
+            'status' => 'used',
+            'complete' => true,
+        ]);
+    
+        $user->email =  $user->dummy_email;
+        $user->dummy_email = null;
+        $user->email_verified_at = null;
+        $user->markEmailAsVerified();
+        $user->save();
+
+        $user = User::findOrFail($user->id);
+        $user->makeHidden(['created_at', 'updated_at']);
+        $token = auth('api')->login($user);
+    
+        $addresses = Address::where('user_id', $user->id)->get();
+    
+        // Generate authentication token
+        // $token = auth('api')->login($user);
+    
         return response()->json([
-            'status' => 'success',
-            'message' => 'Profile photo updated successfully!',
+            'isSuccess' => true,
+            'error' => ['message' => 'Login Successfully'],
+            'data' => [
+                'user' => $user,
+                'addresses' => $addresses, // Include addresses in response
+            ],
+            'token' => $token,
         ], 200);
     }
 

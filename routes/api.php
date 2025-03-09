@@ -33,7 +33,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::apiResource('orders', OrderApiController::class);
         Route::get('services', [ServiceController::class, 'getServices']);
         Route::get('service-detail/{serviceId}', [EcommerceApiController::class, 'getServiceDetails']);
-        Route::post('/update-status', [OrderController::class, 'updateStatus']);
                     
         Route::get('/sliders', [EcommerceApiController::class, 'listSliders']);
         Route::get('/listProductsBySubCategory', [EcommerceApiController::class, 'listProductsBySubCategory']);
@@ -70,8 +69,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('/email-update', [EcommerceApiController ::class, 'emailUpdate']);
         Route::get('/order-detail/{orderId}', [EcommerceApiController ::class, 'orderDetail']);
         Route::get('/order-txn/{orderId}', [EcommerceApiController ::class, 'orderTransaction']);
-        Route::get('/verify-mobile/', [EcommerceApiController ::class, 'verifyMobile']);
-        Route::get('/verify-email/', [EcommerceApiController ::class, 'verifyEmail']);
+        Route::post('/verify-mobile', [EcommerceApiController ::class, 'verifyMobile']);
+        Route::post('/verify-email', [EcommerceApiController ::class, 'verifyEmail']);
 
 
         //vendor level api
