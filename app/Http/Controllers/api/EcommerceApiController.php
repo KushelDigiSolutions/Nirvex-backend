@@ -2156,7 +2156,7 @@ public function getServiceDetails($id){
             'data' => [
                 'order_id' => $order->id,
                 'vendor_id' => $order->vendor_id,
-                'total_amount' => $order->total_amount,
+                'total_amount' => $order->grand_total,
                 'status' => $order->status,
                 'created_at' => $order->created_at,
                 'updated_at' => $order?->updated_at,
@@ -2259,13 +2259,70 @@ private function __getProductDetail(Request $request, $productId)
 }
 
 
-public function vendorDashboard(Request $request){
+public function vendorDashboard(Request $request)
+{
+    $user = $request->user();
 
-    $neworder = 0;
+    // Fetch latest 5 orders for this vendor with related order items, products, and variants
+    $orders = Order::with(['orderItems.product', 'orderItems.variant'])
+        ->where('vendor_id', $user->id)
+        ->latest() // optional: latest orders first
+        ->limit(5)
+        ->get();
+
+    if ($orders->isEmpty()) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'No orders found for this vendor.',
+            ],
+            'data' => null,
+        ], 404);
+    }
+
+    // Initialize counters
+    $newOrder = 0;
     $processing = 0;
     $completeOrder = 0;
     $rejectOrder = 0;
 
+    // Count orders based on status (assuming you have a status field)
+    foreach ($orders as $order) {
+    //    dd($order->status);
+        switch ($order->status) {
+            case 'pending':
+                $newOrder++;
+                break;
+            case 'processing':
+                $processing++;
+                break;
+            case 'completed':
+                $completeOrder++;
+                break;
+            case 'rejected':
+                $rejectOrder++;
+                break;
+        }
+    }
+
+    // Map orders with their items clearly
+    $ordersData = $orders->map(function ($order) {
+        return [
+            'order_id' => $order->id,
+            'status' => $order->status,
+            'total_amount' => $order->grand_total,
+            'created_at' => $order->created_at,
+            'items' => $order->orderItems->map(function ($item) {
+                return [
+                    'item_id' => $item->id,
+                    'product' => $item->product,
+                    'variant' => $item->variant,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                ];
+            }),
+        ];
+    });
 
     return response()->json([
         'isSuccess' => true,
@@ -2273,13 +2330,109 @@ public function vendorDashboard(Request $request){
             'message' => null,
         ],
         'data' => [
-            'new_order' => $neworder,
-            'process_order' => $processing,
+            'new_order'      => $newOrder,
+            'process_order'  => $processing,
             'complete_order' => $completeOrder,
-            'reject_order' => $rejectOrder, // Include mapped order items
+            'reject_order'   => $rejectOrder, 
+            'orders'         => $ordersData, // Include all mapped orders with items
         ],
     ], 200);
 }
+
+public function vendorOrders(Request $request)
+{
+    $user = $request->user();
+
+    // Define mapping of numeric statuses to header names
+    $statusHeaders = [
+        0 => 'Created',
+        1 => 'Payment Done',
+        2 => 'Order Accept',
+        3 => 'Order Preparing',
+        4 => 'Order Shipped',
+        5 => 'Order Delivered',
+        6 => 'Order Completed',
+        7 => 'Order Rejected',
+        8 => 'Order Returned',
+        9 => 'Order Cancelled'
+    ];
+
+    // Retrieve filters from request
+    $limit = $request->input('limit', 5);
+    $offset = $request->input('offset', 0);
+    $orderDirection = $request->input('order_direction', 'desc'); // default descending
+    $statusFilter = $request->input('order_status', null); // numeric status filter
+
+    // Base query with relationships
+    $query = Order::with(['orderItems.product', 'orderItems.variant'])
+                ->where('vendor_id', $user->id);
+ 
+    // Apply status filter if provided
+    if (!is_null($statusFilter) && array_key_exists($statusFilter, $statusHeaders)) {
+        $query->where('order_status', $statusFilter);
+        $header_name = $statusHeaders[$statusFilter];
+    } else {
+        $header_name = "All Orders";
+    }
+
+    // Get total count before pagination
+    $totalOrders = $query->count();
+
+    // Apply ordering, limit, and offset for pagination
+    $limit = (int) $request->input('limit', 5); // default limit is 5
+    $offset = (int) $request->input('offset', 0);
+
+    $orders = $query->orderBy('created_at', $orderDirection)
+                    ->limit($limit)
+                    ->offset($offset = (int) $request->input('offset', 0))
+                    ->get();
+
+    if ($orders->isEmpty()) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'No orders found for this vendor.',
+            ],
+            'data' => null,
+        ], 404);
+    }
+
+    // Map orders data clearly
+    $ordersData = $orders->map(function ($order) {
+        return [
+            'order_id'     => $order->id,
+            'status'       => $order->order_status,
+            'total_amount'  => $order->grand_total,
+            'created_at'   => $order->created_at,
+            'items'          => $order->orderItems->map(function ($item) {
+                return [
+                    'item_id'   => $item->id,
+                    'product'   => $item->product,
+                    'variant'   => $item->variant,
+                    'quantity'  => $item->quantity,
+                    'price'     => $item->price,
+                ];
+            }),
+        ];
+    });
+
+    return response()->json([
+        'isSuccess' => true,
+        'errors' => [
+            'message' => null,
+        ],
+        'data' => [
+            'header_name'   => isset($header_name) ? $header_name : "All Orders",
+            'total_orders'   => $totalOrders,
+            'limit'                 => $limit,
+            'offset'               => (int)$request->input('offset', 0),
+            'orders'              => $ordersData,
+        ],
+    ], 200);
+}
+
+
+
 
 
 
