@@ -1077,12 +1077,13 @@ class EcommerceApiController extends Controller
 
     public function deleteFromCart(Request $request, $itemId)
     {
-        $user = $request->user();
+        // Get the authenticated user
+        $user = Auth::user();
     
-        // Find the cart item by ID and ensure it belongs to the user's cart
+        // Find the cart item by variant_id, ensuring it belongs to the authenticated user
         $cartItem = CartItem::whereHas('cart', function ($query) use ($user) {
             $query->where('user_id', $user->id);
-        })->find($itemId);
+        })->where('variant_id', $itemId)->first();
     
         if (!$cartItem) {
             return response()->json([
@@ -1093,10 +1094,10 @@ class EcommerceApiController extends Controller
             ], 404);
         }
     
-        // Delete the cart item
+        // Perform soft delete on the cart item
         $cartItem->delete();
     
-        // Count the total number of distinct variants in the cart after deletion
+        // Count remaining distinct variants in the user's cart after deletion
         $itemCount = CartItem::where('cart_id', $cartItem->cart_id)->count();
     
         return response()->json([
@@ -1105,10 +1106,11 @@ class EcommerceApiController extends Controller
                 'message' => 'Item removed from cart successfully.',
             ],
             'data' => [
-                'item_count' => $itemCount, // Include count of items in the cart
+                'item_count' => $itemCount,
             ],
         ], 200);
     }
+    
     
 
 
