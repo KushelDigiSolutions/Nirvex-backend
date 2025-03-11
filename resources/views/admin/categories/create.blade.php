@@ -2,7 +2,7 @@
 @section('title')
         {{ 'Create Category' }}
     @endsection
-<x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
+<x-navbars.sidebar activePage='Category'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <!-- Navbar -->
         <x-navbars.navs.auth titlePage="Dashboard"></x-navbars.navs.auth>

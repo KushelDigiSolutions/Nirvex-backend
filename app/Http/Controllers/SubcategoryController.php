@@ -30,6 +30,11 @@ class SubcategoryController extends Controller
             'cat_id' => 'required|exists:categories,id',
             'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]);
+
+        if ($request->file('image')->getSize() > 1024 * 1024) { 
+            return redirect()->back()->withErrors(['image' => 'The image must not be greater than 1MB.']);
+        }
+
         $imageName = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads/subcategories'), $imageName);
         
@@ -72,6 +77,10 @@ class SubcategoryController extends Controller
             'status' => ['required'],
             'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]); 
+
+        if ($request->file('image')->getSize() > 1024 * 1024) { 
+            return redirect()->back()->withErrors(['image' => 'The image must not be greater than 1MB.']);
+        }
         
         $subcategories = DB::table('subcategories')->where('id', $id)->first();
         $imagePath = $subcategories->image;

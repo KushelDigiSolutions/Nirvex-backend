@@ -80,7 +80,7 @@
                 <div class="col">
                     <label for="cat_id" class="form-label">Category:</label>
                         <select class="form-select @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
-                            <option value="">Select Sub Category</option> 
+                            <option value="">Select Category</option> 
                                 @foreach($categories as $data)
                                     <option value="{{ $data->id }}">{{ $data->name }}</option>
                                 @endforeach
@@ -143,7 +143,7 @@
                 <!-- Category Images -->
                 <div class="row">
                     <div class="col">
-                        <label for="image" class="form-label">Category Images:</label>
+                        <label for="image" class="form-label">Product Images:</label>
                             <input type="file" class="form-control @error('image.*') is-invalid @enderror" name="image[]" multiple>
                                 @error('image')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -168,6 +168,8 @@
                                         <label for="name" class="form-label">Name:</label>
                                         <input type="text" class="form-control" name="options[0][name]" placeholder="Enter name">
                                     </div>
+                                    </div>
+                                    <div class="row mb-3">
                                     <div class="col">
                                         <label for="image" class="form-label">Image:</label>
                                             <input type="file" class="form-control" name="options[0][image]">
@@ -176,9 +178,19 @@
                                         <label for="description" class="form-label">Short Description:</label>
                                         <input type="text" class="form-control" name="options[0][short_description]" placeholder="Short description">
                                     </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="sku" class="form-label">Product Sku</label>
+                                            <input type="text" class="form-control @error('sku') is-invalid @enderror" name="sku">
+                                            @error('sku')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                    </div>
                                     <div class="col d-flex align-items-end">
                                         <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
                                     </div>
+                                </div>
                             </div>
                         </div>
                         <button type="button" class="btn btn-primary btn-sm mt-2" id="add-field">Add More</button>
@@ -201,33 +213,42 @@
     document.getElementById('add-field').addEventListener('click', function () {
         const dynamicForm = document.getElementById('dynamic-form');
         const newField = `
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="type" class="form-label">Type:</label>
-                    <select class="form-select" name="options[${fieldCount}][type]">
-                        <option value="1">Quality</option>
-                        <option value="2">Color</option>
-                        <option value="3">Size</option>
-                    </select>
-                </div>
-                <div class="col">
-                    <label for="name" class="form-label">Name:</label>
-                    <input type="text" class="form-control" name="options[${fieldCount}][name]" placeholder="Enter name">
-                </div>
-                <div class="col">
-                    <label for="image" class="form-label">Image:</label>
-                    <input type="file" class="form-control" name="options[${fieldCount}][image]">
-                </div>
-               
-                <div class="col">
-                    <label for="description" class="form-label">Short Description:</label>
-                    <input type="text" class="form-control" name="options[${fieldCount}][short_description]" placeholder="Short description">
-                </div>
-                <div class="col d-flex align-items-end">
-                    <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-                </div>
-            </div>
-        `;
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="type" class="form-label">Type:</label>
+                                            <select class="form-select" name="options[${fieldCount}][type]">
+                                                <option value="1">Quality</option>
+                                                <option value="2">Color</option>
+                                                <option value="3">Size</option>
+                                            </select>
+                                    </div>
+                                    <div class="col">
+                                        <label for="name" class="form-label">Name:</label>
+                                        <input type="text" class="form-control" name="options[${fieldCount}][name]" placeholder="Enter name">
+                                    </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="image" class="form-label">Image:</label>
+                                            <input type="file" class="form-control" name="options[${fieldCount}][image]">
+                                    </div>
+                                    <div class="col">
+                                        <label for="description" class="form-label">Short Description:</label>
+                                        <input type="text" class="form-control" name="options[${fieldCount}][short_description]" placeholder="Short description">
+                                    </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="sku" class="form-label">Product Sku</label>
+                                            <input type="text" class="form-control" name="options[${fieldCount}][sku]">
+                                            @error('sku')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                    </div>
+                                    <div class="col d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
+                    </div>
+                </div> `;
         dynamicForm.insertAdjacentHTML('beforeend', newField);
         fieldCount++;
     });

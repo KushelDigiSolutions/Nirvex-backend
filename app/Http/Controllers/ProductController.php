@@ -51,12 +51,16 @@ class ProductController extends Controller
             'physically_property' => 'required|string',
             'standard' => 'required|string',
             'benefits' => 'required|string',
-            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024',
             'options.*.type' => 'required|string',
             'options.*.name' => 'required|string|max:255',
             'options.*.description' => 'nullable|string|max:255',
-            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
         ]);
+
+        if ($request->file('image')->getSize() > 1024 * 1024) { 
+            return redirect()->back()->withErrors(['image' => 'The image must not be greater than 1MB.']);
+        }
 
         // Process product images
         $imagePaths = [];
@@ -150,15 +154,27 @@ class ProductController extends Controller
             'physically_property' => 'required|string',
             'standard' => 'required|string',
             'benefits' => 'required|string',
-            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
-            'options.*.id' => 'nullable|integer', // For updating existing variants
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+            'options.*.id' => 'nullable|integer', 
             'options.*.type' => 'required|string',
             'options.*.name' => 'required|string|max:255',
             'options.*.description' => 'nullable|string|max:255',
-            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'options.*.sku' => [
+            'required',
+            'string',
+            'max:255',
+            Rule::unique('variants', 'sku')     ],
+            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
         ]);
 
-        // Process product images
+        if ($request->hasFile('image')) {
+            foreach ($request->file('image') as $file) {
+                if ($file->getSize() > 1024 * 1024) { // 1MB limit
+                    return redirect()->back()->withErrors(['image' => 'Each image must not be greater than 1MB.']);
+                }
+            }
+        }
+
         $imagePaths = [];
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $image) {
@@ -167,59 +183,47 @@ class ProductController extends Controller
                 $imagePaths[] = 'uploads/products/' . $fileName;
             }
         }
-
-        // If new images are uploaded, update the image field; otherwise, keep existing images
         if (!empty($imagePaths)) {
             $validatedData['image'] = implode(',', $imagePaths);
         } else {
             unset($validatedData['image']);
         }
 
-        // Update the product
         $product->update($validatedData);
 
-        // Process dynamic form values for variants
         if ($request->has('options')) {
             foreach ($request->options as $option) {
                 if (isset($option['id'])) {
-                    // Update existing variant
                     $variant = Variant::findOrFail($option['id']);
                     $variantData = [
                         'name' => $option['name'],
                         'type' => $option['type'],
+                        'sku' => $option['sku'],
                         'short_description' => $option['short_description'] ?? null,
                     ];
 
-                    // Process variant image if provided
                     if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
                         $fileName = time() . '_' . $option['image']->getClientOriginalName();
                         $path = $option['image']->move(public_path('uploads/variants'), $fileName);
                         $variantData['images'] = 'uploads/variants/' . $fileName;
                     }
 
-                    // Update the variant in the database
                     $variant->update($variantData);
                 } else {
-                    // Create a new variant
                     $variantData = [
                         'product_id' => $product->id,
                         'name' => $option['name'],
                         'type' => $option['type'],
+                        'sku' => $option['sku'],
                         'short_description' => $option['short_description'] ?? null,
                     ];
 
-                    // Process variant image
                     if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
                         $fileName = time() . '_' . $option['image']->getClientOriginalName();
                         $path = $option['image']->move(public_path('uploads/variants'), $fileName);
                         $variantData['images'] = 'uploads/variants/' . $fileName;
                     }
-
-                    // Create the new variant in the database
                     $variant = Variant::create($variantData);
-
-                    // Update the SKU with the correct format (NVX0.{product.id}.{variant.id})
-                    $variant->sku = "NVX0.{$product->id}.{$variant->id}";
                     $variant->save();
                 }
             }

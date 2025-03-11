@@ -2,11 +2,9 @@
 @section('title')
         {{ 'Create Sub Category' }}
     @endsection
-<x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
+<x-navbars.sidebar activePage='sub category'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        <!-- Navbar -->
-        <x-navbars.navs.auth titlePage="Dashboard"></x-navbars.navs.auth>
-        <!-- End Navbar -->
+        <x-navbars.navs.auth titlePage="Sub Category"></x-navbars.navs.auth>
         <div class="container-fluid py-4" style="background-color:#fff">
         <div class="d-flex justify-content-between mb-2">
                             <div class="pull-left">
@@ -24,7 +22,7 @@
                         @csrf
                         <div class="row">
                             <div class="col">
-                            <label for="name" class="form-label">Category:</label>
+                            <label for="name" class="form-label">Sub Category:</label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" placeholder="Enter Sub category" name="name">
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -59,7 +57,7 @@
                             @enderror
                         </div>
                         <div class="col">
-                            <label for="image" class="form-label">Category Images:</label>
+                            <label for="image" class="form-label">Sub Category Images:</label>
                                 <input type="file" class="form-control @error('image') is-invalid @enderror" name="image" />
                             @error('image')
                                     <div class="invalid-feedback">{{ $message }}</div>

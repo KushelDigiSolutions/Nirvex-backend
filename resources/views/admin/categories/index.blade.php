@@ -4,13 +4,13 @@
     @endsection
     <x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        <x-navbars.navs.auth titlePage="Categories"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="Category"></x-navbars.navs.auth>
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
                         <div class="d-flex justify-content-between mb-2">
                             <div class="pull-left">
-                                <h2>Categories</h2>
+                                <h2>Category</h2>
                             </div>
                             <div class="pull-right">
                                 @can('role-create')

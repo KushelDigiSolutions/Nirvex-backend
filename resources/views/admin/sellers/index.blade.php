@@ -2,9 +2,9 @@
     @section('title')
         {{ 'Sellers' }}
     @endsection
-    <x-navbars.sidebar activePage='customers'></x-navbars.sidebar>
+    <x-navbars.sidebar activePage='sellers'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
-        <x-navbars.navs.auth titlePage="Customers"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="sellers"></x-navbars.navs.auth>
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
@@ -13,11 +13,10 @@
                             <h2>Seller Management</h2>
                         </div>
                         <div class="pull-right">
-                            @can('customer-create')
-                                <a class="btn btn-success btn-sm mb-2" href="{{ route('customers.create') }}">
+                            
+                                <a class="btn btn-success btn-sm mb-2" href="{{ route('sellers.create') }}">
                                     <i class="fa fa-plus"></i> Create New Seller
                                 </a>
-                            @endcan
                         </div>
                     </div>
                     <div class="card mydatatable">
