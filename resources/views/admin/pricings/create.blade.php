@@ -151,7 +151,73 @@
             margin-top: 10px;
         }
     </style>
-<script>
+
+    <script>
+        $(document).ready(function () {
+    $('#search-product').on('change', function () {
+        let productId = $(this).val();
+        let baseUrl = "{{ url('admin/search-product') }}";
+
+        if (productId) {
+            $.ajax({
+                url: baseUrl,
+                type: 'GET',
+                data: { product_id: productId },
+                success: function (response) {
+                    console.log("Product Response:", response);
+
+                    if (response) {
+                        $('#product_id').val(response.id);
+                        $('#product-name').val(response.name || '');
+                        $('#mrp').val(response.mrp || '');
+
+                        if (response.variants.length > 0) {
+                            populateVariantDropdown(response.variants);
+                        } else {
+                            clearVariantDropdown();
+                        }
+                    } else {
+                        clearAllFields();
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while fetching the product data.');
+                }
+            });
+        } else {
+            clearAllFields();
+        }
+    });
+
+    function populateVariantDropdown(variants) {
+        console.log("Variants:", variants);
+
+        $('#product-sku-id').empty();
+        // $('#product-sku-id').append('<option value="">Select Product SKU</option>');
+
+        variants.forEach(variant => {
+            $('#product-sku-id').append(
+                `<option value="${variant.id}">${variant.sku}</option>`
+            );
+        });
+
+        console.log("#product-sku-id:", $('#product-sku-id').html());
+    }
+
+    function clearVariantDropdown() {
+        $('#product-sku-id').empty().append('<option value="">Select Product SKU</option>');
+    }
+
+    function clearAllFields() {
+        $('#product_id').val('');
+        $('#product-name').val('');
+        $('#mrp').val('');
+        clearVariantDropdown();
+    }
+});
+
+    </script>
+<!-- <script>
 $(document).ready(function () {
     $('#search-product').on('change', function () {
         let productId = $(this).val();
@@ -206,7 +272,7 @@ $(document).ready(function () {
             );
         });
 
-        console.log("#product-sku-id:", $('#product-sku-id').html()); // Check if options are added
+        console.log("#product-sku-id:", $('#product-sku-id').html()); 
     }
 
     function clearVariantDropdown() {
@@ -223,4 +289,4 @@ $(document).ready(function () {
 });
 
 
-</script>
+</script> -->

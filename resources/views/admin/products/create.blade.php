@@ -40,9 +40,9 @@
             <!-- Return Policy & Physically Property -->
             <div class="row">
                 <div class="col">
-                    <label for="return" class="form-label">Return Policy:</label>
-                    <textarea class="form-control @error('return') is-invalid @enderror" id="return" placeholder="Enter Return Policy" name="return"></textarea>
-                    @error('return')
+                    <label for="return_policy" class="form-label">Return Policy:</label>
+                    <textarea class="form-control @error('return_policy') is-invalid @enderror" id="return_policy" placeholder="Enter Return Policy" name="return_policy"></textarea>
+                    @error('return_policy')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -182,7 +182,7 @@
                                     <div class="row mb-3">
                                     <div class="col">
                                         <label for="sku" class="form-label">Product Sku</label>
-                                            <input type="text" class="form-control @error('sku') is-invalid @enderror" name="sku">
+                                            <input type="text" class="form-control" name="options[0][sku]">
                                             @error('sku')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -241,9 +241,6 @@
                                     <div class="col">
                                         <label for="sku" class="form-label">Product Sku</label>
                                             <input type="text" class="form-control" name="options[${fieldCount}][sku]">
-                                            @error('sku')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
                                     </div>
                                     <div class="col d-flex align-items-end">
                                         <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>

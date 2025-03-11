@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Product;
@@ -47,7 +48,7 @@ class ProductController extends Controller
             'mrp' => 'required|numeric',
             'availability' => 'required|string',
             'specification' => 'required|string',
-            'return' => 'required|string',
+            'return_policy' => 'required|string',
             'physically_property' => 'required|string',
             'standard' => 'required|string',
             'benefits' => 'required|string',
@@ -56,13 +57,26 @@ class ProductController extends Controller
             'options.*.name' => 'required|string|max:255',
             'options.*.description' => 'nullable|string|max:255',
             'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+            'options.*.sku' => [
+            'required',
+            'string',
+            'max:255',
+                function ($attribute, $value, $fail) {
+                    if (\DB::table('variants')->where('sku', $value)->exists()) {
+                        $fail("The SKU '$value' is already taken.");
+                    }
+                },
+            ],
         ]);
 
-        if ($request->file('image')->getSize() > 1024 * 1024) { 
-            return redirect()->back()->withErrors(['image' => 'The image must not be greater than 1MB.']);
+        if ($request->hasFile('image')) {
+            foreach ($request->file('image') as $file) {
+                if ($file->getSize() > 1024 * 1024) { // 1MB limit
+                    return redirect()->back()->withErrors(['image' => 'Each image must not be greater than 1MB.']);
+                }
+            }
         }
 
-        // Process product images
         $imagePaths = [];
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $image) {
@@ -83,22 +97,20 @@ class ProductController extends Controller
                 $variantData = [
                     'product_id' => $product->id,
                     'name' => $option['name'],
+                    'sku'  => $option['sku'],
                     'type' => $option['type'],
                     'short_description' => $option['short_description'] ?? null,
                 ];
 
-                // Process variant image
+                // dd($variantData);
+                
                 if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
                     $fileName = time() . '_' . $option['image']->getClientOriginalName();
                     $path = $option['image']->move(public_path('uploads/variants'), $fileName);
                     $variantData['images'] = 'uploads/variants/' . $fileName;
                 }
 
-                // Create the variant in the database
                 $variant = Variant::create($variantData);
-
-                // Update the SKU with the correct format (NVX0.{product.id}.{variant.id})
-                $variant->sku = "NVX0.{$product->id}.{$variant->id}";
                 $variant->save();
             }
         }
@@ -150,7 +162,7 @@ class ProductController extends Controller
             'mrp' => 'required|numeric',
             'availability' => 'required|string',
             'specification' => 'required|string',
-            'return' => 'required|string',
+            'return_policy' => 'required|string',
             'physically_property' => 'required|string',
             'standard' => 'required|string',
             'benefits' => 'required|string',
@@ -163,7 +175,7 @@ class ProductController extends Controller
             'required',
             'string',
             'max:255',
-            Rule::unique('variants', 'sku')     ],
+            Rule::unique('variants', 'sku')],
             'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
         ]);
 
@@ -272,10 +284,14 @@ public function search(Request $request)
     //     ->select('id', 'name')
     //     ->get();
 
-    $products = Product::where('name', 'LIKE', '%' . $query . '%')
-    ->with(['variants:id,product_id,name,sku'])
-    ->first();
+    // $products = Product::where('name', 'LIKE', '%' . $query . '%')
+    // ->with(['variants:id,product_id,name,sku'])
+    // ->first();
+    $products = Product::with('variants')->find($request->product_id);
 
+    if (!$products) {
+        return response()->json(null, 404);
+    }
     // echo '<pre>'; print_r($products); die;
 
     return response()->json($products);

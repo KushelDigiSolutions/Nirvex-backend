@@ -10,13 +10,17 @@ class Variant extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $rules = [
+        'sku' => 'sometimes|required|sku|unique:variants',
+    ];
+
     protected $fillable = [
         'product_id',
         'type',
         'name',
+        'sku',
         'short_description',
         'images',
-        'sku'
     ];
 
     public function product()
