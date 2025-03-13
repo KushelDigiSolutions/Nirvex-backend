@@ -157,4 +157,42 @@ private function getStatusText($status)
     return $statusTexts[$status] ?? "Unknown Status";
 }
 
+public function getSellers(Request $request)
+{
+    $query = User::where('user_type', 3);
+
+    if ($request->has('name') && !empty($request->name)) {
+        $query->where('first_name', 'like', '%' . $request->name . '%');
+    } else {
+        $query->where('pincode', $request->pincode)->limit(5);
+    }
+
+    $sellers = $query->get();
+
+    return response()->json($sellers);
+}
+
+public function getSellers130225(Request $request)
+{
+    $orderId = $request->query('order_id');
+    $pincode = $request->query('pincode');
+    $order = Order::where('id', $orderId)->first();
+
+    if (!$order) {
+        return response()->json(['error' => 'Order not found'], 404);
+    }
+
+    $productId = $order->product_id;  
+    $sellers = Order::where('id', $orderId)
+                     ->whereHas('products', function ($query) use ($productId) {
+                         $query->where('product_id', $productId);
+                     })
+                     ->take(5)
+                     ->get(['id', 'name', 'address', 'photo']);
+
+    return response()->json(['sellers' => $sellers]);
+}
+
+
+
 }

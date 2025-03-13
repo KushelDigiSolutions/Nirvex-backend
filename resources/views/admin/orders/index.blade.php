@@ -40,7 +40,10 @@
                                         <td>{{ $data['order_id'] }}</td>
                                         <td>{{ $data['customer'] }}</td>
                                         <td>{{ $data['pincode'] }}</td>
-                                        <td>{{ $data['seller'] }}</td>
+                                        <!-- <td id="seller-{{ $data['order_id'] }}">{{ $data['seller'] ?? 'Not Assigned' }}</td> -->
+                                        <td>
+                                            <button class="btn btn-primary select-seller" data-pincode="{{ $data['pincode'] }}">Select Seller</button>
+                                        </td>
                                         <td>{{ $data['count'] }}</td>
                                         <td>{{ $data['total_amount'] }}</td>
                                         <td>{{ $data['ordered'] }}</td>
@@ -61,6 +64,7 @@
                                         </td>
                                         <td><a href="{{ route('orders.show', encrypt($data['order_id'])) }}" class="btn btn-sm btn-secondary"><i class="far fa-eye"></i></a></td>
                                         <td><a class="btn btn-success btn-sm mb-2" href="" target="_blabk">Download</a></td>
+                               
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -76,6 +80,33 @@
             <x-footers.auth></x-footers.auth>
         </div>
     </main>
+
+
+    <!-- Seller Selection Modal -->
+     
+    <!-- Seller Modal -->
+    <div class="modal fade" id="sellerModal" tabindex="-1" aria-labelledby="sellerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal p-4">
+            <div class="modal-header text-center">
+                <h5 class="modal-title w-100">Sellers from Pincode: <span id="pincodeValue">110011</span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="searchSeller" class="form-control search-input" placeholder="Find Seller by Name">
+                <button id="searchButton" class="btn btn-primary w-100 mt-2">Search</button>
+                
+                <div id="sellerList" class="mt-3">
+                    <div class="seller-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <x-plugins></x-plugins>
     </div>
 
@@ -89,8 +120,56 @@
         .mydatatable .dataTables_paginate {
             padding: 10px;
         }
-    </style>
 
+
+        .custom-modal {
+    border-radius: 20px;
+    text-align: center;
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.search-input {
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.seller-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.seller-card img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.seller-info {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.select-btn {
+    border-radius: 10px;
+    padding: 5px 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+}
+
+
+    </style>
 
     @push('js')
     <script>
@@ -109,14 +188,29 @@
 
 <script>
     $(document).ready(function () {
+
+        $('.status-dropdown').each(function () {
+        $(this).data('prev', $(this).val()); 
+    });
+
     $('.status-dropdown').change(function () {
+        $(this).data('prev', $(this).val()); 
         let status = $(this).val();
         let orderId = $(this).data('id');
+        let prevStatus = $(this).data('prev');
 
         if (status === "") {
             alert("Invalid status selected.");
+            $(this).val(prevStatus);
             return;
         }
+
+        let confirmUpdate = confirm("Are you sure you want to update the order status?");
+        if (!confirmUpdate) {
+            $(this).val(prevStatus);
+            return; 
+        }
+
         console.log("Updating Order ID:", orderId, "to Status:", status); 
         $.ajax({
             url: "{{ route('update.order.status') }}",
@@ -129,16 +223,152 @@
             success: function (response) {
                 console.log("Success response:", response);
                 alert(response.message);
-            },
+                $(this).data('prev', status);
+            }.bind(this),
             error: function (xhr) {
                 console.log("AJAX Error:", xhr.responseText);
                 alert("Error updating status. Please try again.");
-            }
+                $(this).val(prevStatus); 
+            }.bind(this)
         });
     });
 });
-
 </script>
+
+<script>
+    $(document).ready(function () {
+    $('.select-seller').click(function () {
+        let orderId = $(this).data('order-id');
+        let pincode = $(this).data('pincode');
+
+        $('#selectedOrderId').val(orderId);
+        $('#sellerModal').modal('show');
+    });
+});
+</script>
+
+<script>
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+    </script>
+
+
+<script>
+   
+   $(document).ready(function () {
+    function fetchSellers(pincode = '', name = '') {
+        $.ajax({
+            url: "{{ route('get-sellers') }}",
+            type: "GET",
+            data: { pincode: pincode, name: name },
+            success: function (response) {
+                let sellerList = "";
+                if (response.length > 0) {
+                    response.forEach(function (seller) {
+                        sellerList += `
+                            <div class="seller-card">
+                                <div class="seller-info">
+                                    <strong>${seller.first_name}</strong>
+                                    <p>${seller.address}</p>
+                                </div>
+                                <button class="select-btn">Select</button>
+                            </div>`;
+                    });
+                } else {
+                    sellerList = "<p>No sellers found</p>";
+                }
+
+                $("#sellerModal .seller-list").html(sellerList);
+            },
+            error: function () {
+                alert("Failed to fetch sellers");
+            },
+        });
+    }
+
+    $(".select-seller").on("click", function () {
+        let pincode = $(this).data("pincode");
+        fetchSellers(pincode);
+        $("#sellerModal").modal("show");
+    });
+
+    $("#searchButton").on("click", function () {
+        let sellerName = $("#searchSeller").val().trim();
+        fetchSellers('', sellerName);
+    });
+});
+
+
+
+
+//     $(document).ready(function () {
+//     $(".select-seller").on("click", function () {
+//         let pincode = $(this).data("pincode");
+
+//         $.ajax({
+//             url: "{{ route('get-sellers') }}",
+//             type: "GET",
+//             data: { pincode: pincode },
+//             success: function (response) {
+//                 let sellerList = "";
+//                 if (response.length > 0) {
+//                     response.forEach(function (seller) {
+//                         sellerList += `
+//                             <div class="seller-card">
+//                                 <div class="seller-info">
+//                                     <strong>${seller.first_name}</strong>
+//                                     <p>${seller.address}</p>
+//                                 </div>
+//                                 <button class="select-btn">Select</button>
+//                             </div>`;
+//                     });
+//                 } else {
+//                     sellerList = "<p>No sellers found</p>";
+//                 }
+
+//                 $("#sellerModal .seller-list").html(sellerList);
+//                 $("#sellerModal").modal("show");
+//             },
+//             error: function () {
+//                 alert("Failed to fetch sellers");
+//             },
+//         });
+//     });
+// });
+
+    
+    
+    
+//     $(document).ready(function () {
+//     $(".select-seller").on("click", function () {
+//         let pincode = $(this).data("pincode");
+
+//         $.ajax({
+//             url: "{{ route('get-sellers') }}",
+//             type: "GET",
+//             data: { pincode: pincode },
+//             success: function (response) {
+//                 console.log(response);
+//                 let sellerList = "";
+//                 if (response.length > 0) {
+//                     response.forEach(function (seller) {
+//                         sellerList += `<div>${seller.first_name} (${seller.phone}) ${seller.address} ${seller.photo}</div>`;
+//                     });
+//                 } else {
+//                     sellerList = "<li>No sellers found</li>";
+//                 }
+
+//                 $("#sellerModal .seller-list").html(sellerList);
+//                 $("#sellerModal").modal("show");
+//             },
+//             error: function () {
+//                 alert("Failed to fetch sellers");
+//             },
+//         });
+//     });
+// });
+    </script>
 
 
     <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
