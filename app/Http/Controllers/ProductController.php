@@ -68,7 +68,7 @@ class ProductController extends Controller
                 },
             ],
         ]);
-
+        dd($validatedData);
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $file) {
                 if ($file->getSize() > 1024 * 1024) { // 1MB limit
