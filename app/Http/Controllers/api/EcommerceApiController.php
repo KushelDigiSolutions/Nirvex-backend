@@ -1783,11 +1783,13 @@ public function getServiceDetails($id){
 
     public function updateProfilePhoto(Request $request)
     {
+       
         // Validate the incoming request
+        $request['photo'] = $request["_parts"][0][1];
         $request->validate([
             'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048', // Ensure it's an image file
         ]);
-
+        dd($request);
         // Get the authenticated user
         $user = auth()->user();
 
