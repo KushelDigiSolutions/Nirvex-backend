@@ -261,7 +261,6 @@ class SellerController extends Controller
 
     public function updateSellerActive(Request $request)
     {
-        // Validate request data
         $request->validate([
             'id' => 'required|exists:users,id',
             'seller_active' => 'required|in:0,1,2'
