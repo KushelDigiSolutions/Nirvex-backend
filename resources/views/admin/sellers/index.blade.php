@@ -19,6 +19,11 @@
                                 </a>
                         </div>
                     </div>
+                    @if(session('success'))
+                        <div class="alert alert-success">
+                    {{ session('success') }}
+                        </div>
+                    @endif
                     <div class="card mydatatable">
                         <div class="table-responsive">
                             <table id="datatable-basic" class="display nowrap" style="width:100%">
@@ -34,6 +39,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                @if(isset($data) && count($data) > 0)
                                     @foreach ($data as $key => $user)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
@@ -68,6 +74,11 @@
                                         </td>
                                     </tr>
                                     @endforeach
+                                    @else
+                                    <tr>
+                                        <td colspan="4"> No Seller Found</td>
+                                    </tr>
+                                    @endif
                                 </tbody>
                             </table>
                         </div>

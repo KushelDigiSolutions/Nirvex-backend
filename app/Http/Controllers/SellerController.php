@@ -24,12 +24,12 @@ class SellerController extends Controller
      */
     public function index(Request $request): View
     {
-        $data = User::where('user_type', 3)
+        $data = User::where('user_type', 2)
             ->with(['customerDetails.salesOfficer']) 
             ->latest()
             ->get()
             ->map(function ($user) {
-               if(!empty($user->customerDetails->salesOfficer)){
+               if(!empty($user->customerDetails->salesOfficer) && !empty($user->customerDetails->salesOfficer)){
                 $user->so_name = $user->customerDetails->salesOfficer->first_name." / ".$user->customerDetails->salesOfficer->last_name;
                 $user->customerDetails->salesOfficer->email;
                }else{
@@ -37,8 +37,12 @@ class SellerController extends Controller
                }
                 return $user;
             });
-        return view('admin.sellers.index', compact('data'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+            return view('admin.sellers.index', [
+                'data' => $data,
+                'i' => ($request->input('page', 1) - 1) * 5
+            ]);
+        // return view('admin.sellers.index', compact('data'))
+        //     ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
 
@@ -73,13 +77,14 @@ class SellerController extends Controller
 
         $input = $request->all();
         $input['password'] = Hash::make($input['password']);
-        $input['user_type'] = 3;
+        $input['user_type'] = 2;
 
         $user = User::create($input);
         $user->assignRole($request->input('roles'));
 
-        return view('admin.sellers.index')
-            ->with('success', 'Seller created successfully');
+        // return view('admin.sellers.index')
+        //     ->with('success', 'Seller created successfully');
+        return redirect()->route('sellers.index')->with('success', 'Seller created successfully.');
     }
 
     /**
@@ -96,7 +101,7 @@ class SellerController extends Controller
             
             // Query using the decrypted numeric ID
             $user = User::where('id', $id)
-                    ->where('user_type', 3)
+                    ->where('user_type', 2)
                     ->firstOrFail();
                     // echo '<pre>'; print_r($user); die;
             return view('admin.sellers.show', compact('user'));
@@ -112,7 +117,7 @@ class SellerController extends Controller
      */
     public function edit($id): View
     {
-        $user = User::where('id', decrypt($id))->where('user_type', 3)->firstOrFail();
+        $user = User::where('id', decrypt($id))->where('user_type', 2)->firstOrFail();
     //    echo '<pre>'; print_r($user); die;
         $roles = Role::pluck('name', 'name')->all();
         $userRole = $user->roles->pluck('name', 'name')->all();
@@ -228,7 +233,7 @@ class SellerController extends Controller
             $input = Arr::except($input, ['password']);
         }
 
-        $user = User::where('id', $id)->where('user_type', 3)->firstOrFail();
+        $user = User::where('id', $id)->where('user_type', 2)->firstOrFail();
         $user->update($input);
 
         // Remove existing roles and assign new ones
@@ -247,7 +252,7 @@ class SellerController extends Controller
      */
     public function destroy($id): RedirectResponse
     {
-        $user = User::where('id', $id)->where('user_type', 3)->firstOrFail();
+        $user = User::where('id', $id)->where('user_type', 2)->firstOrFail();
         $user->delete();
 
         return redirect()->route('customers.index')

@@ -272,7 +272,7 @@
                                     <strong>${seller.first_name}</strong>
                                     <p>${seller.address}</p>
                                 </div>
-                                <button class="select-btn">Select</button>
+                               <button class="select-btn" data-id="${seller.id}" data-name="${seller.first_name}" data-image="${seller.image}">Select</button>
                             </div>`;
                     });
                 } else {
