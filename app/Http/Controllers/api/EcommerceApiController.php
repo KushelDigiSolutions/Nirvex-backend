@@ -16,6 +16,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Rating;
+use App\Models\Variant;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -2436,7 +2437,29 @@ public function vendorOrders(Request $request)
 }
 
 
+public function getVendorStocks(){
+    $products = Variant::with('Product')->get();
 
+    //dd($products);
+    if ($products->isEmpty()) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'No products.',
+            ],
+            'data' => null,
+        ], 404);
+    }else{
+        return response()->json([
+            'isSuccess' => true,
+            'errors' => [
+                'message' => null,
+            ],
+            'data' => $products,
+        ], 200);
+    }
+
+}
 
 
 
