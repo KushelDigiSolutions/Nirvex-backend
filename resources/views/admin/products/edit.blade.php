@@ -42,7 +42,7 @@
             <div class="row">
                 <div class="col">
                     <label for="return_policy" class="form-label">Return Policy:</label>
-                    <textarea class="form-control @error('return_policy') is-invalid @enderror" id="return" placeholder="Enter Return Policy" name="return">{{ old('return', $product->return_policy) }}</textarea>
+                    <textarea class="form-control @error('return_policy') is-invalid @enderror" id="return_policy" placeholder="Enter Return Policy" name="return_policy">{{ old('return', $product->return_policy) }}</textarea>
                     @error('return_policy')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -105,9 +105,9 @@
             <!-- Description -->
             <div class="row">
                 <div class="col">
-                    <label for="description" class="form-label">Description:</label>
-                        <textarea id="editor" class="form-control @error('description') is-invalid @enderror" name="description" placeholder="Description">{{ old('description', $product->description) }}</textarea>
-                        @error('description')
+                    <label for="descriptions" class="form-label">Description:</label>
+                        <textarea id="editor" class="form-control @error('descriptions') is-invalid @enderror" name="descriptions" placeholder="Description">{{ old('description', $product->description) }}</textarea>
+                        @error('descriptions')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                 </div>
@@ -161,11 +161,15 @@
                         <?php 
                       
                         ?>
-                        @foreach($product->image as $image)
+                        @foreach($product->image as $images)
                 
-                            <div class="me-2 mb-2">
-                                <img src="{{ asset($image) }}" alt="Product Image" style="width: 100px; height: 100px; object-fit: cover;">
-                            </div>
+                        <div class="col-md-3">
+                                        <div class="image-container">
+                                            <img src="{{ url('/') . '/' . $images }}" alt="Product Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                                            <button type="button" class="btn btn-danger btn-sm delete-image" data-image="{{ $images }}">Delete</button>
+                                            <input type="hidden" name="delete_images[]" value="{{ $images }}" class="delete-input">
+                                        </div>
+                                </div>
                         @endforeach
                     </div>
                 </div>
@@ -287,6 +291,19 @@
     }
     });
 </script>
+
+<script>
+    document.querySelectorAll('.delete-image').forEach(button => {
+    button.addEventListener('click', function () {
+        const imagePath = this.getAttribute('data-image');
+        this.closest('.image-container').remove();
+        document.querySelector(`input[value="${imagePath}"]`).remove();
+    });
+});
+
+</script>
+
+
 <script>
   tinymce.init({
     selector: 'textarea',

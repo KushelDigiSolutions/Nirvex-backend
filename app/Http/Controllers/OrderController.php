@@ -159,7 +159,26 @@ private function getStatusText($status)
 
 public function getSellers(Request $request)
 {
-    $query = User::where('user_type', 3);
+    $query = User::where('user_type', 2)
+                 ->where('pincode', $request->pincode)
+                 ->with('addresses');
+
+// dd($query);
+
+    if ($request->has('first_name') && !empty($request->first_name)) {
+        $query->where('first_name', 'like', '%' . $request->first_name . '%');
+    } else {
+        $query->where('pincode', $request->pincode)->limit(5);
+    }
+
+    $sellers = $query->get();
+
+    return response()->json($sellers);
+}
+
+public function getSellers190325(Request $request)
+{
+    $query = User::where('user_type', 3)->where('pincode', $request->pincode);
 
     if ($request->has('name') && !empty($request->name)) {
         $query->where('first_name', 'like', '%' . $request->name . '%');

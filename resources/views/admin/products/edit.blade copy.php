@@ -116,30 +116,33 @@
             </div>
 
             <div class="row">
-                <div class="col mt-3">
-                    <label class="form-label">Existing Images:</label>
-                    <div class="row">
-                        @if($products && is_array($products->image))
-                            @forelse($products->image as $images)
-                                <div class="col-md-3
-                                ">
-
-                                        <div class="image-container">
-                                            <img src="{{ url('/') . '/' . $images }}" alt="Product Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
-                                            <button type="button" class="btn btn-danger btn-sm delete-image" data-image="{{ $images }}">Delete</button>
-                                            <input type="hidden" name="delete_images[]" value="{{ $images }}" class="delete-input">
-                                        </div>
-                                </div>
-                            @empty
-                                <p>No images uploaded for this product.</p>
-                            @endforelse
-                        @else
-                            <p>No images available.</p>
-                        @endif
+    <div class="col mt-3">
+        <label class="form-label">Existing Images:</label>
+        <div class="row">
+            @php
+                // Convert comma-separated string to array if not already an array
+                $productImages = is_array($products->image) ? $products->image : explode(',', $products->image);
+            @endphp
+            
+            @if($products && count($productImages) > 0)
+                @foreach($productImages as $image)
+                    <div class="col-md-3">
+                        <div class="image-container">
+                            <img src="{{ asset($image) }}" alt="Product Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                            <button type="button" class="btn btn-danger btn-sm delete-image" data-image="{{ $image }}">Delete</button>
+                            <input type="hidden" name="delete_images[]" value="{{ $image }}" class="delete-input">
+                        </div>
                     </div>
-                </div>
+                @endforeach
+            @else
+                <p>No images uploaded for this product.</p>
+            @endif
+        </div>
+    </div>
+</div>
+
                 <div class="col">
-                    <label for="image" class="form-label">Category Images:</label>
+                    <label for="image" class="form-label">Product Images:</label>
                     <input type="file" class="form-control @error('image.*') is-invalid @enderror" name="image[]" multiple>
                     @error('image')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -264,6 +267,20 @@
     }
     });
 </script>
+
+
+<script>
+    document.querySelectorAll('.delete-image').forEach(button => {
+    button.addEventListener('click', function () {
+        const imagePath = this.getAttribute('data-image');
+        this.closest('.image-container').remove();
+        document.querySelector(`input[value="${imagePath}"]`).remove();
+    });
+});
+
+</script>
+
+
 <script>
   tinymce.init({
     selector: 'textarea',

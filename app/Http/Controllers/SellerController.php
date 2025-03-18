@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Address;
 use App\Models\CustomerDetails;
 use Spatie\Permission\Models\Role;
 use DB;
@@ -66,24 +67,52 @@ class SellerController extends Controller
      */
     public function store(Request $request)
     {
+        try{
         $this->validate($request, [
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|same:confirm-password',
-            'phone'    => ['required', 'digits:10', 'numeric'],
+            'phone' => ['required', 'digits:10', 'numeric', 'unique:users,phone'],
             'pincode'    => ['required', 'digits:6', 'numeric'],
+            'name' => 'required|string',
+            'Phone' => ['required', 'digits:10', 'numeric', 'unique:users,phone'],
+            'city' => 'required|string',
+            'address1' => 'required|string',
+            'state'  => 'required|string',
+            'status' => 'required|boolean',
         ]);
-
+    } catch (\Illuminate\Validation\ValidationException $e){
+        return redirect()->back()->withErrors($e->errors())->withInput();
+    }
         $input = $request->all();
         $input['password'] = Hash::make($input['password']);
         $input['user_type'] = 2;
 
         $user = User::create($input);
+        if (!$user || !$user->id) {
+            return redirect()->back()->with('error', 'User creation failed.');
+        }
+
+
         $user->assignRole($request->input('roles'));
 
-        // return view('admin.sellers.index')
-        //     ->with('success', 'Seller created successfully');
+       Address::create([
+            'user_id' =>$user->id,
+            'name' =>$request->input('name'),
+            'address1' =>$request->input('address1'),
+            'address2' =>$request->input('address2'),
+            'landmark' =>$request->input('landmark'),
+            'phone' =>$request->input('phone'),
+            'city' =>$request->input('city'),
+            'state' =>$request->input('state'),
+            'address_type' =>$request->input('is_default', 1),
+            'pincode' =>$request->input('pincode'),
+            'status' =>$request->input('status'),
+        ]);
+
+        
+
         return redirect()->route('sellers.index')->with('success', 'Seller created successfully.');
     }
 

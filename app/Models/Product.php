@@ -23,8 +23,7 @@ class Product extends Model
         'physical_property',
         'key_benefits',
         'specification',
-        'availability',
-        'specification',
+        'standards',
     ];
     
 

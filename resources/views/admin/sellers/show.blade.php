@@ -1,17 +1,17 @@
 <x-layout bodyClass="g-sidenav-show bg-gray-200">
     @section('title')
-        {{ 'User Details' }}
+        {{ 'Seller Details' }}
     @endsection
-    <x-navbars.sidebar activePage='customers'></x-navbars.sidebar>
+    <x-navbars.sidebar activePage='seller'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
-        <x-navbars.navs.auth titlePage="Customer Details"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="Seller Details"></x-navbars.navs.auth>
         <div class="container-fluid py-4" style="background-color:#fff">
             <div class="row mb-4">
                 <div class="col-lg-10 col-md-10 mb-md-0 mb-4"></div>
                 <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
                     <div class="pull-right">
-                        <a class="btn btn-success btn-sm mb-2" href="{{ route('customers.index') }}">Back to Customers</a>
-                        <input type="button" class="btn btn-success btn-sm mb-2" id="updateInfo" value="Update the Customer" />
+                        <a class="btn btn-success btn-sm mb-2" href="{{ route('sellers.index') }}">Back to Seller</a>
+                        <input type="button" class="btn btn-success btn-sm mb-2" id="updateInfo" value="Update the Seller" />
                     </div>
                 </div>  
                 

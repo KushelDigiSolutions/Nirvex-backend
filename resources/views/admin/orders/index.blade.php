@@ -266,11 +266,13 @@
                 let sellerList = "";
                 if (response.length > 0) {
                     response.forEach(function (seller) {
+                        let address1 = (seller.addresses.length > 0) ? seller.addresses[0].address1 : 'N/A'; 
                         sellerList += `
                             <div class="seller-card">
                                 <div class="seller-info">
                                     <strong>${seller.first_name}</strong>
-                                    <p>${seller.address}</p>
+                                    <p>${seller.pincode}</p>
+                                    <p>${address1}</p>
                                 </div>
                                <button class="select-btn" data-id="${seller.id}" data-name="${seller.first_name}" data-image="${seller.image}">Select</button>
                             </div>`;
@@ -289,7 +291,8 @@
 
     $(".select-seller").on("click", function () {
         let pincode = $(this).data("pincode");
-        fetchSellers(pincode);
+        let name = $("#name-input").val();
+        fetchSellers(pincode, name);
         $("#sellerModal").modal("show");
     });
 

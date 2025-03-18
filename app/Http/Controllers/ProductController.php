@@ -69,6 +69,8 @@ class ProductController extends Controller
             ],
         ]);
 
+        
+
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $file) {
                 if ($file->getSize() > 1024 * 1024) { // 1MB limit
@@ -87,9 +89,26 @@ class ProductController extends Controller
         }
         $validatedData['image'] = implode(',', $imagePaths);
 
-        // Create the product
-        $product = Product::create($validatedData);
 
+        $product = Product::create([
+            'name'             => $validatedData['name'],
+            'description'      => $validatedData['description'] ?? null,
+            'cat_id'           => $validatedData['cat_id'],
+            'sub_cat_id'       => $validatedData['sub_cat_id'],
+            'status'           => $validatedData['status'],
+            'mrp'              => $validatedData['mrp'],
+            'availability'     => $validatedData['availability'],
+            'return_policy'    => $validatedData['return_policy'] ?? null,
+            'physical_property'=> $validatedData['physically_property'] ?? null,
+            'key_benefits'     => $validatedData['key_benefits'] ?? 'Default Benefits', 
+            'specification'    => $validatedData['specification'] ?? null,
+            'standards'        => $validatedData['standard'] ?? null,
+            'image'            => $validatedData['image'] ?? null,
+        ]);
+
+        // Create the product
+        // $product = Product::create($validatedData);
+        // dd($product);
         // Process dynamic form values for variants
         if ($request->has('options')) {
             foreach ($request->options as $option) {
@@ -155,7 +174,7 @@ class ProductController extends Controller
         // Validate the request data
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'descriptions' => 'required|string',
             'cat_id' => 'required|integer',
             'sub_cat_id' => 'required|integer',
             'status' => 'required|boolean',
@@ -163,9 +182,9 @@ class ProductController extends Controller
             'availability' => 'required|string',
             'specification' => 'required|string',
             'return_policy' => 'required|string',
-            'physically_property' => 'required|string',
-            'standard' => 'required|string',
-            'benefits' => 'required|string',
+            'physical_property' => 'required|string',
+            'standards' => 'required|string',
+            'key_benefits' => 'required|string',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
             'options.*.id' => 'nullable|integer', 
             'options.*.type' => 'required|string',
@@ -178,7 +197,7 @@ class ProductController extends Controller
             Rule::unique('variants', 'sku')],
             'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
         ]);
-
+        dd($request->all());
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $file) {
                 if ($file->getSize() > 1024 * 1024) { // 1MB limit
