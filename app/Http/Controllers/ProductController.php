@@ -68,9 +68,12 @@ class ProductController extends Controller
                 },
             ],
         ]);
+<<<<<<< HEAD
 
         
 
+=======
+>>>>>>> bfca690f90bc396864541b0644120ae280470a5b
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $file) {
                 if ($file->getSize() > 1024 * 1024) { // 1MB limit

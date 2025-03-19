@@ -2318,12 +2318,14 @@ public function vendorDashboard(Request $request)
             'total_amount' => $order->grand_total,
             'created_at' => $order->created_at,
             'items' => $order->orderItems->map(function ($item) {
+                
                 return [
                     'item_id' => $item->id,
                     'product' => $item->product,
                     'variant' => $item->variant,
-                    'quantity' => $item->quantity,
-                    'price' => $item->price,
+                    'quantity' => $item->qty,
+                    'price' => $item->sale_price,
+                    'tax' => $item->tax,
                 ];
             }),
         ];

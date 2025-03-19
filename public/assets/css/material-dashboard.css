@@ -17532,3 +17532,9 @@ pre[class*="language-"] {
     overflow: auto !important; } }
 
 /*# sourceMappingURL=material-dashboard.css.map */
+.variant-box{
+  background: #ddd;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
