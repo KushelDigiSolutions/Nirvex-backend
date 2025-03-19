@@ -4,15 +4,16 @@
 @endsection
 <x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
-    <x-navbars.navs.auth titlePage="Service"></x-navbars.navs.auth>
+    <x-navbars.navs.auth titlePage="Edit Service"></x-navbars.navs.auth>
     <div class="container-fluid py-4" style="background-color:#fff">
         <div class="row mb-4">
             <div class="col-lg-10 col-md-10 mb-md-0 mb-4"></div>
             <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
                 <div class="col-lg-12 margin-tb">
-                    <div class="pull-left">
+                    <div class="pull-right">
                         @can('role-create')
-                            <a class="btn btn-success btn-sm mb-2" href="{{ route('services.index') }}">Back to Service</a>
+                            <!-- <a class="btn btn-success btn-sm mb-2" href="{{ route('services.index') }}">Back to Service</a> -->
+                            <a class="btn btn-success btn-sm mb-2" href="{{ route('services.index') }}"><i class="fa fa-plus"></i> Back to Service</a>
                         @endcan
                     </div>
                 </div>

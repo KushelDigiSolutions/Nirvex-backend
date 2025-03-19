@@ -42,7 +42,7 @@
             <div class="row">
                 <div class="col">
                     <label for="return_policy" class="form-label">Return Policy:</label>
-                    <textarea class="form-control @error('return_policy') is-invalid @enderror" id="return_policy" placeholder="Enter Return Policy" name="return_policy">{{ old('return', $product->return_policy) }}</textarea>
+                    <textarea class="form-control @error('return_policy') is-invalid @enderror" id="return_policy" placeholder="Enter Return Policy" name="return_policy">{{ old('return_policy', $product->return_policy) }}</textarea>
                     @error('return_policy')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -106,7 +106,7 @@
             <div class="row">
                 <div class="col">
                     <label for="descriptions" class="form-label">Description:</label>
-                        <textarea id="editor" class="form-control @error('descriptions') is-invalid @enderror" name="descriptions" placeholder="Description">{{ old('description', $product->description) }}</textarea>
+                        <textarea id="editor" class="form-control @error('descriptions') is-invalid @enderror" name="descriptions" placeholder="Description">{{ old('descriptions', $product->description) }}</textarea>
                         @error('descriptions')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -205,10 +205,10 @@
                                     <input type="text" class="form-control" name="options[{{ $index }}][short_description]" placeholder="Short description" value="{{ $variant->short_description }}">
                                 </div>
                                 <input type="hidden" name="options[{{ $index }}][id]" value="{{ $variant->id }}">
-                                <div class="col d-flex align-items-end">
+                            </div>
+                            <div class="col d-flex align-items-end">
                                     <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
                                 </div>
-                            </div>
                         @endforeach
                     </div>
                     <button type="button" class="btn btn-primary btn-sm mt-2" id="add-field">Add More</button>

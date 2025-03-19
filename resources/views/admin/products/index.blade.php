@@ -60,7 +60,7 @@
                                 </a>
                             </td>
                             <td>
-                                <form action="{{ route('products.destroy', $rs->id) }}"
+                                <form action="{{ route('products.destroy',encrypt($rs->id)) }}"
                                     method="POST" onclick="confirm('Are you sure')">
                                     @method('DELETE')
                                     @csrf

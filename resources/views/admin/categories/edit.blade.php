@@ -59,10 +59,12 @@
                             @enderror
                         </div>
                         </div>
-
-                        <div class="col">
-                        <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3">Submit</button>
+                    <div class="row">
+                        <div class="col-md-10"></div>
+                        <div class="col-md-10">
+                            <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3">Update</button>
                         </div>
+                    </div>
                     </form>                
                     </div>
                     </div>

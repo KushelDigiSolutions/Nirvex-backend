@@ -78,8 +78,10 @@ class SubcategoryController extends Controller
             'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]); 
 
-        if ($request->file('image')->getSize() > 1024 * 1024) { 
-            return redirect()->back()->withErrors(['image' => 'The image must not be greater than 1MB.']);
+        if ($request->hasFile('image')) {
+            if ($request->file('image')->getSize() > 1024 * 1024) {
+                return redirect()->back()->withErrors(['image' => 'The image must not be greater than 1MB.']);
+            }
         }
         
         $subcategories = DB::table('subcategories')->where('id', $id)->first();

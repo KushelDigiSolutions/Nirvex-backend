@@ -68,13 +68,7 @@ class ProductController extends Controller
                 },
             ],
         ]);
-<<<<<<< HEAD
-
-        
-
-=======
->>>>>>> bfca690f90bc396864541b0644120ae280470a5b
-        if ($request->hasFile('image')) {
+       if ($request->hasFile('image')) {
             foreach ($request->file('image') as $file) {
                 if ($file->getSize() > 1024 * 1024) { // 1MB limit
                     return redirect()->back()->withErrors(['image' => 'Each image must not be greater than 1MB.']);
@@ -137,7 +131,7 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->route('products.create')->with('success', 'Product created successfully.');
+        return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 
      
@@ -173,34 +167,40 @@ class ProductController extends Controller
     {
         // Find the product
         $product = Product::findOrFail($id);
-
-        // Validate the request data
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'descriptions' => 'required|string',
-            'cat_id' => 'required|integer',
-            'sub_cat_id' => 'required|integer',
-            'status' => 'required|boolean',
-            'mrp' => 'required|numeric',
-            'availability' => 'required|string',
-            'specification' => 'required|string',
-            'return_policy' => 'required|string',
-            'physical_property' => 'required|string',
-            'standards' => 'required|string',
-            'key_benefits' => 'required|string',
-            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
-            'options.*.id' => 'nullable|integer', 
-            'options.*.type' => 'required|string',
-            'options.*.name' => 'required|string|max:255',
-            'options.*.description' => 'nullable|string|max:255',
-            'options.*.sku' => [
-            'required',
-            'string',
-            'max:255',
-            Rule::unique('variants', 'sku')],
-            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
-        ]);
-        dd($request->all());
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'descriptions' => 'nullable|string',
+                'cat_id' => 'required|integer',
+                'sub_cat_id' => 'required|integer',
+                'status' => 'required|boolean',
+                'mrp' => 'required|numeric',
+                'availability' => 'required|string',
+                'specification' => 'required|string',
+                'return_policy' => 'required|string',
+                'physical_property' => 'required|string',
+                'standards' => 'required|string',
+                'key_benefits' => 'required|string',
+                'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+                'options.*.id' => 'nullable|integer', 
+                'options.*.type' => 'required|string',
+                'options.*.name' => 'required|string|max:255',
+                'options.*.short_description' => 'nullable|string|max:255',
+                'options.*.sku' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('variants', 'sku'),
+                ],
+                'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+            ]);
+        
+            // If validation passes, dump data
+            dd($validatedData);
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            dd($e->errors()); // Show validation errors if any
+        }
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $file) {
                 if ($file->getSize() > 1024 * 1024) { // 1MB limit
@@ -257,13 +257,17 @@ class ProductController extends Controller
                         $path = $option['image']->move(public_path('uploads/variants'), $fileName);
                         $variantData['images'] = 'uploads/variants/' . $fileName;
                     }
-                    $variant = Variant::create($variantData);
-                    $variant->save();
+                    // $variant = Variant::create($variantData);
+                    // $variant->save();
+                    Variant::updateOrCreate(
+                        ['id' => $option['id'] ?? null], 
+                        $variantData
+                    );
                 }
             }
         }
 
-        return redirect()->route('products.edit', ['product' => $product->id])->with('success', 'Product updated successfully.');
+        return redirect()->route('products.index', ['product' => $product->id])->with('success', 'Product updated successfully.');
     }
 
      

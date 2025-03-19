@@ -73,9 +73,10 @@ class CategoryController extends Controller
             'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif', 'max:1024'],
             // 'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif', 'max:4096']
         ]);
-
-        if ($request->file('image')->getSize() > 1024 * 1024) { 
-            return redirect()->back()->withErrors(['image' => 'The image must not be greater than 1MB.']);
+        if ($request->hasFile('image')) {
+            if ($request->file('image')->getSize() > 1024 * 1024) { 
+                return redirect()->back()->withErrors(['image' => 'The image must not be greater than 1MB.']);
+            }
         }
 
         $categories = DB::table('categories')->where('id', $id)->first();

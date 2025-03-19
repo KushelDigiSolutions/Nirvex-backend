@@ -25,14 +25,14 @@
             <!-- Product Name & MRP -->
             <div class="row">
                 <div class="col">
-                    <label for="name" class="form-label">Product Name:</label>
+                    <label for="name" class="form-label">Product Name<span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" placeholder="Enter Product" name="name">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="col">
-                    <label for="mrp" class="form-label">MRP (RS.):</label>
+                    <label for="mrp" class="form-label">MRP (RS.)<span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('mrp') is-invalid @enderror" id="mrp" placeholder="Enter MRP" name="mrp">
                     @error('mrp')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -42,7 +42,7 @@
             <!-- Return Policy & Physically Property -->
             <div class="row">
                 <div class="col">
-                    <label for="return_policy" class="form-label">Return Policy:</label>
+                    <label for="return_policy" class="form-label">Return Policy<span class="text-danger">*</span></label>
                     <textarea class="form-control @error('return_policy') is-invalid @enderror" id="return_policy" placeholder="Enter Return Policy" name="return_policy"></textarea>
                     @error('return_policy')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -51,7 +51,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <label for="physically_property" class="form-label">Physically Property:</label>
+                    <label for="physically_property" class="form-label">Physically Property<span class="text-danger">*</span></label>
                     <textarea class="form-control @error('physically_property') is-invalid @enderror" id="physically_property" placeholder="Enter Physically Property" name="physically_property"></textarea>
                     @error('physically_property')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -61,7 +61,7 @@
             <!-- Standard & Key Benefits -->
             <div class="row">
                 <div class="col">
-                    <label for="standard" class="form-label">Standard:</label>
+                    <label for="standard" class="form-label">Standard<span class="text-danger">*</span></label>
                     <textarea class="form-control @error('standard') is-invalid @enderror" id="standard" placeholder="Enter Standard" name="standard"></textarea>
                     @error('standard')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -70,7 +70,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <label for="benefits" class="form-label">Benefits:</label>
+                    <label for="benefits" class="form-label">Benefits<span class="text-danger">*</span></label>
                     <textarea class="form-control @error('benefits') is-invalid @enderror" id="benefits" placeholder="Enter Benefits" name="benefits"></textarea>
                     @error('benefits')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -80,7 +80,7 @@
         <!-- Category & Sub Category -->
             <div class="row"> 
                 <div class="col">
-                    <label for="cat_id" class="form-label">Category:</label>
+                    <label for="cat_id" class="form-label">Category<span class="text-danger">*</span></label>
                         <select class="form-select @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
                             <option value="">Select Category</option> 
                                 @foreach($categories as $data)
@@ -92,7 +92,7 @@
                             @enderror
                 </div>
                 <div class="col">
-                    <label for="sub_cat_id" class="form-label">Sub Category:</label>
+                    <label for="sub_cat_id" class="form-label">Sub Category<span class="text-danger">*</span></label>
                         <select class="form-select @error('sub_cat_id') is-invalid @enderror" id="sub_cat_id" name="sub_cat_id">
                             <option value="">Select Sub Category</option>                      
                         </select>
@@ -104,7 +104,7 @@
                 <!-- Description -->
                 <div class="row">
                     <div class="col">
-                        <label for="description" class="form-label">Discription:</label>
+                        <label for="description" class="form-label">Discription<span class="text-danger">*</span></label>
                             <textarea  id="editor" class="form-control @error('description') is-invalid @enderror" name="description" placeholder="Discription">{{ old('description') }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -114,7 +114,7 @@
                 <!-- Specification -->
                 <div class="row">
                     <div class="col">
-                        <label for="specification" class="form-label">Specifications:</label>
+                        <label for="specification" class="form-label">Specifications<span class="text-danger">*</span></label>
                             <textarea class="form-control @error('specification') is-invalid @enderror" name="specification" placeholder="Specifications"></textarea>
                             @error('specification')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -124,14 +124,14 @@
                 <!-- Delivery Days & Status -->
                 <div class="row">
                     <div class="col">
-                        <label for="availability" class="form-label">Delivery Days:</label>
+                        <label for="availability" class="form-label">Delivery Days<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('availability') is-invalid @enderror" id="availability" placeholder="Enter Delivery Days" name="availability">
                             @error('availability')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                     </div>
                     <div class="col">
-                        <label for="status" class="form-label">Status:</label>
+                        <label for="status" class="form-label">Status<span class="text-danger">*</span></label>
                             <select class="form-select @error('status') is-invalid @enderror" name="status">
                                 <option value="">Select Status</option>
                                 <option value="1" {{ old('status') == "1" ? 'selected' : '' }}>Active</option>
@@ -145,7 +145,7 @@
                 <!-- Category Images -->
                 <div class="row">
                     <div class="col">
-                        <label for="image" class="form-label">Product Images:</label>
+                        <label for="image" class="form-label">Product Images<span class="text-danger">*</span></label>
                             <input type="file" class="form-control @error('image.*') is-invalid @enderror" name="image[]" multiple>
                                 @error('image.0')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -161,7 +161,7 @@
                                 <div class="variant-box">
                                     <div class="row mb-3">
                                         <div class="col">
-                                            <label for="type" class="form-label">Type:</label>
+                                            <label for="type" class="form-label">Type<span class="text-danger">*</span></label>
                                             <select class="form-select" name="options[0][type]">
                                                 <option value="1">Quality</option>
                                                 <option value="2">Color</option>
@@ -169,23 +169,23 @@
                                             </select>
                                         </div>
                                         <div class="col">
-                                            <label for="name" class="form-label">Name:</label>
+                                            <label for="name" class="form-label">Name<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="options[0][name]" placeholder="Enter name">
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col">
-                                            <label for="image" class="form-label">Image:</label>
+                                            <label for="image" class="form-label">Image<span class="text-danger">*</span></label>
                                             <input type="file" class="form-control" name="options[0][image]">
                                         </div>
                                         <div class="col">
-                                            <label for="description" class="form-label">Short Description:</label>
+                                            <label for="description" class="form-label">Short Description<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="options[0][short_description]" placeholder="Short description">
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col">
-                                            <label for="sku" class="form-label">Product Sku</label>
+                                            <label for="sku" class="form-label">Product Sku<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control @error('options.0.sku') is-invalid @enderror" name="options[0][sku]">
                                             @error('options.0.sku')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -199,14 +199,16 @@
 
                             </div>
                         </div>
-                        <button type="button" class="btn btn-primary btn-sm mt-2" id="add-field">Add More</button>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary btn-sm mt-2" id="add-field">Add More</button>
+                        </div>
                     </div>
                 </div>
-                <div class="row mt-4">
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                    </div>
-                </div>
+<div class="row mt-4">
+    <div class="col-12 d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+    </div>
+</div>
         </form>  
         </div>
     </div>
@@ -221,7 +223,7 @@
         const newField = `<div class="variant-box">
                                     <div class="row mb-3">
                                         <div class="col">
-                                            <label for="type" class="form-label">Type:</label>
+                                            <label for="type" class="form-label">Type<span class="text-danger">*</span></label>
                                             <select class="form-select" name="options[${fieldCount}][type]">
                                                 <option value="1">Quality</option>
                                                 <option value="2">Color</option>
@@ -229,32 +231,32 @@
                                             </select>
                                         </div>
                                         <div class="col">
-                                            <label for="name" class="form-label">Name:</label>
+                                            <label for="name" class="form-label">Name<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="options[${fieldCount}][name]" placeholder="Enter name">
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col">
-                                            <label for="image" class="form-label">Image:</label>
+                                            <label for="image" class="form-label">Image<span class="text-danger">*</span></label>
                                             <input type="file" class="form-control" name="options[${fieldCount}][image]">
                                         </div>
                                         <div class="col">
-                                            <label for="description" class="form-label">Short Description:</label>
+                                            <label for="description" class="form-label">Short Description<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="options[${fieldCount}][short_description]" placeholder="Short description">
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col">
-                                            <label for="sku" class="form-label">Product Sku</label>
+                                            <label for="sku" class="form-label">Product Sku<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="options[${fieldCount}][sku]">
                                             @error('sku')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
-                                        <div class="col d-flex align-items-end">
-                                            <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-                                        </div>
                                     </div>
+                                     <div class="col d-flex justify-content-start align-items-end">
+    <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
+</div>
                                 </div>`;
         dynamicForm.insertAdjacentHTML('beforeend', newField);
         fieldCount++;
