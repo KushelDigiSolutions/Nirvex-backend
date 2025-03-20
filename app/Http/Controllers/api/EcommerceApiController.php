@@ -11,12 +11,15 @@ use App\Models\Slider;
 use App\Models\Service;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderReason;
 use App\Models\Otp;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Rating;
 use App\Models\Variant;
+use App\Models\SellerPrice;
+use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -2463,6 +2466,161 @@ public function getVendorStocks(){
 
 }
 
+public function acceptRejectOrder(Request $request)
+{
+    // Validate request input
+    $validated = $request->validate([
+        'order_id'  => 'required|integer|exists:orders,id',
+        'type'      => 'required|boolean', // 0 for reject, 1 for accept
+        'reason'    => 'nullable|string',
+    ]);
 
+    $userId = Auth::id();
+    // Find or create the OrderReason record
+    $orderReason = OrderReason::updateOrCreate(
+        [
+            'order_id' => $validated['order_id'],
+            'user_id'  => $userId,
+            'type'     => $validated['type'],
+        ],
+        [
+            'reason'   => $validated['reason'] ?? null,
+        ]
+    );
+
+    // Update order status based on type
+    $order = Order::findOrFail($validated['order_id']);
+
+    if ($validated['type'] == 0) { // Rejected
+        $order->order_status = 7; // Rejected status code
+    } else { // Accepted
+        $order->order_status = 2; // Accepted status code
+    }
+
+    $order->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => ($validated['type'] ? "Order accepted successfully." : "Order rejected successfully."),
+        'data' => [
+            'order_reason' => $orderReason,
+            'order_status' => $order->order_status,
+        ],
+    ]);
+}
+
+
+public function updateSellerPrices(Request $request)
+{
+    // Validate request data
+    $request->validate([
+        'variant_id' => 'required|integer|exists:variants,id',
+        'quantity' => 'required|integer|min:1',
+        'prices' => 'required|numeric|min:0',
+    ]);
+    // Get logged-in user ID from JWT token
+    $userId = Auth::id();
+
+    // Check if a record exists for the same day
+    $today = now()->startOfDay();
+    $existingRecord = SellerPrice::where('user_id', $userId)
+        ->where('variant_id', $request->variant_id)
+        ->whereDate('created_at', '=', $today)
+        ->first();
+
+    if ($existingRecord) {
+        // Update existing record
+        $existingRecord->update([
+            'quantity' => $request->quantity,
+            'prices' => $request->prices,
+        ]);
+    } else {
+        // Create a new record
+        SellerPrice::create([
+            'user_id' => $userId,
+            'variant_id' => $request->variant_id,
+            'quantity' => $request->quantity,
+            'prices' => $request->prices,
+        ]);
+    }
+
+    return response()->json(['message' => 'Seller price updated successfully.']);
+}
+
+public function getUserNotifications(Request $request)
+{
+    // Validate query parameters
+    $request->validate([
+        'limit' => 'integer|min:1|max:100',
+        'offset' => 'integer|min:0',
+        'sort_by' => 'in:created_at,type',
+        'sort_order' => 'in:asc,desc',
+    ]);
+
+    // Get logged-in user ID
+    $userId = Auth::id();
+
+    // Set default values for limit, offset, and sorting
+    $limit = $request->get('limit', 10); // Default limit is 10
+    $offset = $request->get('offset', 0); // Default offset is 0
+    $sortBy = $request->get('sort_by', 'created_at'); // Default sort by created_at
+    $sortOrder = $request->get('sort_order', 'desc'); // Default sort order is descending
+
+    // Fetch notifications for the user with pagination and sorting
+    $notifications = Notification::where('user_id', $userId)
+        ->orderBy($sortBy, $sortOrder)
+        ->skip($offset)
+        ->take($limit)
+        ->get();
+
+    return response()->json([
+        'data' => $notifications,
+        'message' => 'Notifications fetched successfully.',
+    ]);
+}
+
+public function getUserOrders(Request $request)
+{
+    // Validate query parameters
+ /* 
+dd($request->validate([
+    'limit' => 'integer|min:1|max:100',
+    'offset' => 'integer|min:0',
+    'sort_by' => 'in:created_at,grand_total',
+    'sort_order' => 'in:asc,desc',
+    'days' => 'integer|min:1', // Optional day filter
+])); */
+    // Get logged-in user ID
+    $userId = Auth::id();
+
+    // Set default values for limit, offset, and sorting
+    $limit = $request->get('limit', 10); // Default limit is 10
+    $offset = $request->get('offset', 0); // Default offset is 0
+    $sortBy = $request->get('sort_by', 'created_at'); // Default sort by created_at
+    $sortOrder = $request->get('sort_order', 'desc'); // Default sort order is descending
+
+    // Filter orders by date range if "days" parameter is provided
+    $query = Order::where('vendor_id', $userId);
+
+    if ($request->has('days')) {
+        $days = $request->get('days');
+        $query->where('created_at', '>=', now()->subDays($days));
+    }
+
+    // Apply sorting and pagination
+    $orders = $query
+        ->get(['id', 'order_status', 'grand_total']);
+   // dd($orders);
+    // Calculate grand total of all completed orders (order_status = 6)
+    $grandTotal = Order::where('user_id', $userId)
+        ->where('order_status', 6)
+        ->sum('grand_total');
+
+    return response()->json([
+        'data' => $orders,
+        'grand_total' => $grandTotal,
+        'message' => 'Orders fetched successfully.',
+    ]);
+}
 
 }

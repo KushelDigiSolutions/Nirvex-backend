@@ -80,8 +80,11 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('/vendor-orders/', [EcommerceApiController ::class, 'vendorOrders']);
         Route::get('/update-order-status/', [EcommerceApiController ::class, 'updateVendorOrderStatus']);
         Route::get('/get-vendor-stock/', [EcommerceApiController ::class, 'getVendorStocks']);
-        Route::get('/update-vendor-stocks/', [EcommerceApiController ::class, 'updateVendorEarnings']);
+        Route::post('/update-stocks/', [EcommerceApiController ::class, 'updateSellerPrices']);
         Route::get('/get-vendor-earnings/', [EcommerceApiController ::class, 'getVendorEarnings']);
+        Route::get('/notifications', [EcommerceApiController ::class, 'getUserNotifications']);
+        Route::post('/accept-reject-order/', [EcommerceApiController ::class, 'acceptRejectOrder']);
+        Route::get('/seller-transactions/', [EcommerceApiController ::class, 'getUserOrders']);
     });
 });
 

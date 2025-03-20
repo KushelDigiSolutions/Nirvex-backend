@@ -2,16 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'type', 'message', 'additional_data'];
+    protected $table = 'notifications';
+
+    protected $fillable = [
+        'user_id',
+        'type',
+        'message',
+        'additional_data',
+    ];
 
     protected $casts = [
-        'additional_data' => 'json'
+        'additional_data' => 'array', // Automatically cast JSON data to array
     ];
 }
