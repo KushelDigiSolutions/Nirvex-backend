@@ -99,15 +99,15 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Name*</label>
-                            <input type="text" name="name" id="mname" class="form-control" required>
+                            <input type="text" name="name" id="mname" class="form-control">
                             @error('name')
         <small class="text-danger">{{ $message }}</small>
     @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Phone*</label>
-                            <input type="text" name="phone" id="mphone" class="form-control" required maxlength="12">
-                            @error('phone')
+                            <input type="text" name="sphone" id="sphone" class="form-control" maxlength="12">
+                            @error('sphone')
         <small class="text-danger">{{ $message }}</small>
     @enderror
                         </div>
@@ -116,7 +116,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Address Line 1*</label>
-                            <input type="text" name="address1" id="maddress1" class="form-control" required>
+                            <input type="text" name="address1" id="maddress1" class="form-control">
                             @error('address1')
         <small class="text-danger">{{ $message }}</small>
     @enderror
@@ -124,7 +124,9 @@
                         <div class="col-md-6">
                             <label class="form-label">Address Line 2</label>
                             <input type="text" name="address2" id="maddress2" class="form-control">
-                            
+                            @error('address2')
+        <small class="text-danger">{{ $message }}</small>
+    @enderror
                         </div>
                     </div>
 
@@ -135,7 +137,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Pincode*</label>
-                            <input type="text" name="pincode" id="mpincode" class="form-control" required maxlength="10">
+                            <input type="text" name="pincode" id="mpincode" class="form-control" maxlength="10">
                             @error('pincode')
         <small class="text-danger">{{ $message }}</small>
     @enderror
@@ -145,14 +147,14 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">City*</label>
-                            <input type="text" name="city" id="mcity" class="form-control" required>
+                            <input type="text" name="city" id="mcity" class="form-control">
                             @error('city')
         <small class="text-danger">{{ $message }}</small>
     @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">State*</label>
-                            <input type="text" name="state" id="mstate" class="form-control" required>
+                            <input type="text" name="state" id="mstate" class="form-control">
                             @error('state')
         <small class="text-danger">{{ $message }}</small>
     @enderror
@@ -163,7 +165,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Status*</label>
-                            <select name="status" id="mstatus" class="form-select" required>
+                            <select name="status" id="mstatus" class="form-select">
                                 <option value="1">Active</option>
                                 <option value="0">Inactive</option>
                                 @error('status')
@@ -180,10 +182,14 @@
                         </div>
                     </div>
 
-
-                     <div class="col-xs-6 col-sm-6 col-md-6 text-center">
+                    <div class="col-12 text-center">
+    <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3">
+        <i class="fa-solid fa-floppy-disk"></i> Submit
+    </button>
+</div>
+                     <!-- <div class="col-xs-6 col-sm-6 col-md-6 text-center">
                         <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa-solid fa-floppy-disk"></i> Submit</button>
-                     </div>
+                     </div> -->
                   </div>
                </form>
             </div>

@@ -157,7 +157,6 @@
                     <div class="col">
                         <h5>Variant</h5>
                             <div id="dynamic-form">
-                                
                                 <div class="variant-box">
                                     <div class="row mb-3">
                                         <div class="col">

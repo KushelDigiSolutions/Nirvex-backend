@@ -161,15 +161,141 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('categories', 'subCategories', 'product'));
     }
 
-    
-
     public function update(Request $request, $id)
+{
+    // Find the product
+    $product = Product::findOrFail($id);
+
+    try {
+        $validatedData = $request->validate([
+            'pname' => 'required|string|max:255',
+            'descriptions' => 'nullable|string',
+            'cat_id' => 'required|integer',
+            'sub_cat_id' => 'required|integer',
+            'status' => 'required|boolean',
+            'mrp' => 'required|numeric',
+            'availability' => 'required|string',
+            'specification' => 'required|string',
+            'return_policy' => 'required|string',
+            'physical_property' => 'required|string',
+            'standards' => 'required|string',
+            'key_benefits' => 'required|string',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+            'options' => 'required|array',
+            'options.*.id' => 'nullable|integer',
+            'options.*.type' => 'nullable|string',
+            'options.*.name' => 'required|string|max:255',
+            'options.*.short_description' => 'nullable|string|max:255',
+            'options.*.sku' => [
+                'nullable', 
+                Rule::unique('variants', 'sku')->ignore($request->options['id'] ?? null)
+            ],
+            'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return redirect()->back()->withErrors($e->errors());
+    }
+
+    // Image handling
+    if ($request->hasFile('image')) {
+        foreach ($request->file('image') as $file) {
+            if ($file->getSize() > 1024 * 1024) { 
+                return redirect()->back()->withErrors(['image' => 'Each image must not be greater than 1MB.']);
+            }
+        }
+    }
+
+    // Delete images if required
+    if(empty($request->delete_images)){
+        $existingImages = explode(',', $product->image);
+        foreach ($existingImages as $image) {
+            if (!empty($image) && file_exists(public_path($image))) {
+                unlink(public_path($image));
+            }
+        }
+        $product->image = null;
+    } elseif ($request->has('delete_images') && is_array($request->delete_images)) {
+        $existingImages = explode(',', $product->image); 
+        $imagesToKeep = $request->delete_images; 
+        $imagesToDelete = array_diff($existingImages, $imagesToKeep);
+        foreach ($imagesToDelete as $image) {
+            if (file_exists(public_path($image))) {
+                unlink(public_path($image));
+            }
+        }
+        $product->image = implode(',', $imagesToKeep);
+    }
+
+    // Store new images
+    $imagePaths = [];
+    if ($request->hasFile('image')) {
+        foreach ($request->file('image') as $image) {
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $path = $image->move(public_path('uploads/products'), $fileName);
+            $imagePaths[] = 'uploads/products/' . $fileName;
+        }
+    }
+
+    if (!empty($imagePaths)) {
+        $validatedData['image'] = implode(',', $imagePaths);
+    } else {
+        unset($validatedData['image']);
+    }
+
+    // Update product data
+    $product->update([
+        'name' => $validatedData['pname'],
+        'description' => $validatedData['descriptions'],
+        'cat_id' => $validatedData['cat_id'],
+        'sub_cat_id' => $validatedData['sub_cat_id'],
+        'mrp' => $validatedData['mrp'],
+        'availability' => $validatedData['availability'],
+        'return_policy' => $validatedData['return_policy'],
+        'specification' => $validatedData['specification'],
+        'physical_property' => $validatedData['physical_property'],
+        'standards' => $validatedData['standards'],
+        'key_benefits' => $validatedData['key_benefits'],
+        'status' => $validatedData['status'],
+    ]);
+
+    // Handle variants
+    if ($request->has('options')) {
+        foreach ($request->options as $option) {
+            $variantData = [
+                'product_id' => $product->id,
+                'name' => $option['name'],
+                'type' => $option['type'] ?? null,
+                'sku' => $option['sku'] ?? null,
+                'short_description' => $option['short_description'] ?? null,
+            ];
+
+            // Handle variant image upload
+            if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
+                $fileName = time() . '_' . $option['image']->getClientOriginalName();
+                $path = $option['image']->move(public_path('uploads/variants'), $fileName);
+                $variantData['images'] = 'uploads/variants/' . $fileName;
+            }
+
+            // Update or Create variant
+            Variant::updateOrCreate(
+                ['id' => $option['id'] ?? null, 'product_id' => $product->id],
+                $variantData
+            );
+        }
+    }
+
+    return redirect()->route('products.index', ['product' => $product->id])->with('success', 'Product updated successfully.');
+}
+
+
+    public function update210325(Request $request, $id)
     {
         // Find the product
         $product = Product::findOrFail($id);
         try {
             $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
+                'pname' => 'required|string|max:255',
                 'descriptions' => 'nullable|string',
                 'cat_id' => 'required|integer',
                 'sub_cat_id' => 'required|integer',
@@ -182,35 +308,61 @@ class ProductController extends Controller
                 'standards' => 'required|string',
                 'key_benefits' => 'required|string',
                 'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+                'options' => 'required|array',
                 'options.*.id' => 'nullable|integer', 
-                'options.*.type' => 'required|string',
+                'options.*.type' => 'nullable|string',
                 'options.*.name' => 'required|string|max:255',
                 'options.*.short_description' => 'nullable|string|max:255',
-                'options.*.sku' => [
-                    'required',
-                    'string',
-                    'max:255',
-                    Rule::unique('variants', 'sku'),
-                ],
+                'options.*.sku' => function ($attribute, $value, $fail) use ($request) {
+                    $index = explode('.', $attribute)[1]; 
+                    $variantId = $request->options[$index]['id'] ?? null;
+                    $rule = Rule::unique('variants', 'sku');
+                    if ($variantId) {
+                        $rule->ignore($variantId);
+                    }
+                    $validator = validator([$attribute => $value], [$attribute => $rule]);
+                    if ($validator->fails()) {
+                        $fail($validator->errors()->first($attribute));
+                    }
+                },
                 'options.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
             ]);
-        
-            // If validation passes, dump data
-            dd($validatedData);
+
+            // dd($validatedData);
         
         } catch (\Illuminate\Validation\ValidationException $e) {
-            dd($e->errors()); // Show validation errors if any
+            // dd($e->errors()); 
         }
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $file) {
-                if ($file->getSize() > 1024 * 1024) { // 1MB limit
+                if ($file->getSize() > 1024 * 1024) { 
                     return redirect()->back()->withErrors(['image' => 'Each image must not be greater than 1MB.']);
                 }
             }
         }
 
-        $imagePaths = [];
+        if(empty($request->delete_images)){
+            $existingImages = explode(',', $product->image);
+            foreach ($existingImages as $image) {
+                if (!empty($image) && file_exists(public_path($image))) {
+                    unlink(public_path($image));
+                }
+            }
+            $product->image = null;
+        }else if($request->has('delete_images') && is_array($request->delete_images)) {
+            $existingImages = explode(',', $product->image); 
+            $imagesToKeep = $request->delete_images; 
+            $imagesToDelete = array_diff($existingImages, $imagesToKeep);
+            foreach ($imagesToDelete as $image) {
+                if (file_exists(public_path($image))) {
+                    unlink(public_path($image));
+                }
+            }
+            $product->image = implode(',', $imagesToKeep);
+        }
+
         if ($request->hasFile('image')) {
+            $imagePaths = [];
             foreach ($request->file('image') as $image) {
                 $fileName = time() . '_' . $image->getClientOriginalName();
                 $path = $image->move(public_path('uploads/products'), $fileName);
@@ -223,9 +375,22 @@ class ProductController extends Controller
             unset($validatedData['image']);
         }
 
-        $product->update($validatedData);
+        // $product->update($validatedData);
+        $product->name = $validatedData['pname'];
+        $product->description = $validatedData['descriptions'];
+        $product->cat_id = $validatedData['cat_id'];
+        $product->sub_cat_id  = $validatedData['sub_cat_id'];
+        $product->mrp = $validatedData['mrp'];
+        $product->availability = $validatedData['availability'];
+        $product->return_policy = $validatedData['return_policy'];
+        $product->specification = $validatedData['specification']; 
+        $product->physical_property = $validatedData['physical_property'];
+        $product->standards = $validatedData['standards'];
+        $product->key_benefits = $validatedData['key_benefits'];
+        $product->status = $validatedData['status'];
 
         if ($request->has('options')) {
+            dd($request->options);
             foreach ($request->options as $option) {
                 if (isset($option['id'])) {
                     $variant = Variant::findOrFail($option['id']);
@@ -235,13 +400,12 @@ class ProductController extends Controller
                         'sku' => $option['sku'],
                         'short_description' => $option['short_description'] ?? null,
                     ];
-
+                    dd($variantData);
                     if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
                         $fileName = time() . '_' . $option['image']->getClientOriginalName();
                         $path = $option['image']->move(public_path('uploads/variants'), $fileName);
                         $variantData['images'] = 'uploads/variants/' . $fileName;
                     }
-
                     $variant->update($variantData);
                 } else {
                     $variantData = [

@@ -1,18 +1,29 @@
-@extends('layouts.app')
-
-
-@section('content')
-<div class="row">
-    <div class="col-lg-12 margin-tb">
-        <div class="pull-left">
-            <h2> Show User</h2>
-        </div>
-        <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('users.index') }}"> Back</a>
-        </div>
-    </div>
-</div>
-
+<x-layout bodyClass="g-sidenav-show  bg-gray-200">
+@section('title')
+        {{ 'Show User' }}
+    @endsection
+    <x-navbars.sidebar activePage='User'></x-navbars.sidebar>
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+        <!-- Navbar -->
+        <x-navbars.navs.auth titlePage="User"></x-navbars.navs.auth>
+        <!-- End Navbar -->
+        <div class="container-fluid py-4" style="background-color:#fff">
+            <div class="row mb-4">
+            <div class="col-lg-10 col-md-10 mb-md-0 mb-4"></div>
+                <div class="col-lg-2 col-md-2 mb-md-0 mb-4">
+                        <div class="col-lg-12 margin-tb">
+                            <div class="pull-left">
+                                @can('role-create')
+                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('clients.index') }}">Back to User</a>
+                                @endcan
+                            </div>
+                        </div>
+                    </div>  
+                    @if(session('success'))
+                        <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                    @endif
 
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -38,4 +49,14 @@
         </div>
     </div>
 </div>
-@endsection
+</div>
+            </div>
+            <x-footers.auth></x-footers.auth>
+        </div>
+    </main>
+    <x-plugins></x-plugins>
+    </div>
+    @push('js')
+    <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
+    @endpush
+</x-layout>
