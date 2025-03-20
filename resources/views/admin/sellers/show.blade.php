@@ -67,6 +67,32 @@
                         </div>
                     </div>
                 </div>
+    <div class="row mt-4">
+        <h4>Seller Prices</h4>
+        <div class="card mydatatable">
+            <div class="table-responsive">
+                <table id="datatable-basic" class="display nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Download CSV</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>2025-03-20</td>
+                            <td><button class="btn btn-success btn-sm mb-2" onclick="downloadCSV(1)">Download CSV</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</div>
+
+    </div>
+                    
 <div class="row mt-4">
     <h4>Address Details <button type="button" style="float:right" class="btn-success btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#addressModal">Add New Address</button></h4>
     @if($user->addresses && $user->addresses->isNotEmpty())
@@ -319,7 +345,17 @@
             </div>
         </div>
     </div>
-
+    <style>
+        .mydatatable .dataTables_length, .mydatatable .dataTables_filter {
+            padding: 20px;
+        }
+        .mydatatable .dataTables_info {
+            padding: 20px 10px;
+        }
+        .mydatatable .dataTables_paginate {
+            padding: 10px;
+        }
+    </style>
     @push('js')
     <script>
         $(document).ready(function() {
@@ -545,8 +581,32 @@ $(document).ready(function() {
         }
     });
 });
+$(document).ready(function() {
+        // Initialize DataTable
+        $('#datatable-basic').DataTable({
+            responsive: true,
+            pageLength: 10,
+            lengthMenu: [5, 10, 15, 20, 25],
+            language: {
+                lengthMenu: "Show _MENU_ entries per page",
+                info: "Showing _START_ to _END_ of _TOTAL_ entries"
+            }
+        });
+    });
 
+function downloadCSV(id) {
+        // Example logic for downloading a CSV file
+        const csvContent = `ID,Date\n${id},2025-03-${20 - id}`;
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
 
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `data_${id}.csv`;
+        link.click();
+
+        URL.revokeObjectURL(url);
+    }
     </script>
     @endpush
 </x-layout>

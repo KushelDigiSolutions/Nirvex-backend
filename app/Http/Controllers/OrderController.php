@@ -18,17 +18,16 @@ class OrderController extends Controller
     public function index()
     {
         $totalOrders = Order::with(['users', 'items', 'addresses'])
-        ->select('orders.id', 'orders.user_id', 'orders.grand_total', 'orders.created_at', 'orders.order_status')
+        ->select('orders.id', 'orders.user_id', 'orders.grand_total', 'orders.vendor_id', 'orders.created_at', 'orders.order_status')
         ->orderBy('orders.created_at', 'desc')
         ->get()
         ->map(function ($order, $index) {
             $customerName = $order->users->first_name . ' ' . ($order->users->last_name ?? '');
             $pincode = $order->users->pincode ?? ($order->addresses->pincode ?? 'Unknown');
 
-            $seller = \App\Models\User::where('user_type', 1)
-                ->where('id', $order->user_id)
-                ->first();
-            $sellerName = $seller ? $seller->first_name . ' ' . $seller->last_name : 'Unknown';
+            $vendor = User::where('id', $order->vendor_id)->first();
+            $sellerName = $vendor ? $vendor->first_name . ' ' . ($vendor->last_name ?? '') : '';
+
 
             return [
                 'so_no' => $index + 1, 
@@ -159,21 +158,41 @@ private function getStatusText($status)
 
 public function getSellers(Request $request)
 {
+    // Validate request inputs for debugging purposes
+   // dd($request->all());
+
+    // Base query: users of type 2 with provided pincode
     $query = User::where('user_type', 2)
-                 ->where('pincode', $request->pincode)
-                 ->with('addresses');
+                ->where('pincode', $request->pincode)
+                ->with('addresses');
 
-// dd($query);
-
-    if ($request->has('first_name') && !empty($request->first_name)) {
-        $query->where('first_name', 'like', '%' . $request->first_name . '%');
+    // Optional first_name filter
+    if ($request->filled('name')) {
+        $query->where('first_name', 'like', '%' . $request->name . '%');
     } else {
-        $query->where('pincode', $request->pincode)->limit(5);
+        // Apply default limit if no first name provided
+        $query->limit(5);
     }
 
+    // Execute query and get results
     $sellers = $query->get();
 
+
     return response()->json($sellers);
+}
+
+public function applySellerOrder(Request $request)
+{
+    $request->validate([
+        'seller_id' => 'required|exists:users,id',
+        'order_id' => 'required|exists:orders,id',
+    ]);
+
+    $order = Order::findOrFail($request->order_id);
+    $order->vendor_id = $request->seller_id;
+    $order->save();
+
+    return response()->json(['message' => 'Seller assigned successfully!']);
 }
 
 public function getSellers190325(Request $request)

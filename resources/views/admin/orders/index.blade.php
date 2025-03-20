@@ -35,6 +35,7 @@
                                 <tbody>
                                 
                                 @foreach($totalOrders as $data)
+                               
                                     <tr>
                                         <td>{{ $data['so_no'] }}</td>
                                         <td>{{ $data['order_id'] }}</td>
@@ -42,7 +43,11 @@
                                         <td>{{ $data['pincode'] }}</td>
                                         <!-- <td id="seller-{{ $data['order_id'] }}">{{ $data['seller'] ?? 'Not Assigned' }}</td> -->
                                         <td>
-                                            <button class="btn btn-primary select-seller" data-pincode="{{ $data['pincode'] }}">Select Seller</button>
+                                            @if(empty($data["seller"]))
+                                            <button class="btn btn-primary select-seller" data-order-id="{{ $data['order_id'] }}" data-pincode="{{ $data['pincode'] }}">Select Seller</button>
+                                            @else
+                                           {{ $data["seller"]}}
+                                            @endif
                                         </td>
                                         <td>{{ $data['count'] }}</td>
                                         <td>{{ $data['total_amount'] }}</td>
@@ -89,10 +94,9 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content custom-modal p-4">
             <div class="modal-header text-center">
-                <h5 class="modal-title w-100">Sellers from Pincode: <span id="pincodeValue">110011</span></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title w-100">Sellers from Pincode: <span id="pincodeValue">xxxxx</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
             </div>
             <div class="modal-body">
                 <input type="text" id="searchSeller" class="form-control search-input" placeholder="Find Seller by Name">
@@ -159,7 +163,9 @@
     flex-grow: 1;
     text-align: left;
 }
-
+.seller-card p{
+    margin-bottom:0;
+}
 .select-btn {
     border-radius: 10px;
     padding: 5px 10px;
@@ -257,7 +263,8 @@
 <script>
    
    $(document).ready(function () {
-    function fetchSellers(pincode = '', name = '') {
+    function fetchSellers(pincode = '', name = '', orderId = '') {
+    $("#pincodeValue").html(pincode);
         $.ajax({
             url: "{{ route('get-sellers') }}",
             type: "GET",
@@ -274,7 +281,7 @@
                                     <p>${seller.pincode}</p>
                                     <p>${address1}</p>
                                 </div>
-                               <button class="select-btn" data-id="${seller.id}" data-name="${seller.first_name}" data-image="${seller.image}">Select</button>
+                               <button class="select-btn" data-id="${seller.id}" data-order-id="${orderId}" data-name="${seller.first_name}" data-image="${seller.image}">Select</button>
                             </div>`;
                     });
                 } else {
@@ -291,86 +298,45 @@
 
     $(".select-seller").on("click", function () {
         let pincode = $(this).data("pincode");
+        let orderId = $(this).data("order-id");
         let name = $("#name-input").val();
-        fetchSellers(pincode, name);
+        fetchSellers(pincode, name, orderId);
         $("#sellerModal").modal("show");
     });
 
     $("#searchButton").on("click", function () {
+        let pincode = $("#pincodeValue").html();
         let sellerName = $("#searchSeller").val().trim();
-        fetchSellers('', sellerName);
+        
+        fetchSellers(pincode, sellerName);
     });
 });
 
+$(document).on('click', '.select-btn', function() {
+    let sellerId = $(this).data('id');
+    let orderId = $(this).data('order-id');
+    let sellerName = $(this).data('name');
 
+    if(confirm(`Are you sure you want to assign seller "${sellerName}" to this order?`)) {
+        $.ajax({
+            url: "{{ route('apply-seller-order') }}",
+            method: "PUT",
+            data: {
+                seller_id: sellerId,
+                order_id: orderId,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                alert(response.message || 'Seller assigned successfully!');
+                location.reload();
+            },
+            error: function(xhr) {
+                alert(xhr.responseJSON.message || 'Something went wrong.');
+            }
+        });
+    }
+});
 
-
-//     $(document).ready(function () {
-//     $(".select-seller").on("click", function () {
-//         let pincode = $(this).data("pincode");
-
-//         $.ajax({
-//             url: "{{ route('get-sellers') }}",
-//             type: "GET",
-//             data: { pincode: pincode },
-//             success: function (response) {
-//                 let sellerList = "";
-//                 if (response.length > 0) {
-//                     response.forEach(function (seller) {
-//                         sellerList += `
-//                             <div class="seller-card">
-//                                 <div class="seller-info">
-//                                     <strong>${seller.first_name}</strong>
-//                                     <p>${seller.address}</p>
-//                                 </div>
-//                                 <button class="select-btn">Select</button>
-//                             </div>`;
-//                     });
-//                 } else {
-//                     sellerList = "<p>No sellers found</p>";
-//                 }
-
-//                 $("#sellerModal .seller-list").html(sellerList);
-//                 $("#sellerModal").modal("show");
-//             },
-//             error: function () {
-//                 alert("Failed to fetch sellers");
-//             },
-//         });
-//     });
-// });
-
-    
-    
-    
-//     $(document).ready(function () {
-//     $(".select-seller").on("click", function () {
-//         let pincode = $(this).data("pincode");
-
-//         $.ajax({
-//             url: "{{ route('get-sellers') }}",
-//             type: "GET",
-//             data: { pincode: pincode },
-//             success: function (response) {
-//                 console.log(response);
-//                 let sellerList = "";
-//                 if (response.length > 0) {
-//                     response.forEach(function (seller) {
-//                         sellerList += `<div>${seller.first_name} (${seller.phone}) ${seller.address} ${seller.photo}</div>`;
-//                     });
-//                 } else {
-//                     sellerList = "<li>No sellers found</li>";
-//                 }
-
-//                 $("#sellerModal .seller-list").html(sellerList);
-//                 $("#sellerModal").modal("show");
-//             },
-//             error: function () {
-//                 alert("Failed to fetch sellers");
-//             },
-//         });
-//     });
-// });
     </script>
 
 

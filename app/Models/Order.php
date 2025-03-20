@@ -11,7 +11,7 @@ class Order extends Model
     use HasFactory;
     protected $fillable = [
         'user_id', 'total_mrp', 'total_tax', 'total_price',
-        'total_discount', 'coupon_id', 'grand_total','razor_order_id','address_id'
+        'total_discount', 'coupon_id', 'grand_total','razor_order_id','address_id','vendor_id'
     ];
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at']; 

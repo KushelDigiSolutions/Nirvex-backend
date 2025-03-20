@@ -40,14 +40,14 @@ class ProductController extends Controller
         if(!$products){
             return response()->json(['isSuccess' =>false,
             'error' => ['message' =>  'Product not found'],
-              'data' => [],
-                ], 401);
+            'data' => [],
+            ], 401);
         }
         if ($products && $products->image) {
             $products->image = explode(',', $products->image);
         }
         return response()->json(['isSuccess' =>true,
-          'error' => ['message' =>  'Product retrieved successfully'],
+            'error' => ['message' =>  'Product retrieved successfully'],
             'data' => $products,
             ], 200);
     }
