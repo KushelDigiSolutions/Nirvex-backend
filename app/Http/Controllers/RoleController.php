@@ -57,6 +57,7 @@ class RoleController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+      
         $this->validate($request, [
             'name' => 'required|unique:roles,name',
             'permission' => 'required|array|min:1',

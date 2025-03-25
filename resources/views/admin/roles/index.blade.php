@@ -46,7 +46,7 @@
                                             @endcan
 
                                             @can('role-delete')
-                                            <form method="POST" action="{{ route('roles.destroy', $role->id) }}" style="display:inline">
+                                            <form method="POST" action="{{ route('roles.destroy', $role->id) }}" onsubmit="return confirmDelete()"  style="display:inline">
                                                 @csrf
                                                 @method('DELETE')
 
@@ -94,6 +94,12 @@
             });
         });
     </script>
+
+<script>
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete this role?');
+    }
+</script>
     <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
     @endpush
 </x-layout>
