@@ -76,13 +76,14 @@ class SellerController extends Controller
             'phone' => ['required', 'digits:10', 'numeric', 'unique:users,phone'],
             'pincode'    => ['required', 'digits:6', 'numeric'],
             'name' => 'required|string',
-            'Phone' => ['required', 'digits:10', 'numeric', 'unique:users,phone'],
+            'sphone' => ['required', 'digits:10', 'numeric', 'unique:users,phone'],
             'city' => 'required|string',
             'address1' => 'required|string',
             'state'  => 'required|string',
             'status' => 'required|boolean',
         ]);
     } catch (\Illuminate\Validation\ValidationException $e){
+        dd($e->errors());
         return redirect()->back()->withErrors($e->errors())->withInput();
     }
         $input = $request->all();
@@ -103,7 +104,7 @@ class SellerController extends Controller
             'address1' =>$request->input('address1'),
             'address2' =>$request->input('address2'),
             'landmark' =>$request->input('landmark'),
-            'phone' =>$request->input('phone'),
+            'phone' =>$request->input('sphone'),
             'city' =>$request->input('city'),
             'state' =>$request->input('state'),
             'address_type' =>$request->input('is_default', 1),
