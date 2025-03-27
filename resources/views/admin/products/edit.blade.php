@@ -159,7 +159,7 @@
                     <label class="form-label">Existing Images:</label>
                     <div class="d-flex flex-wrap">
                     @if (!empty($product->image))
-                    @foreach(explode(',', $product->image) as $images)
+                    @foreach($product->image as $images)
                 
                         <div class="col-md-3">
                                         <div class="image-container">

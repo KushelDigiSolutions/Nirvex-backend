@@ -53,7 +53,7 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <a href="{{ route('sellers.show', encrypt($user->id)) }}" 
+                                                <a href="{{ route('customers.getById', encrypt($user->id)) }}" 
                                                    class="btn btn-sm btn-secondary"><i class="far fa-eye"></i>
                                                 </a>
                                             </td>

@@ -44,15 +44,16 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::resource('sellers', SellerController::class);
 
         Route::get('customers', [UserController::class, 'getCustomer'])->name('customers.index');
+        Route::get('customers/{id}', [UserController::class, 'getCustomerById'])->name('customers.getById');
         Route::get('clients', [UserController::class, 'getClient'])->name('clients.index');
         Route::get('/search-product', [ProductController::class, 'search']);
         Route::post('/orders/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::match(['get', 'post'], '/profile/update', [ProfileController::class, 'updateProfile']);  
         Route::get('sellers', [SellerController::class, 'index'])->name('sellers.index');  
         Route::post('addresses', [AddressController::class, 'store'])->name('addresses.store');
-    Route::delete('addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
-    Route::get('addresses/{id}/edit', [AddressController::class, 'edit'])->name('addresses.edit');
-    Route::put('addresses/{id}', [AddressController::class, 'update'])->name('addresses.update');
+        Route::delete('addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+        Route::get('addresses/{id}/edit', [AddressController::class, 'edit'])->name('addresses.edit');
+        Route::put('addresses/{id}', [AddressController::class, 'update'])->name('addresses.update');
     
     
 
