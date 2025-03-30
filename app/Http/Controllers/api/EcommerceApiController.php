@@ -2459,7 +2459,10 @@ public function getVendorStocks()
     }
 
     // Group variants by product and format the response
-    $products = $variants->groupBy('product.id')->map(function ($groupedVariants, $productId) {
+    $products = $variants->filter(function ($variant) {
+        // Only include variants with a valid product
+        return $variant->product !== null;
+    })->groupBy('product.id')->map(function ($groupedVariants, $productId) {
         $product = $groupedVariants->first()->product; // Get product details from the first variant
 
         // Prepare variants for each product
@@ -2492,6 +2495,7 @@ public function getVendorStocks()
         'data' => $products,
     ], 200);
 }
+
 
 
 
