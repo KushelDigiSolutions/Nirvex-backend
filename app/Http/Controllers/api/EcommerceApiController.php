@@ -2444,14 +2444,11 @@ public function vendorOrders(Request $request)
 
 public function getVendorStocks()
 {
-    // Get the logged-in user's ID
-    $userId = auth()->id();
+    // Fetch variants with their associated products
+    $variants = Variant::with('Product')->get();
 
-    // Fetch variants along with their product details
-    $products = Variant::with('Product')->get();
-
-    // Check if there are no products
-    if ($products->isEmpty()) {
+    // Check if there are no variants
+    if ($variants->isEmpty()) {
         return response()->json([
             'isSuccess' => false,
             'errors' => [
@@ -2461,30 +2458,41 @@ public function getVendorStocks()
         ], 404);
     }
 
-    // Transform the data to include old_qty and old_price from seller_prices
-    $formattedData = $products->map(function ($variant) use ($userId) {
-        // Fetch seller price details for the current variant and user
-        $sellerPrice = SellerPrice::where('user_id', $userId)
-            ->where('variant_id', $variant->id)
-            ->first();
+    // Group variants by product and format the response
+    $products = $variants->groupBy('product.id')->map(function ($groupedVariants, $productId) {
+        $product = $groupedVariants->first()->product; // Get product details from the first variant
+
+        // Prepare variants for each product
+        $formattedVariants = $groupedVariants->map(function ($variant) {
+            // Fetch seller price details for the current variant and logged-in user
+            $sellerPrice = SellerPrice::where('user_id', auth()->id())
+                ->where('variant_id', $variant->id)
+                ->first();
+
+            return [
+                'variant_id' => $variant->id,
+                'name' => $variant->name,
+                'old_qty' => optional($sellerPrice)->quantity ?? 0, // Default to 0 if no record found
+                'old_price' => optional($sellerPrice)->prices ?? 0.0, // Default to 0.0 if no record found
+            ];
+        });
 
         return [
-            'variant_id' => $variant->id, // Renamed id to variant_id
-            'product_id' => $variant->product_id,
-            'name' => $variant->name,
-            'old_qty' => $sellerPrice ? $sellerPrice->quantity : null, // Old quantity
-            'old_price' => $sellerPrice ? $sellerPrice->prices : null, // Old price
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'variants' => $formattedVariants,
         ];
-    });
+    })->values(); // Reset array keys
 
     return response()->json([
         'isSuccess' => true,
         'errors' => [
             'message' => null,
         ],
-        'data' => $formattedData,
+        'data' => $products,
     ], 200);
 }
+
 
 
 public function acceptRejectOrder(Request $request)
