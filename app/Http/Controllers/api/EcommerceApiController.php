@@ -1828,7 +1828,6 @@ public function getServiceDetails($id){
     }
 
 
-    use Carbon\Carbon;
 
 public function orderHistory(Request $request)
 {
@@ -1856,18 +1855,11 @@ public function orderHistory(Request $request)
         ->map(function ($order) use ($orderStatusMapping) {
             return [
                 'id' => $order->id,
-                'order_number' => $order->order_number,
                 'status' => $orderStatusMapping[$order->order_status] ?? 'Unknown Status',
                 'item_count' => $order->order_items_count,
                 'total_amount' => $order->grand_total,
-                'created_at' => $order->created_at,
-                'order_items' => $order->orderItems->map(function ($item) {
-                    return [
-                        'product_name' => $item->product->name,
-                        'quantity' => $item->quantity,
-                        'price' => $item->price
-                    ];
-                })
+                'created_at' => $this->formatTimestamp($order->created_at),
+                'order_items' => $order->orderItems->count()
             ];
         });
 
