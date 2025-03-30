@@ -1860,7 +1860,7 @@ public function orderHistory(Request $request)
                 'status' => $orderStatusMapping[$order->order_status] ?? 'Unknown Status',
                 'item_count' => $order->order_items_count,
                 'total_amount' => $order->grand_total,
-                'created_at' => Carbon::parse($order->created_at)->diffForHumans(),
+                'created_at' => $order->created_at,
                 'order_items' => $order->orderItems->map(function ($item) {
                     return [
                         'product_name' => $item->product->name,
