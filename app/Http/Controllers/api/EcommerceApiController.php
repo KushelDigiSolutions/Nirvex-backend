@@ -2043,13 +2043,53 @@ private function formatTimestamp($createdAt)
     }
 
 
-    public function orderDetail($orderId){
+    public function orderDetail($orderId)
+    {
+        // Get order with items and variants
+        $order = Order::with(['orderItems.variant' => function($query) {
+            $query->select('id', 'product_id', 'name', 'sku'); // Add other variant fields you need
+        }])->find($orderId);
+    
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order not found'
+            ], 404);
+        }
+    
+        // Format response
+        $formattedOrder = [
+            'order_id' => $order->id,
+            'order_placed_at' => $order->created_at->format('Y-m-d H:i:s'),
+            'payment_confirmed_at' => !empty($order->payment_confirmed_date) ? $order->payment_confirmed_date->format('Y-m-d H:i:s') : null,
+            'order_processed_at' => !empty($order->order_processed_date) ? $order->order_processed_date->format('Y-m-d H:i:s') : null,
+            'ready_to_pickup_at' => !empty($order->ready_to_pickup_date) ? $order->ready_to_pickup_date->format('Y-m-d H:i:s') : null,
+            'delivered_at' => !empty($order->order_delevered_date) ? $order->order_delevered_date->format('Y-m-d H:i:s') : null,
+            'cancelled_at' => !empty($order->order_cancelled_date) ? $order->order_cancelled_date->format('Y-m-d H:i:s') : null,
+            'total_amount' => $order->grand_total,
+            'items' => $order->orderItems->map(function($item) {
+                return [
+                    'item_id' => $item->id,
+                    'product_id' => $item->product_id,
+                    'variant_id' => $item->variant_id,
+                    'quantity' => $item->qty,
+                    'price' => $item->sale_price,
+                    'variant_details' => $item->variant ? [
+                        'variant_name' => $item->variant->name,
+                        'sku' => $item->variant->sku,
+                        'price' => $item->variant->price,
+                        'product_id' => $item->variant->product_id
+                    ] : null
+                ];
+            })
+        ];
+    
         return response()->json([
             'status' => 'success',
-            'message' => 'Profile photo updated successfully!',
+            'data' => $formattedOrder
         ], 200);
     }
-
+    
     public function orderTransaction($orderId){
         return response()->json([
             'status' => 'success',
