@@ -2623,48 +2623,63 @@ public function getUserNotifications(Request $request)
 public function getUserOrders(Request $request)
 {
     $userId = Auth::id();
-    $limit = $request->get('limit', 10);
-    $offset = $request->get('offset', 0);
-    $sortBy = $request->get('sort_by', 'created_at');
-    $sortOrder = $request->get('sort_order', 'desc');
 
-    // Base query with relationship
+    $orderStatusMapping = [
+        0 => 'Created',
+        1 => 'Payment Done',
+        2 => 'Order Accept',
+        3 => 'Order Preparing',
+        4 => 'Order Shipped',
+        5 => 'Order Delivered',
+        6 => 'Order Completed',
+        7 => 'Order Rejected',
+        8 => 'Order Returned',
+        9 => 'Order Cancelled'
+    ];
+    // Set default values for limit, offset, and sorting
+    $limit = $request->get('limit', 10); // Default limit is 10
+    $offset = $request->get('offset', 0); // Default offset is 0
+    $sortBy = $request->get('sort_by', 'created_at'); // Default sort by created_at
+    $sortOrder = $request->get('sort_order', 'desc'); // Default sort order is descending
+
+    // Base query with customer relationship
     $query = Order::where('vendor_id', $userId)
-        ->with(['user' => function($q) {
-            $q->select('id', 'first_name');
+        ->with(['users' => function ($q) {
+            $q->select('id', 'first_name'); // Fetch only required fields
         }]);
 
-    // Date filter
+    // Filter orders by date range if "days" parameter is provided
     if ($request->has('days')) {
-        $query->where('created_at', '>=', now()->subDays($request->days));
+        $days = $request->get('days');
+        $query->where('created_at', '>=', now()->subDays($days));
     }
 
-    // Get transactions with customer name
+    // Fetch transactions with pagination, sorting, and customer name
     $orders['transactions'] = $query
-        ->select('id', 'order_status', 'grand_total', 'user_id')
+        ->select('id', 'order_status', 'grand_total', 'user_id','vendor_id')
         ->orderBy($sortBy, $sortOrder)
         ->offset($offset)
         ->limit($limit)
         ->get()
-        ->map(function($order) {
+        ->map(function ($order) use ($orderStatusMapping) {
             return [
                 'id' => $order->id,
-                'order_status' => $order->order_status,
+                'order_status' => $orderStatusMapping[$order->order_status] ?? 'Unknown Status',
                 'grand_total' => $order->grand_total,
-                'customer' => $order->user->first_name ?? 'N/A'
+                'customer' => optional($order->users)->first_name.' '.optional($order->users)->last_name ?? 'N/A', // Handle missing customer gracefully
             ];
         });
 
-    // Calculate correct total
+    // Calculate grand total of all completed orders (order_status = 6)
     $orders['total'] = Order::where('vendor_id', $userId)
-        ->where('order_status', 6)
-        ->sum('grand_total');
-
+    ->whereIn('order_status', [5, 6]) // Check for order_status 5 or 6
+    ->sum('grand_total');
     return response()->json([
         'data' => $orders,
         'message' => 'Orders fetched successfully.',
     ]);
 }
+
 
 
 }
