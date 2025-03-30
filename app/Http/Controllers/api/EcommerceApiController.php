@@ -1828,12 +1828,79 @@ public function getServiceDetails($id){
     }
 
 
-    public function orderHistory(Request $request){
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Profile photo updated successfully!',
-        ], 200);
+    use Carbon\Carbon;
+
+public function orderHistory(Request $request)
+{
+    $userId = Auth::id();
+    
+    // Define order status mapping
+    $orderStatusMapping = [
+        0 => 'Created',
+        1 => 'Payment Done',
+        2 => 'Order Accept',
+        3 => 'Order Preparing',
+        4 => 'Order Shipped',
+        5 => 'Order Delivered',
+        6 => 'Order Completed',
+        7 => 'Order Rejected',
+        8 => 'Order Returned',
+        9 => 'Order Cancelled'
+    ];
+
+    // Get orders with item count and format data
+    $orders = Order::where('user_id', $userId)
+        ->withCount('orderItems')
+        ->latest()
+        ->get()
+        ->map(function ($order) use ($orderStatusMapping) {
+            return [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $orderStatusMapping[$order->order_status] ?? 'Unknown Status',
+                'item_count' => $order->order_items_count,
+                'total_amount' => $order->grand_total,
+                'created_at' => $this->formatTimestamp($order->created_at),
+                'order_items' => $order->orderItems->map(function ($item) {
+                    return [
+                        'product_name' => $item->product->name,
+                        'quantity' => $item->quantity,
+                        'price' => $item->price
+                    ];
+                })
+            ];
+        });
+
+    return response()->json([
+        'status' => 'success',
+        'data' => [
+            'orders' => $orders,
+            'total_orders' => $orders->count()
+        ],
+        'message' => 'Order history retrieved successfully!',
+    ], 200);
+}
+
+private function formatTimestamp($createdAt)
+{
+    $now = Carbon::now();
+    $createdDate = Carbon::parse($createdAt);
+    
+    $diffInDays = $createdDate->diffInDays($now);
+
+    if ($createdDate->isToday()) {
+        return 'Today';
+    } elseif ($createdDate->isYesterday()) {
+        return 'Yesterday';
+    } elseif ($diffInDays < 7) {
+        return 'This week';
+    } elseif ($diffInDays < 30) {
+        return 'This month';
     }
+
+    return $createdDate->format('jS F');
+}
+
 
 
     public function mobileUpdate(Request $request)
