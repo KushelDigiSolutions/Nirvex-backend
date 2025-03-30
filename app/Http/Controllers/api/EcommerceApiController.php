@@ -2607,7 +2607,7 @@ public function getUserOrders(Request $request)
     }
 
     // Apply sorting and pagination
-    $orders['tramsactions'] = $query
+    $orders['transactions'] = $query
         ->get(['id', 'order_status', 'grand_total']);
    // dd($orders);
     // Calculate grand total of all completed orders (order_status = 6)
