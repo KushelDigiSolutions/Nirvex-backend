@@ -2471,7 +2471,7 @@ public function acceptRejectOrder(Request $request)
     // Validate request input
     $validated = $request->validate([
         'order_id'  => 'required|integer|exists:orders,id',
-        'type'      => 'required|boolean', // 0 for reject, 1 for accept
+        'type'      => 'required', // 0 for reject, 1 for accept
         'reason'    => 'nullable|string',
     ]);
 
