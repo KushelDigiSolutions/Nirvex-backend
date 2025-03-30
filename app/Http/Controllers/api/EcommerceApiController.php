@@ -2442,10 +2442,15 @@ public function vendorOrders(Request $request)
 }
 
 
-public function getVendorStocks(){
+public function getVendorStocks()
+{
+    // Get the logged-in user's ID
+    $userId = auth()->id();
+
+    // Fetch variants along with their product details
     $products = Variant::with('Product')->get();
 
-    //dd($products);
+    // Check if there are no products
     if ($products->isEmpty()) {
         return response()->json([
             'isSuccess' => false,
@@ -2454,17 +2459,33 @@ public function getVendorStocks(){
             ],
             'data' => null,
         ], 404);
-    }else{
-        return response()->json([
-            'isSuccess' => true,
-            'errors' => [
-                'message' => null,
-            ],
-            'data' => $products,
-        ], 200);
     }
 
+    // Transform the data to include old_qty and old_price from seller_prices
+    $formattedData = $products->map(function ($variant) use ($userId) {
+        // Fetch seller price details for the current variant and user
+        $sellerPrice = SellerPrice::where('user_id', $userId)
+            ->where('variant_id', $variant->id)
+            ->first();
+
+        return [
+            'variant_id' => $variant->id, // Renamed id to variant_id
+            'product_id' => $variant->product_id,
+            'name' => $variant->name,
+            'old_qty' => $sellerPrice ? $sellerPrice->quantity : null, // Old quantity
+            'old_price' => $sellerPrice ? $sellerPrice->prices : null, // Old price
+        ];
+    });
+
+    return response()->json([
+        'isSuccess' => true,
+        'errors' => [
+            'message' => null,
+        ],
+        'data' => $formattedData,
+    ], 200);
 }
+
 
 public function acceptRejectOrder(Request $request)
 {
