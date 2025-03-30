@@ -2681,5 +2681,26 @@ public function getUserOrders(Request $request)
 }
 
 
+public function getInvoice(Request $request, $orderId)
+{
+    $order = Order::findOrFail($orderId);
+
+    if (!$order) {  
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Order not found.',
+            ],
+        ], 404);
+    }             
+
+    $orderItems = "http://xyz.com/invoice/".$orderId;   
+
+    return response()->json([
+        'data' => $orderItems,
+        'message' => 'Invoice fetched successfully.',
+    ]);
+
+}
 
 }

@@ -85,6 +85,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('/notifications', [EcommerceApiController ::class, 'getUserNotifications']);
         Route::post('/accept-reject-order/', [EcommerceApiController ::class, 'acceptRejectOrder']);
         Route::get('/seller-transactions/', [EcommerceApiController ::class, 'getUserOrders']);
+        Route::get('/get-invoice/{orderId}', [EcommerceApiController ::class, 'getInvoice']);
     });
 });
 
