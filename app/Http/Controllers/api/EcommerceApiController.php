@@ -2581,16 +2581,7 @@ public function getUserNotifications(Request $request)
 
 public function getUserOrders(Request $request)
 {
-    // Validate query parameters
- /* 
-dd($request->validate([
-    'limit' => 'integer|min:1|max:100',
-    'offset' => 'integer|min:0',
-    'sort_by' => 'in:created_at,grand_total',
-    'sort_order' => 'in:asc,desc',
-    'days' => 'integer|min:1', // Optional day filter
-])); */
-    // Get logged-in user ID
+
     $userId = Auth::id();
 
     // Set default values for limit, offset, and sorting
@@ -2608,17 +2599,16 @@ dd($request->validate([
     }
 
     // Apply sorting and pagination
-    $orders = $query
+    $orders['tramsactions'] = $query
         ->get(['id', 'order_status', 'grand_total']);
    // dd($orders);
     // Calculate grand total of all completed orders (order_status = 6)
-    $grandTotal = Order::where('user_id', $userId)
+    $orders['total'] = Order::where('user_id', $userId)
         ->where('order_status', 6)
         ->sum('grand_total');
 
     return response()->json([
         'data' => $orders,
-        'grand_total' => $grandTotal,
         'message' => 'Orders fetched successfully.',
     ]);
 }
