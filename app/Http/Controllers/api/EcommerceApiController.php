@@ -2493,9 +2493,17 @@ public function acceptRejectOrder(Request $request)
 
     if ($validated['type'] == 0) { // Rejected
         $order->order_status = 7; // Rejected status code
-    } else { // Accepted
+    } else if ($validated['type'] == 1){ // Accepted
         $order->order_status = 2; // Accepted status code
+    }else if ($validated['type'] == 3){ // Accepted
+        $order->order_status = 3; // Accepted status code
+    }else if ($validated['type'] == 4){ // Accepted
+        $order->order_status = 4; // Accepted status code
+    }else if ($validated['type'] == 5){ // Accepted
+        $order->order_status = 5; // Accepted status code
     }
+
+
 
     $order->save();
 
