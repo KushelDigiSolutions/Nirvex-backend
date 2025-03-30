@@ -2622,29 +2622,41 @@ public function getUserNotifications(Request $request)
 
 public function getUserOrders(Request $request)
 {
-
     $userId = Auth::id();
+    $limit = $request->get('limit', 10);
+    $offset = $request->get('offset', 0);
+    $sortBy = $request->get('sort_by', 'created_at');
+    $sortOrder = $request->get('sort_order', 'desc');
 
-    // Set default values for limit, offset, and sorting
-    $limit = $request->get('limit', 10); // Default limit is 10
-    $offset = $request->get('offset', 0); // Default offset is 0
-    $sortBy = $request->get('sort_by', 'created_at'); // Default sort by created_at
-    $sortOrder = $request->get('sort_order', 'desc'); // Default sort order is descending
+    // Base query with relationship
+    $query = Order::where('vendor_id', $userId)
+        ->with(['user' => function($q) {
+            $q->select('id', 'first_name');
+        }]);
 
-    // Filter orders by date range if "days" parameter is provided
-    $query = Order::where('vendor_id', $userId);
-
+    // Date filter
     if ($request->has('days')) {
-        $days = $request->get('days');
-        $query->where('created_at', '>=', now()->subDays($days));
+        $query->where('created_at', '>=', now()->subDays($request->days));
     }
 
-    // Apply sorting and pagination
+    // Get transactions with customer name
     $orders['transactions'] = $query
-        ->get(['id', 'order_status', 'grand_total']);
-   // dd($orders);
-    // Calculate grand total of all completed orders (order_status = 6)
-    $orders['total'] = Order::where('user_id', $userId)
+        ->select('id', 'order_status', 'grand_total', 'user_id')
+        ->orderBy($sortBy, $sortOrder)
+        ->offset($offset)
+        ->limit($limit)
+        ->get()
+        ->map(function($order) {
+            return [
+                'id' => $order->id,
+                'order_status' => $order->order_status,
+                'grand_total' => $order->grand_total,
+                'customer' => $order->user->first_name ?? 'N/A'
+            ];
+        });
+
+    // Calculate correct total
+    $orders['total'] = Order::where('vendor_id', $userId)
         ->where('order_status', 6)
         ->sum('grand_total');
 
@@ -2653,5 +2665,6 @@ public function getUserOrders(Request $request)
         'message' => 'Orders fetched successfully.',
     ]);
 }
+
 
 }
