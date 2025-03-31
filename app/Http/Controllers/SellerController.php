@@ -83,7 +83,7 @@ class SellerController extends Controller
             'status' => 'required|boolean',
         ]);
     } catch (\Illuminate\Validation\ValidationException $e){
-        dd($e->errors());
+      //  dd($e->errors());
         return redirect()->back()->withErrors($e->errors())->withInput();
     }
         $input = $request->all();
