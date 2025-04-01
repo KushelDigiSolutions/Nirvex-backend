@@ -743,7 +743,12 @@ class EcommerceApiController extends Controller
             if ($address) {
                 $defaultPincode = $address->pincode;
             }
-        }
+        }else{
+			 $address = Address::select(['id','pincode'])->where('user_id', $user->id)->first();
+			if ($address) {
+                $defaultPincode = $address->pincode;
+            }
+		}
 
         // Prepare variants with pricing
         $variants = $product->variants->map(function ($variant) use ($defaultPincode, $product) {
@@ -1178,6 +1183,13 @@ class EcommerceApiController extends Controller
         }
     
         $pincode = $address->pincode;
+
+        if(empty($pincode)){
+            $address = Address::select(['id','pincode'])->where('user_id', $user->id)->first();
+           if ($address) {
+               $pincode = $address->pincode;
+           }
+       }
     
         // Step 3: Get the user's cart items
         $cartItems = CartItem::with('variant')->where('cart_id', $cart->id)->get();
