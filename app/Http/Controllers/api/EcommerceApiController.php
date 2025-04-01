@@ -742,11 +742,17 @@ class EcommerceApiController extends Controller
             $address = Address::find($user->default_address);
             if ($address) {
                 $defaultPincode = $address->pincode;
+                 // Update the user's pincode
+				$user->pincode = $defaultPincode;
+				$user->save(); // Save the updated user record to the database
             }
         }else{
 			 $address = Address::select(['id','pincode'])->where('user_id', $user->id)->first();
 			if ($address) {
                 $defaultPincode = $address->pincode;
+                 // Update the user's pincode
+				$user->pincode = $defaultPincode;
+				$user->save(); // Save the updated user record to the database
             }
 		}
 
@@ -757,7 +763,7 @@ class EcommerceApiController extends Controller
             if ($defaultPincode) {
                 $pricing = Pricing::where('pincode', $defaultPincode)
                     ->where('product_id', $product->id)
-                    ->where('product_sku_id', $variant->sku)
+                    ->where('product_sku_id', $variant->id)
                     ->where('status', 1)
                     ->first();
             }
@@ -2323,7 +2329,7 @@ private function __getProductDetail(Request $request, $productId)
         if ($defaultPincode) {
             $pricing = Pricing::where('pincode', $defaultPincode)
                 ->where('product_id', $product->id)
-                ->where('product_sku_id', $variant->sku)
+                ->where('product_sku_id', $variant->id)
                 ->where('status', 1)
                 ->first();
         }
