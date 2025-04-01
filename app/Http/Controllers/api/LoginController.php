@@ -292,6 +292,160 @@ public function validateOtp(Request $request)
             'data' =>$otpRecord, 
         ], 200);
     }
+
+    public function forgotPassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'phone' => 'required|digits:10'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'Validation errors occurred',
+                    'details' => $e->errors(),
+                ],
+                'data' => [],
+            ], 422);
+        }
+
+        $user = User::where('phone', $request->phone)->first();
+        // $usersWithRoles = User::role(['customer', 'seller'])->get();
+    
+        // $user = User::where('phone', $request->phone)
+        //         ->whereHas('roles', function ($query) {
+        //             $query->whereIn('name', ['customer', 'seller']);
+        //         })
+        //         ->first();
+    
+        // echo '<pre>';  print_r($usersWithRoles); die;
+    
+        if (!$user) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'User not found or does not have the required role.',
+                ],
+                'data' => [],
+            ], 404); 
+        }
+        
+        $user->makeHidden(['created_at', 'updated_at']);
+    
+        if (!$user) {
+            return response()->json([
+                'isSuccess' => false,
+                'errors' => [
+                    'message' => 'Invalid mobile number',
+                ],
+                'data' => [],
+            ], 401);
+        }
+    
+        $otp = rand(100000, 999999);
+        $this->sendSms($request->phone, $otp);
+        Otp::create([
+            'user_id' => $user->id,
+            'otp' => $otp, 
+            'status' => 'pending',
+            'expiry' => Carbon::now()->addMinutes(10),
+            'complete' => false,
+        ]);
+    
+        Log::info("OTP for user {$user->phone}: {$otp}");
+    
+        return response()->json([
+            'isSuccess' => true,
+            'errors' => [
+                'message' => 'OTP has been sent to your mobile number.',
+            ],
+            'data' => [
+                // 'message' => 'Login successful. OTP has been sent to your registered mobile number.',
+                'data' => $user
+            ],
+        ]);
+    
+    }
+    
+    public function updatePassword(Request $request)
+    {
+        // Validate the request data
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'otp' => 'required|string|size:6',
+            'password' => 'required|string|min:8', // Ensure password meets minimum requirements
+            'reset_password' => 'required|string|same:password', // Ensure reset_password matches password
+        ]);
+    
+        // Fetch the OTP record
+        $otpRecord = Otp::where('user_id', $request['user_id'])
+            ->where('otp', $request['otp'])
+            ->where('status', '!=', 'used')
+            ->where(function ($query) {
+                $query->whereNull('expiry')
+                    ->orWhere('expiry', '>=', Carbon::now());
+            })
+            ->orderBy('id', 'desc')
+            ->limit(1)
+            ->first();
+    
+        // Check if OTP record exists
+        if (!$otpRecord) {
+            return response()->json([
+                'isSuccess' => false,
+                'error' => ['message' => 'Invalid OTP.'],
+                'data' => [],
+            ], 401);
+        }
+    
+        // Check if OTP has expired
+        if ($otpRecord->expiry && Carbon::now()->greaterThan($otpRecord->expiry)) {
+            return response()->json([
+                'isSuccess' => false,
+                'error' => ['message' => 'OTP has expired.'],
+                'data' => [],
+            ], 401);
+        }
+    
+        // Check if OTP has already been used
+        if ($otpRecord->status === 'used') {
+            return response()->json([
+                'isSuccess' => false,
+                'error' => ['message' => 'OTP has already been used.'],
+                'data' => [],
+            ], 401);
+        }
+    
+        // Mark OTP as used
+        $otpRecord->update([
+            'status' => 'used',
+            'complete' => true,
+        ]);
+    
+        // Update user's password
+        $user = User::findOrFail($request['user_id']);
+        $user->password = bcrypt($request['password']); // Hash the new password before saving it
+        $user->save();
+    
+        // Generate authentication token for the user
+        $token = auth('api')->login($user);
+    
+        // Fetch user's addresses (optional)
+        $addresses = Address::where('user_id', $user->id)->get();
+    
+        // Return success response with updated user data and token
+        return response()->json([
+            'isSuccess' => true,
+            'error' => ['message' => 'Password reset successfully'],
+            'data' => [
+                'user' => $user->makeHidden(['created_at', 'updated_at']),
+                'addresses' => $addresses, // Include addresses in response
+            ],
+            'token' => $token,
+        ], 200);
+    }
+    
     
     protected function sendOtpToUser($userId, $otp)
     {

@@ -23,6 +23,9 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/validateOtp', [LoginController::class, 'validateOtp']);
     Route::post('/resend-otp', [LoginController::class, 'resendOtp']);
+    Route::post('/forgot-password', [LoginController::class, 'forgotPassword']);
+    Route::post('/validate-forgot-password', [LoginController::class, 'validateForgotPassword']);
+    Route::post('/update-password', [LoginController::class, 'updatePassword']);
     Route::post('/update-pincode', [LoginController::class, 'updatePincode']);
 
     Route::middleware('auth:api')->group(function () {
