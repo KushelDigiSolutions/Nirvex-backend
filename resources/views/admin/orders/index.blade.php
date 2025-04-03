@@ -179,18 +179,22 @@
 
     @push('js')
     <script>
-        $(document).ready(function() {
-            $('#datatable-basic').DataTable({
-                responsive: true, 
-                pageLength: 10,   
-                lengthMenu: [5, 10, 15, 20, 25], 
-                language: {
-                    lengthMenu: "Show _MENU_ entries per page",
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
-                }
-            });
-        });
+$(document).ready(function() {
+    $('#datatable-basic').DataTable({
+        scrollX: true,  
+        scrollY: "400px", 
+        scrollCollapse: true, 
+        paging: false, 
+        fixedHeader: true,
+        language: {
+            lengthMenu: "Show _MENU_ entries per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries"
+        }
+    });
+});
+
     </script>
+
 
 <script>
     $(document).ready(function () {

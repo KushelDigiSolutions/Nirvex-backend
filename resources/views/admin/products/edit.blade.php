@@ -25,14 +25,14 @@
             <div class="row">
                 <div class="col">
                     <label for="pname" class="form-label">Product Name:</label>
-                    <input type="text" class="form-control @error('pname') is-invalid @enderror" id="pname" placeholder="Enter Product" name="pname" value="{{ old('pname', $product->name) }}">
+                    <input type="text" class="form-control @error('pname') is-invalid @enderror" id="pname" placeholder="Enter Product" name="pname" value="{{ $product->name }}">
                     @error('pname')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="col">
                     <label for="mrp" class="form-label">MRP (RS.):</label>
-                    <input type="text" class="form-control @error('mrp') is-invalid @enderror" id="mrp" placeholder="Enter MRP" name="mrp" value="{{ old('mrp', $product->mrp) }}">
+                    <input type="text" class="form-control @error('mrp') is-invalid @enderror" id="mrp" placeholder="Enter MRP" name="mrp" value="{{ $product->mrp }}">
                     @error('mrp')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -42,7 +42,7 @@
             <div class="row">
                 <div class="col">
                     <label for="return_policy" class="form-label">Return Policy:</label>
-                    <textarea class="form-control @error('return_policy') is-invalid @enderror" id="return_policy" placeholder="Enter Return Policy" name="return_policy">{{ old('return_policy', $product->return_policy) }}</textarea>
+                    <textarea class="form-control @error('return_policy') is-invalid @enderror" id="return_policy" placeholder="Enter Return Policy" name="return_policy">{{ $product->return_policy }}</textarea>
                     @error('return_policy')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -51,7 +51,7 @@
             <div class="row">
                 <div class="col">
                     <label for="physical_property" class="form-label">Physically Property:</label>
-                    <textarea class="form-control @error('physical_property') is-invalid @enderror" id="physical_property" placeholder="Enter Physically Property" name="physical_property">{{ old('physical_property', $product->physical_property) }}</textarea>
+                    <textarea class="form-control @error('physical_property') is-invalid @enderror" id="physical_property" placeholder="Enter Physically Property" name="physical_property">{{ $product->physical_property }}</textarea>
                     @error('physical_property')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -61,7 +61,7 @@
             <div class="row">
                 <div class="col">
                     <label for="standards" class="form-label">Standard:</label>
-                    <textarea class="form-control @error('standards') is-invalid @enderror" id="standards" placeholder="Enter Standard" name="standards">{{ old('standards', $product->standards) }}</textarea>
+                    <textarea class="form-control @error('standards') is-invalid @enderror" id="standards" placeholder="Enter Standard" name="standards">{{ $product->standards }}</textarea>
                     @error('standards')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -70,7 +70,7 @@
             <div class="row">
                 <div class="col">
                     <label for="key_benefits" class="form-label">Benefits:</label>
-                    <textarea class="form-control @error('key_benefits') is-invalid @enderror" id="key_benefits" placeholder="Enter Benefits" name="key_benefits">{{ old('key_benefits', $product->key_benefits) }}</textarea>
+                    <textarea class="form-control @error('key_benefits') is-invalid @enderror" id="key_benefits" placeholder="Enter Benefits" name="key_benefits">{{ $product->key_benefits }}</textarea>
                     @error('key_benefits')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -83,7 +83,7 @@
                         <select class="form-select @error('cat_id') is-invalid @enderror" name="cat_id" id="cat_id">
                             <option value="">Select Category</option> 
                                 @foreach($categories as $data)
-                                    <option value="{{ $data->id }}" {{ old('cat_id', $product->cat_id) == $data->id ? 'selected' : '' }}>{{ $data->name }}</option>
+                                    <option value="{{ $data->id }}" {{ $product->cat_id == $data->id ? 'selected' : '' }}>{{ $data->name }}</option>
                                 @endforeach
                         </select>
                             @error('cat_id')
@@ -106,7 +106,7 @@
             <div class="row">
                 <div class="col">
                     <label for="descriptions" class="form-label">Description:</label>
-                        <textarea id="editor" class="form-control @error('descriptions') is-invalid @enderror" name="descriptions" placeholder="Description">{{ old('descriptions', $product->description) }}</textarea>
+                        <textarea id="editor" class="form-control @error('descriptions') is-invalid @enderror" name="descriptions" placeholder="Description">{{ $product->description }}</textarea>
                         @error('descriptions')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -116,7 +116,7 @@
             <div class="row">
                 <div class="col">
                     <label for="specification" class="form-label">Specifications:</label>
-                        <textarea class="form-control @error('specification') is-invalid @enderror" name="specification" placeholder="Specifications">{{ old('specification', $product->specification) }}</textarea>
+                        <textarea class="form-control @error('specification') is-invalid @enderror" name="specification" placeholder="Specifications">{{ $product->specification }}</textarea>
                         @error('specification')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -126,7 +126,7 @@
             <div class="row">
                 <div class="col">
                     <label for="availability" class="form-label">Delivery Days:</label>
-                            <input type="text" class="form-control @error('availability') is-invalid @enderror" id="availability" placeholder="Enter Delivery Days" name="availability" value="{{ old('availability', $product->availability) }}">
+                            <input type="text" class="form-control @error('availability') is-invalid @enderror" id="availability" placeholder="Enter Delivery Days" name="availability" value="{{  $product->availability }}">
                         @error('availability')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -135,8 +135,8 @@
                     <label for="status" class="form-label">Status:</label>
                         <select class="form-select @error('status') is-invalid @enderror" name="status">
                             <option value="">Select Status</option>
-                            <option value="1" {{ old('status', $product->status) == "1" ? 'selected' : '' }}>Active</option>
-                            <option value="0" {{ old('status', $product->status) == "0" ? 'selected' : '' }}>Inactive</option>
+                            <option value="1" {{ $product->status == "1" ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ $product->status == "0" ? 'selected' : '' }}>Inactive</option>
                         </select>
                         @error('status')
                             <div class="invalid-feedback">{{ $message }}</div>

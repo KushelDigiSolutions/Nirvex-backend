@@ -1,23 +1,25 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="row">
-    <div class="col-lg-12 margin-tb">
-        <div class="pull-left">
-            <h2>Users Management</h2>
-        </div>
-        <div class="pull-right">
-            <a class="btn btn-success mb-2" href="{{ route('users.create') }}"><i class="fa fa-plus"></i> Create New User</a>
-        </div>
-    </div>
-</div>
-
-@session('success')
-    <div class="alert alert-success" role="alert"> 
-        {{ $value }}
-    </div>
-@endsession
-
+<x-layout bodyClass="g-sidenav-show  bg-gray-200">
+    @section('title')
+        {{ 'Clients List' }}
+    @endsection
+    <x-navbars.sidebar activePage='staff admin'></x-navbars.sidebar>
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+        <x-navbars.navs.auth titlePage="Staff Admin"></x-navbars.navs.auth>
+        <div class="container-fluid py-4">
+            <div class="row mb-4">
+                <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="pull-left">
+                                <h2>Staff Admin</h2>
+                            </div>
+                            <div class="pull-right">
+                                <!-- @can('role-create')
+                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i>&nbsp;&nbsp;Staff Admin</a>
+                                @endcan -->
+                            </div>
+                        </div>
+                    <div class="card mydatatable">
+                        <div class="table-responsive">
 <table class="table table-bordered">
    <tr>
        <th>No</th>
@@ -41,16 +43,56 @@
         <td>
              <a class="btn btn-info btn-sm" href="{{ route('users.show',$user->id) }}"><i class="fa-solid fa-list"></i> Show</a>
              <a class="btn btn-primary btn-sm" href="{{ route('users.edit',$user->id) }}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-              <form method="POST" action="{{ route('users.destroy', $user->id) }}" style="display:inline">
-                  @csrf
-                  @method('DELETE')
+             <form id="delete-form" method="POST" action="{{ route('users.destroy', $user->id) }}" style="display:inline">
+    @csrf
+    @method('DELETE')
 
-                  <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button>
-              </form>
+    <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button>
+</form>
         </td>
     </tr>
  @endforeach
 </table>
+<x-plugins></x-plugins>
+    </div>
+
+    <style>
+        .mydatatable .dataTables_length,.mydatatable .dataTables_filter{
+            padding:20px;
+        }
+        .mydatatable .dataTables_info{
+            padding: 20px 10px;
+        }
+        .mydatatable .dataTables_paginate {
+            padding: 10px;
+        }
+    </style>
 
 
-@endsection
+    @push('js')
+    <script>
+        $(document).ready(function() {
+            $('#datatable-basic').DataTable({
+                responsive: true, 
+                pageLength: 10,   
+                lengthMenu: [5, 10, 15, 20, 25], 
+                language: {
+                    lengthMenu: "Show _MENU_ entries per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                }
+            });
+        });
+    </script>
+    <script>
+       document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("delete-form").addEventListener("submit", function (event) {
+            alert('Dileep'); // Check if alert appears
+            if (!confirm('Are you sure?')) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+    <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
+    @endpush
+</x-layout>

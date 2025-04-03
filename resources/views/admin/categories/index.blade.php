@@ -1,10 +1,10 @@
-<x-layout bodyClass="g-sidenav-show  bg-gray-200">
+<x-layout bodyClass="g-sidenav-show bg-gray-200">
     @section('title')
         {{ 'Category' }}
     @endsection
     <x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        <x-navbars.navs.auth titlePage="Category"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="dashboard"></x-navbars.navs.auth>
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 mb-md-0 mb-4">
@@ -18,6 +18,11 @@
                                 @endcan
                             </div>
                         </div>
+                        @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
                     <div class="card mydatatable">
                         <div class="table-responsive">
                             <table id="datatable-basic" class="display nowrap" style="width:100%">

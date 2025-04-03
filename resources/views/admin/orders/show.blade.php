@@ -109,28 +109,30 @@
                                 <!-- Product details from the relationship -->
                                 <td>{{ $item->product->name ?? 'N/A' }}</td> 
                                 <td>
-                                    
                                 @php
-                                    $weight = $item->product->weight;
-                                    $weight_type = $item->product->weight_type;
-                                    
-                                    if ($weight_type == 1) {
-                                        // For Grams - convert to KG
-                                        $converted = $weight / 1000;
-                                        $unit = 'KG';
-                                    } elseif ($weight_type == 2) {
-                                        // For Milliliters - convert to Liters
-                                        $converted = $weight / 1000;
-                                        $unit = 'L';
-                                    } elseif ($weight_type == 3) {
-                                        // For Packets
-                                        $converted = $weight;
-                                        $unit = 'Packets';
-                                    } else {
-                                        $converted = 'N/A';
-                                        $unit = '';
-                                    }
-                                @endphp
+    $weight = optional($item->product)->weight;
+    $weight_type = optional($item->product)->weight_type;
+
+    if ($weight === null || $weight_type === null) {
+        $converted = 'N/A';
+        $unit = '';
+    } else {
+        if ($weight_type == 1) {
+            $converted = $weight / 1000;
+            $unit = 'KG';
+        } elseif ($weight_type == 2) {
+            $converted = $weight / 1000;
+            $unit = 'L';
+        } elseif ($weight_type == 3) {
+            $converted = $weight;
+            $unit = 'Packets';
+        } else {
+            $converted = 'N/A';
+            $unit = '';
+        }
+    }
+@endphp
+
 
                                 {{ is_numeric($converted) ? number_format($converted, 1) : $converted }} {{ $unit }}
 

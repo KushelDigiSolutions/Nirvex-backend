@@ -20,8 +20,11 @@
                             </div>
                         </div>
                     <div class="card mydatatable">
-                        <div class="table-responsive">
-                            <table id="datatable-basic" class="display nowrap" style="width:100%">
+                        <!-- <div class="table-responsive">
+                            <table id="datatable-basic" class="display nowrap" style="width:100%"> -->
+                            <div class="table-responsive" style="overflow-x: auto; white-space: nowrap;">
+    <table id="datatable-basic" class="display nowrap" style="width:100%">
+
                                 <thead>
                                 <tr>
                                     <th>ID</th>
@@ -87,23 +90,57 @@
         .mydatatable .dataTables_paginate {
             padding: 10px;
         }
+ 
+
+
+        #datatable-basic_wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+#datatable-basic {
+    width: 100% !important;
+    border-collapse: collapse; /* Ensures borders align correctly */
+    white-space: nowrap;
+}
+
+#datatable-basic th, 
+#datatable-basic td {
+    border: 1px solid #dee2e6; /* Bootstrap border color */
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    min-width: 100%;
+}
+
+
+
     </style>
 
 
     @push('js')
     <script>
-        $(document).ready(function() {
-            $('#datatable-basic').DataTable({
-                responsive: true, 
-                pageLength: 10,   
-                lengthMenu: [5, 10, 15, 20, 25], 
-                language: {
-                    lengthMenu: "Show _MENU_ entries per page",
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
-                }
-            });
-        });
+$(document).ready(function() {
+    $('#datatable-basic').DataTable({
+        scrollX: true,  
+        scrollY: "400px", 
+        scrollCollapse: true, 
+        paging: false, 
+        fixedHeader: true,
+        language: {
+            lengthMenu: "Show _MENU_ entries per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries"
+        }
+    });
+});
+
     </script>
+
+<script>
+
     <script src="{{ asset('assets') }}/js/chartjs.min.js"></script>
     @endpush
 </x-layout>

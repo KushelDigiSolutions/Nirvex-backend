@@ -127,7 +127,7 @@ public function update(Request $request, string $id)
         'ship_charges' => $request->ship_charges,
         'valid_upto' => $request->valid_upto,
         'status' => $request->status,
-        'is_cash' => $request->is_cash,
+        'is_cash' => 1,
         'updated_at' => now(), // Manually update timestamp
     ]);
     return redirect()->route('pricings.index')->with('success', 'Pricing updated successfully.');

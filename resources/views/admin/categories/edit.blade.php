@@ -15,11 +15,11 @@
                         </div>
                     <div class="card">   
                         <div class="card-body">   
-                    @if(session('success'))
-                        <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                    @endif
+                        @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
                     <form action="{{ route('categories.update', $categories->id) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')

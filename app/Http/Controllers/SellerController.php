@@ -282,11 +282,11 @@ class SellerController extends Controller
      */
     public function destroy($id): RedirectResponse
     {
-        $user = User::where('id', $id)->where('user_type', 2)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
         $user->delete();
 
-        return redirect()->route('customers.index')
-            ->with('success', 'Customer deleted successfully');
+        return redirect()->route('sellers.index')
+            ->with('success', 'Seller deleted successfully');
     }
 
     public function updateSellerActive(Request $request)

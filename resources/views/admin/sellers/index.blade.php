@@ -32,8 +32,8 @@
                                         <th>No</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>Pinecode</th>
-                                        <th>Seller Active</th>
+                                        <th>Pincode</th>
+                                        <th>Seller Status</th>
                                         <th>View</th>
                                         <th>Delete</th>
                                     </tr>
@@ -63,7 +63,7 @@
                                                 </a>
                                             </td>
                                         <td>
-                                            <form action=""
+                                            <form action="{{ route('sellers.destroy', $user->id) }}"
                                             method="POST" onclick="confirm('Are you sure')">
                                             @method('DELETE')
                                             @csrf
@@ -250,11 +250,11 @@
         $(document).on('change', '.seller-active-dropdown', function() {
             let userId = $(this).data('id');
             let sellerActive = $(this).val();
-
+            let updateUrl = "{{ route('sellers.updateSellerActive') }}"; 
             // Confirmation Box
-            if (confirm("Are you sure you want to update this user's customer active status?")) {
+            if (confirm("Are you sure you want to update this user's seller active status?")) {
                 $.ajax({
-                    url: "", // Route for updating status
+                    url: updateUrl, 
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",

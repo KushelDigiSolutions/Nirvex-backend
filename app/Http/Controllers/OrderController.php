@@ -15,37 +15,78 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $totalOrders = Order::with(['users', 'items', 'addresses'])
-        ->select('orders.id', 'orders.user_id', 'orders.grand_total', 'orders.vendor_id', 'orders.created_at', 'orders.order_status')
-        ->orderBy('orders.created_at', 'desc')
-        ->get()
-        ->map(function ($order, $index) {
-            $customerName = $order->users->first_name . ' ' . ($order->users->last_name ?? '');
-            $pincode = $order->users->pincode ?? ($order->addresses->pincode ?? 'Unknown');
-
-            $vendor = User::where('id', $order->vendor_id)->first();
-            $sellerName = $vendor ? $vendor->first_name . ' ' . ($vendor->last_name ?? '') : '';
 
 
-            return [
-                'so_no' => $index + 1, 
-                'order_id' => $order->id,
-                'customer' => $customerName,
-                'pincode' => $pincode,
-                'seller' => $sellerName,
-                'count' => $order->items->count(),
-                'total_amount' => Number::currency($order->grand_total, 'INR', locale: 'en-IN'),
-                'ordered' => $order->created_at->format('Y-m-d H:i:s'),
-                'status' => $order->order_status,
-                'view' => '<a href="' . route('orders.show', $order->id) . '" class="btn btn-sm btn-primary">View</a>',
-            ];
-        });
-        //  echo '<pre>'; print_r($totalOrders); die;
+     public function index()
+     {
+         $totalOrders = Order::with(['users', 'items', 'addresses'])
+             ->select('orders.id', 'orders.user_id', 'orders.grand_total', 'orders.vendor_id', 'orders.created_at', 'orders.order_status')
+             ->orderBy('orders.created_at', 'desc')
+             ->get()
+             ->map(function ($order, $index) {
+                 // Ensure user exists before accessing properties
+                 $customerName = $order->users 
+                     ? $order->users->first_name . ' ' . ($order->users->last_name ?? '') 
+                     : 'Unknown';
+     
+                 // Ensure pincode is retrieved correctly
+                 $pincode = $order->users?->pincode ?? ($order->addresses?->pincode ?? 'Unknown');
+     
+                 // Fetch vendor details safely
+                 $vendor = User::find($order->vendor_id);
+                 $sellerName = $vendor ? $vendor->first_name . ' ' . ($vendor->last_name ?? '') : 'Unknown';
+     
+                 return [
+                     'so_no' => $index + 1, 
+                     'order_id' => $order->id,
+                     'customer' => $customerName,
+                     'pincode' => $pincode,
+                     'seller' => $sellerName,
+                     'count' => $order->items->count(),
+                     'total_amount' => Number::currency($order->grand_total, 'INR', locale: 'en-IN'),
+                     'ordered' => $order->created_at->format('Y-m-d H:i:s'),
+                     'status' => $order->order_status,
+                     'view' => '<a href="' . route('orders.show', $order->id) . '" class="btn btn-sm btn-primary">View</a>',
+                 ];
+             });
+     
+         return view('admin.orders.index', compact('totalOrders'));
+     }
+     
 
-        return view('admin.orders.index', compact('totalOrders'));
-    }
+
+
+    // public function index()
+    // {
+    //     $totalOrders = Order::with(['users', 'items', 'addresses'])
+    //     ->select('orders.id', 'orders.user_id', 'orders.grand_total', 'orders.vendor_id', 'orders.created_at', 'orders.order_status')
+    //     ->orderBy('orders.created_at', 'desc')
+    //     ->get()
+    //     ->map(function ($order, $index) {
+    //         $customerName = $order->users->first_name . ' ' . ($order->users->last_name ?? '');
+    //         $pincode = $order->users->pincode ?? ($order->addresses->pincode ?? 'Unknown');
+
+    //         $vendor = User::where('id', $order->vendor_id)->first();
+    //         $sellerName = $vendor ? $vendor->first_name . ' ' . ($vendor->last_name ?? '') : '';
+
+
+    //         return [
+    //             'so_no' => $index + 1, 
+    //             'order_id' => $order->id,
+    //             'customer' => $customerName,
+    //             'pincode' => $pincode,
+    //             'seller' => $sellerName,
+    //             'count' => $order->items->count(),
+    //             'total_amount' => Number::currency($order->grand_total, 'INR', locale: 'en-IN'),
+    //             'ordered' => $order->created_at->format('Y-m-d H:i:s'),
+    //             'status' => $order->order_status,
+    //             'view' => '<a href="' . route('orders.show', $order->id) . '" class="btn btn-sm btn-primary">View</a>',
+    //         ];
+    //     });
+    //     //  echo '<pre>'; print_r($totalOrders); die;
+
+    //     return view('admin.orders.index', compact('totalOrders'));
+    // }
 
     /**
      * Show the form for creating a new resource.
