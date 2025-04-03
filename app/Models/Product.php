@@ -17,6 +17,7 @@ class Product extends Model
         'sub_cat_id',
         'status',
         'image',
+        'video',
         'mrp',
         'availability',
         'return_policy',
