@@ -1262,6 +1262,7 @@ class EcommerceApiController extends Controller
                 'subtotal_shipping' => round(($pricing->ship_charges * $item->quantity), 2),
                 // Include product and variant images
                 'product_name' => optional($item->variant?->product)->name, // Product name
+                'video' => explode(",",optional($item->variant?->product)->video) ?? [], // Product image URL
                 'product_image_url' => explode(",",optional($item->variant?->product)->image) ?? [], // Product image URL
                 'variant_image_url' => explode(",",optional($item?->variant)->images) ?? [], // Variant image URL
             ];
