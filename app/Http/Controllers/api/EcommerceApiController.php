@@ -1221,7 +1221,7 @@ class EcommerceApiController extends Controller
         foreach ($cartItems as $item) {
             // Fetch pricing for each variant based on pincode and SKU
             $pricing = Pricing::where('pincode', $pincode)
-                ->where('product_sku_id', $item->variant->sku)
+                ->where('product_sku_id', $item->variant->id)
                 ->where('status', 1)
                 ->first();
     
