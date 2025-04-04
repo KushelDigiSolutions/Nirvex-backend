@@ -13,9 +13,9 @@
                                 <h2>Staff Admin</h2>
                             </div>
                             <div class="pull-right">
-                                <!-- @can('role-create')
-                                    <a class="btn btn-success btn-sm mb-2" href=""><i class="fa fa-plus"></i>&nbsp;&nbsp;Staff Admin</a>
-                                @endcan -->
+                                @can('role-create')
+                                    <a class="btn btn-success btn-sm mb-2" href="{{ route('clients.create') }}"><i class="fa fa-plus"></i>&nbsp;&nbsp;Staff Admin</a>
+                                @endcan
                             </div>
                         </div>
                     <div class="card mydatatable">

@@ -163,5 +163,49 @@ class UserController extends Controller
         return redirect()->route('clients.index')->with('success', 'User deleted successfully.');
     }
 
+    public function createCustomer(): View
+    {
+        return view('admin.clients.create');
+    }
+    
+
+
+
+    public function storeStaff(Request $request)
+    {
+        // dd($request->all());
+    $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'phone' => 'required|string|unique:users,phone',
+        'email' => 'required|string|email|unique:users,email',
+        'password' => 'required|string|min:8|confirmed',
+        'status' => ['required'],
+        'image' => 'required|file|mimes:jpeg,png,jpg,gif|max:1024',
+    ]);
+
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imageName = time() . '.' . $image->getClientOriginalExtension();
+        $imagePath = public_path('uploads/profile');
+
+        $image->move($imagePath, $imageName);
+        $imageUrl = 'uploads/profile/' . $imageName;
+    } else {
+        return back()->withErrors(['image' => 'The image failed to upload.']);
+    }
+    $user = User::create([
+        'first_name' => $request->first_name,
+        'last_name' => $request->last_name,
+        'phone' => $request->phone,
+        'email' => $request->email,
+        'password' => $request->password,
+        'image' => $imageUrl,
+        'status' => $request->status,
+        'user_type' => 1,
+    ]);
+  return redirect()->route('clients.index')->with('success', 'Staff Admin successfully created.');
+}
+
 
 }
