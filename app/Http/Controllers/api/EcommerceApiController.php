@@ -195,40 +195,42 @@ class EcommerceApiController extends Controller
     }
     
     
-        public function setAddress(Request $request, $id)
-        {
-            // Get authenticated user's ID from JWT token
-            $user = auth()->user();
+    public function setAddress(Request $request, $id)
+    {
+        // Get authenticated user's ID from JWT token
+        $user = auth()->user();
     
-            // Validate the request to ensure 'address_id' is provided
-            $addressExists = \DB::table('addresses')->where('id', $id)->exists();
+        // Check if the address exists and retrieve its pincode
+        $address = \DB::table('addresses')->where('id', $id)->first();
     
-            if (!$addressExists) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Address ID does not exist',
-                ], 404);
-            }
-    
-            // Find the customer's details associated with the authenticated user
-            $customerDetails = User::where('id', $user->id)->first();
-    
-            if (!$customerDetails) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Customer details not found',
-                ], 404);
-            }
-    
-            // Update the address_id with the provided id
-            $customerDetails->default_address = $id;
-            $customerDetails->save();
-    
+        if (!$address) {
             return response()->json([
-                'success' => true,
-                'message' => 'Address updated successfully',
-            ], 200);
+                'success' => false,
+                'message' => 'Address ID does not exist',
+            ], 404);
         }
+    
+        // Find the customer's details associated with the authenticated user
+        $customerDetails = User::where('id', $user->id)->first();
+    
+        if (!$customerDetails) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Customer details not found',
+            ], 404);
+        }
+    
+        // Update the default_address and pincode with the retrieved values
+        $customerDetails->default_address = $id;
+        $customerDetails->pincode = $address->pincode; // Set pincode from address record
+        $customerDetails->save();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Address updated successfully',
+        ], 200);
+    }
+    
     
     
     
