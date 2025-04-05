@@ -46,6 +46,8 @@ Route::middleware(['role:admin'])->prefix('admin')->group(function(){
         Route::get('customers', [UserController::class, 'getCustomer'])->name('customers.index');
         Route::get('customers/{id}', [UserController::class, 'getCustomerById'])->name('customers.getById');
         Route::get('clients', [UserController::class, 'getClient'])->name('clients.index');
+        Route::get('clients/create', [UserController::class, 'createCustomer'])->name('clients.create');
+        Route::post('staff/store', [UserController::class, 'storeStaff'])->name('staff.store');
         Route::get('/search-product', [ProductController::class, 'search']);
         Route::post('/orders/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::match(['get', 'post'], '/profile/update', [ProfileController::class, 'updateProfile']);  

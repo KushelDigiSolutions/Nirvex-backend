@@ -24,46 +24,53 @@
                 <!-- User Basic Information -->
                 <div class="row">
                     <div class="col-md-4 text-center">
-                        <img src="{{ $user->image ? asset($user->image) : asset('assets/img/demo_profile.png') }}" 
+                        <img src="{{ $user->image ? asset($user->image) : asset('assets/img/bruce-mars.jpg') }}" 
                              class="img-fluid rounded-circle" 
                              style="width: 200px; height: 200px; object-fit: cover;"
                              alt="User Image">
                     </div>
                     <div class="col-md-8">
-                        <div class="row">
-                            <div class="col">
-                                <label class="form-label">First Name:</label>
-                                <input type="text" id="firstName" class="form-control" value="{{ $user->first_name }}" >
-                            </div>
-                            <div class="col">
-                                <label class="form-label">Last Name:</label>
-                                <input type="text" id="lastName" class="form-control" value="{{ $user->last_name ?? 'N/A' }}" >
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col">
-                                <label class="form-label">Email:</label>
-                                <input type="text" id="email" class="form-control" value="{{ $user->email }}" >
-                            </div>
-                            <div class="col">
-                                <label class="form-label">Phone:</label>
-                                <input type="text" id="phone" class="form-control" value="{{ $user->phone }}" >
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col">
-                                <label class="form-label">Email Verified:</label>
-                                <input type="text" class="form-control" 
-                                       value="{{ $user->email_verified_at ? 'Yes' : 'No' }}" readonly>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">Seller Status:</label>
-                                <select class="form-select seller-active-dropdown" data-id="{{ $user->id }}">
-                                    <option value="0" {{ $user->seller_active == 0 ? 'selected' : '' }}>Not Active</option>
-                                    <option value="1" {{ $user->seller_active == 1 ? 'selected' : '' }}>Active</option>
-                                    <option value="2" {{ $user->seller_active == 2 ? 'selected' : '' }}>Temporary Disabled</option>
-                                </select>
-                            </div>
+    <div class="row">
+        <div class="col">
+            <label class="form-label">First Name:</label>
+            <p class="form-control-plaintext">{{ $user->first_name }}</p>
+        </div>
+        <div class="col">
+            <label class="form-label">Last Name:</label>
+            <p class="form-control-plaintext">{{ $user->last_name ?? 'N/A' }}</p>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            <label class="form-label">Email:</label>
+            <p class="form-control-plaintext">{{ $user->email }}</p>
+        </div>
+        <div class="col">
+            <label class="form-label">Phone:</label>
+            <p class="form-control-plaintext">{{ $user->phone }}</p>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            <label class="form-label">Email Verified:</label>
+            <p class="form-control-plaintext">{{ $user->email_verified_at ? 'Yes' : 'No' }}</p>
+        </div>
+        <div class="col">
+            <label class="form-label">Seller Status:</label>
+            <p class="form-control-plaintext">
+                @if($user->seller_active == 0)
+                    Not Active
+                @elseif($user->seller_active == 1)
+                    Active
+                @elseif($user->seller_active == 2)
+                    Temporary Disabled
+                @endif
+            </p>
+        </div>
+    </div>
+</div>
                         </div>
                     </div>
                 </div>
