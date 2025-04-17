@@ -77,12 +77,12 @@ class RegisterController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
     
         // Notify user
-        createUserNotification(
+        /* createUserNotification(
             $user->id,
             1, 
             'Welcome to our platform, ' . $user->first_name . '!',
             ['registered_at' => now()]
-        );
+        ); */
     
         // Return success response
         return response()->json([
