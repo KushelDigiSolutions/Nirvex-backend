@@ -41,7 +41,7 @@ class RegisterController extends Controller
                 'data' => [],
             ], 401);
         }
-    
+        $imageName = "";
         // Handle file upload after successful validation
         if ($request->hasFile('image')) {
             $image = $request->file('image');
