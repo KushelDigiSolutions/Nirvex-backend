@@ -30,7 +30,7 @@ class RegisterController extends Controller
             'last_name' => 'required|string|max:255',
             'phone' => 'required|string|unique:users,phone',
             'password' => 'required|string|min:8',
-            'image' => 'required|file|mimes:jpeg,png,jpg,gif|max:1024',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:1024',
         ]);
     
         // Return errors if validation fails
