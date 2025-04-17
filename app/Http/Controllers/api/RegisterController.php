@@ -55,13 +55,13 @@ class RegisterController extends Controller
     
             // Move file to destination
             $image->move($imagePath, $imageName);
-        } else {
+        }/*  else {
             return response()->json([
                 'isSuccess' => false,
                 'error' => ['message' => ['image' => ['The image failed to upload.']]],
                 'data' => [],
             ], 400);
-        }
+        } */
     
         // Create the user
         $user = User::create([
