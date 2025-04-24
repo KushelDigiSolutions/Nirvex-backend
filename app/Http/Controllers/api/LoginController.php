@@ -372,79 +372,33 @@ public function validateOtp(Request $request)
     {
         // Validate the request data
         $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'otp' => 'required|string|size:6',
-            'password' => 'required|string|min:8', // Ensure password meets minimum requirements
-            'reset_password' => 'required|string|same:password', // Ensure reset_password matches password
+            'password' => 'required|string|min:8',
+            'reset_password' => 'required|string|same:password',
         ]);
-    
-        // Fetch the OTP record
-        $otpRecord = Otp::where('user_id', $request['user_id'])
-            ->where('otp', $request['otp'])
-            ->where('status', '!=', 'used')
-            ->where(function ($query) {
-                $query->whereNull('expiry')
-                    ->orWhere('expiry', '>=', Carbon::now());
-            })
-            ->orderBy('id', 'desc')
-            ->limit(1)
-            ->first();
-    
-        // Check if OTP record exists
-        if (!$otpRecord) {
+
+        // Get authenticated user from token
+        $user = auth('api')->user();
+        
+        if (!$user) {
             return response()->json([
                 'isSuccess' => false,
-                'error' => ['message' => 'Invalid OTP.'],
+                'error' => ['message' => 'Unauthorized'],
                 'data' => [],
             ], 401);
         }
-    
-        // Check if OTP has expired
-        if ($otpRecord->expiry && Carbon::now()->greaterThan($otpRecord->expiry)) {
-            return response()->json([
-                'isSuccess' => false,
-                'error' => ['message' => 'OTP has expired.'],
-                'data' => [],
-            ], 401);
-        }
-    
-        // Check if OTP has already been used
-        if ($otpRecord->status === 'used') {
-            return response()->json([
-                'isSuccess' => false,
-                'error' => ['message' => 'OTP has already been used.'],
-                'data' => [],
-            ], 401);
-        }
-    
-        // Mark OTP as used
-        $otpRecord->update([
-            'status' => 'used',
-            'complete' => true,
-        ]);
-    
+
         // Update user's password
-        $user = User::findOrFail($request['user_id']);
-        $user->password = bcrypt($request['password']); // Hash the new password before saving it
+        $user->password = bcrypt($request['password']);
         $user->save();
-    
-        // Generate authentication token for the user
-        $token = auth('api')->login($user);
-    
-        // Fetch user's addresses (optional)
-        $addresses = Address::where('user_id', $user->id)->get();
-    
-        // Return success response with updated user data and token
+
+        // Return simplified success response
         return response()->json([
             'isSuccess' => true,
-            'error' => ['message' => 'Password reset successfully'],
-            'data' => [
-                'user' => $user->makeHidden(['created_at', 'updated_at']),
-                'addresses' => $addresses, // Include addresses in response
-            ],
-            'token' => $token,
+            'error' => ['message' => ''],
+            'data' => ['message' => 'Password reset successfully'],
         ], 200);
     }
+
     
     
     protected function sendOtpToUser($userId, $otp)
