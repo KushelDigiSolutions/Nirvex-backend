@@ -43,7 +43,7 @@
                                         <td>{{ $data['pincode'] }}</td>
                                         <!-- <td id="seller-{{ $data['order_id'] }}">{{ $data['seller'] ?? 'Not Assigned' }}</td> -->
                                         <td>
-                                            @if(empty($data["seller"]))
+                                            @if(empty($data["seller"]) || $data["seller"] == "Unknown" )
                                             <button class="btn btn-primary select-seller" data-order-id="{{ $data['order_id'] }}" data-pincode="{{ $data['pincode'] }}">Select Seller</button>
                                             @else
                                            {{ $data["seller"]}}
