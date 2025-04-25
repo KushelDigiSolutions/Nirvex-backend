@@ -1736,7 +1736,7 @@ private function generateCashfreeOrder($user, $grandTotal)
 // Helper function to get variant pricing
 private function getVariantPricing($variant, $pincode)
 {
-    $pricing = Pricing::where('product_sku_id', $variant->sku)
+    $pricing = Pricing::where('product_sku_id', $variant->id)
         ->where('pincode', $pincode)
         ->first();
 
