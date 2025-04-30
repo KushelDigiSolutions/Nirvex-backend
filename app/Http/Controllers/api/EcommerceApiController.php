@@ -2416,17 +2416,17 @@ public function vendorDashboard(Request $request)
     // Count orders based on status (assuming you have a status field)
     foreach ($orders as $order) {
     //    dd($order->status);
-        switch ($order->status) {
-            case 'pending':
+        switch ($order->order_status) {
+            case 1:
                 $newOrder++;
                 break;
-            case 'processing':
+            case 3:
                 $processing++;
                 break;
-            case 'completed':
+            case 6:
                 $completeOrder++;
                 break;
-            case 'rejected':
+            case 7:
                 $rejectOrder++;
                 break;
         }
