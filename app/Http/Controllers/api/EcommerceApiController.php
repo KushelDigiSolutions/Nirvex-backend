@@ -2437,6 +2437,7 @@ public function vendorDashboard(Request $request)
         return [
             'order_id' => $order->id,
             'status' => $order->status,
+            'order_status' => $order->order_status,
             'total_amount' => $order->grand_total,
             'created_at' => $order->created_at,
             'items' => $order->orderItems->map(function ($item) {
