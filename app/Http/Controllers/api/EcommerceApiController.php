@@ -2643,8 +2643,8 @@ public function acceptRejectOrder(Request $request)
 
     // Update order status based on type
     $order = Order::findOrFail($validated['order_id']);
-
-    if ($validated['type'] == 0) { // Rejected
+    $order->order_status = $validated['type'];
+   /*  if ($validated['type'] == 0) { // Rejected
         $order->order_status = 7; // Rejected status code
     } else if ($validated['type'] == 1){ // Accepted
         $order->order_status = 2; // Accepted status code
@@ -2654,7 +2654,9 @@ public function acceptRejectOrder(Request $request)
         $order->order_status = 4; // Accepted status code
     }else if ($validated['type'] == 5){ // Accepted
         $order->order_status = 5; // Accepted status code
-    }
+    }else if ($validated['type'] == 7){ // Accepted
+        $order->order_status = 5; // Accepted status code
+    } */
 
 
 
