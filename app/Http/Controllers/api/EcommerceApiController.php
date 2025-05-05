@@ -2390,10 +2390,24 @@ public function vendorDashboard(Request $request)
 {
     $user = $request->user();
 
+    // Define the status headers
+    $statusHeaders = [
+        0 => 'Created',
+        1 => 'Payment Done',
+        2 => 'Order Accept',
+        3 => 'Order Preparing',
+        4 => 'Order Shipped',
+        5 => 'Order Delivered',
+        6 => 'Order Completed',
+        7 => 'Order Rejected',
+        8 => 'Order Returned',
+        9 => 'Order Cancelled'
+    ];
+
     // Fetch latest 5 orders for this vendor with related order items, products, and variants
     $orders = Order::with(['orderItems.product', 'orderItems.variant'])
         ->where('vendor_id', $user->id)
-        ->latest() // optional: latest orders first
+        ->latest()
         ->limit(5)
         ->get();
 
@@ -2413,9 +2427,8 @@ public function vendorDashboard(Request $request)
     $completeOrder = 0;
     $rejectOrder = 0;
 
-    // Count orders based on status (assuming you have a status field)
+    // Count orders based on status
     foreach ($orders as $order) {
-    //    dd($order->status);
         switch ($order->order_status) {
             case 1:
                 $newOrder++;
@@ -2432,16 +2445,15 @@ public function vendorDashboard(Request $request)
         }
     }
 
-    // Map orders with their items clearly
-    $ordersData = $orders->map(function ($order) {
+    // Map orders with their items and mapped status
+    $ordersData = $orders->map(function ($order) use ($statusHeaders) {
         return [
             'order_id' => $order->id,
-            'status' => $order->status,
+            'status' => $statusHeaders[$order->order_status] ?? 'Unknown',
             'order_status' => $order->order_status,
             'total_amount' => $order->grand_total,
             'created_at' => $order->created_at,
             'items' => $order->orderItems->map(function ($item) {
-                
                 return [
                     'item_id' => $item->id,
                     'product' => $item->product,
@@ -2468,6 +2480,7 @@ public function vendorDashboard(Request $request)
         ],
     ], 200);
 }
+
 
 public function vendorOrders(Request $request)
 {
