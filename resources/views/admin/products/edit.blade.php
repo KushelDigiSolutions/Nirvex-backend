@@ -217,9 +217,15 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror -->
                                         </div>
-                                        <div class="col d-flex align-items-end">      
+                                        <!-- <div class="col d-flex align-items-end">      
+                                        </div> -->
+                                        <div class="col">
+                                            <label for="size_amount" class="form-label">Amount<span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control @error('options.0.size_amount') is-invalid @enderror" name="options[{{ $index }}][size_amount]" value="{{$variant->size_amount}}">
+                                            
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                             @endforeach

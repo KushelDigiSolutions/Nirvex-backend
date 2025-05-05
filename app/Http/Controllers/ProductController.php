@@ -161,160 +161,300 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('categories', 'subCategories', 'product'));
     }
 
-    public function update(Request $request, $id)
+    public function update2(Request $request, $id)
     {
         // Find the product
-        $product = Product::findOrFail($id);
-    
-        try {
-            $validatedData = $request->validate([
-                'pname' => 'required|string|max:255',
-                'descriptions' => 'nullable|string',
-                'cat_id' => 'required|integer',
-                'sub_cat_id' => 'required|integer',
-                'status' => 'required|boolean',
-                'mrp' => 'required|numeric',
-                'availability' => 'required|string',
-                'specification' => 'required|string',
-                'return_policy' => 'required|string',
-                'physical_property' => 'required|string',
-                'standards' => 'required|string',
-                'key_benefits' => 'required|string',
-                'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
-                'options.*.id' => 'nullable|integer',
-                'options.*.type' => 'nullable|string',
-                'options.*.name' => 'required|string|max:255',
-                'options.*.short_description' => 'nullable|string|max:255',
-               'options.*.sku' => [
-    'required',
-    function ($attribute, $value, $fail) use ($request) {
-        $index = explode('.', $attribute)[1]; 
-        $variantId = $request->input("options.$index.id"); 
+                    $product = Product::findOrFail($id);
+                
+                    try {
+                        $validatedData = $request->validate([
+                            'pname' => 'required|string|max:255',
+                            'descriptions' => 'nullable|string',
+                            'cat_id' => 'required|integer',
+                            'sub_cat_id' => 'required|integer',
+                            'status' => 'required|boolean',
+                            'mrp' => 'required|numeric',
+                            'availability' => 'required|string',
+                            'specification' => 'required|string',
+                            'return_policy' => 'required|string',
+                            'physical_property' => 'required|string',
+                            'standards' => 'required|string',
+                            'key_benefits' => 'required|string',
+                            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+                            'options.*.id' => 'nullable|integer',
+                            'options.*.type' => 'nullable|string',
+                            'options.*.name' => 'required|string|max:255',
+                            'options.*.short_description' => 'nullable|string|max:255',
+                        'options.*.sku' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $index = explode('.', $attribute)[1]; 
+                    $variantId = $request->input("options.$index.id"); 
 
-        if ($variantId) {
-            $exists = \DB::table('variants')
-                ->where('sku', $value)
-                ->where('id', '!=', $variantId) 
-                ->exists();
+                    if ($variantId) {
+                        $exists = \DB::table('variants')
+                            ->where('sku', $value)
+                            ->where('id', '!=', $variantId) 
+                            ->exists();
 
-            if ($exists) {
-                $fail('The SKU has already been taken.');
-            }
-        }
-    },
-],
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors());
-        }
-    
-        // Handling image uploads
-        if ($request->hasFile('image')) {
-            foreach ($request->file('image') as $file) {
-                if ($file->getSize() > 1024 * 1024) { 
-                    return redirect()->back()->withErrors(['image' => 'Each image must not be greater than 1MB.']);
-                }
-            }
-        }
-    
-        // Handling image deletion
-        if (empty($request->delete_images)) {
-            $existingImages = explode(',', $product->image);
-            foreach ($existingImages as $image) {
-                if (!empty($image) && file_exists(public_path($image))) {
-                    unlink(public_path($image));
-                }
-            }
-            $product->image = null;
-        } elseif ($request->has('delete_images') && is_array($request->delete_images)) {
-            $existingImages = explode(',', $product->image);
-            $imagesToKeep = $request->delete_images;
-            $imagesToDelete = array_diff($existingImages, $imagesToKeep);
-    
-            foreach ($imagesToDelete as $image) {
-                if (file_exists(public_path($image))) {
-                    unlink(public_path($image));
-                }
-            }
-    
-            $product->image = implode(',', $imagesToKeep);
-        }
-    
-        // Uploading new images
-        $imagePaths = [];
-        if ($request->hasFile('image')) {
-            foreach ($request->file('image') as $image) {
-                $fileName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/products'), $fileName);
-                $imagePaths[] = 'uploads/products/' . $fileName;
-            }
-        }
-    
-        if (!empty($imagePaths)) {
-            $validatedData['image'] = implode(',', $imagePaths);
-        } else {
-            unset($validatedData['image']);
-        }
-    
-        // Update product data
-        $product->update([
-            'name' => $validatedData['pname'],
-            'description' => $validatedData['descriptions'],
-            'cat_id' => $validatedData['cat_id'],
-            'sub_cat_id' => $validatedData['sub_cat_id'],
-            'mrp' => $validatedData['mrp'],
-            'availability' => $validatedData['availability'],
-            'return_policy' => $validatedData['return_policy'],
-            'specification' => $validatedData['specification'],
-            'physical_property' => $validatedData['physical_property'],
-            'standards' => $validatedData['standards'],
-            'key_benefits' => $validatedData['key_benefits'],
-            'status' => $validatedData['status'],
-        ]);
-    
-        // Updating or creating product variants
-        if ($request->has('options')) {
-            foreach ($request->options as $option) {
-                $variantData = [
-                    'product_id' => $product->id,
-                    'name' => $option['name'],
-                    'type' => $option['type'] ?? null,
-                    'sku' => $option['sku'] ?? null,
-                    'short_description' => $option['short_description'] ?? null,
-                ];
-    
-                if (!empty($option['sku'])) {
-                    $existingSku = Variant::where('sku', $option['sku'])
-                        ->where('id', '!=', ($option['id'] ?? null))
-                        ->exists();
-                    
-                    if ($existingSku) {
-                        return redirect()->back()->withErrors(['sku' => 'The SKU is already taken.']);
+                        if ($exists) {
+                            $fail('The SKU has already been taken.');
+                        }
                     }
-                }
-    
-                if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
-                    $fileName = time() . '_' . $option['image']->getClientOriginalName();
-                    $option['image']->move(public_path('uploads/variants'), $fileName);
-                    $variantData['images'] = 'uploads/variants/' . $fileName;
-                }
-    
-                Variant::updateOrCreate(
-                    ['id' => $option['id'] ?? null, 'product_id' => $product->id], // Find existing variant
-                    $variantData // Update or create
-                );
-                session()->flash('success', 'Product updated successfully.');
-return $this->redirectRoute('products.index');
-            }
-            session()->flash('success', 'Product updated successfully.');
-return $this->redirectRoute('products.index');
-            // return redirect()->route('products.index')->with('success', 'Product updated successfully.');
-        }
-        session()->flash('success', 'Product updated successfully.');
-return $this->redirectRoute('products.index');
+                },
+            ],
+                        ]);
+                    } catch (\Illuminate\Validation\ValidationException $e) {
+                        return redirect()->back()->withErrors($e->errors());
+                    }
+                
+                    // Handling image uploads
+                    if ($request->hasFile('image')) {
+                        foreach ($request->file('image') as $file) {
+                            if ($file->getSize() > 1024 * 1024) { 
+                                return redirect()->back()->withErrors(['image' => 'Each image must not be greater than 1MB.']);
+                            }
+                        }
+                    }
+                
+                    // Handling image deletion
+                    if (empty($request->delete_images)) {
+                        $existingImages = explode(',', $product->image);
+                        foreach ($existingImages as $image) {
+                            if (!empty($image) && file_exists(public_path($image))) {
+                                unlink(public_path($image));
+                            }
+                        }
+                        $product->image = null;
+                    } elseif ($request->has('delete_images') && is_array($request->delete_images)) {
+                        $existingImages = explode(',', $product->image);
+                        $imagesToKeep = $request->delete_images;
+                        $imagesToDelete = array_diff($existingImages, $imagesToKeep);
+                
+                        foreach ($imagesToDelete as $image) {
+                            if (file_exists(public_path($image))) {
+                                unlink(public_path($image));
+                            }
+                        }
+                
+                        $product->image = implode(',', $imagesToKeep);
+                    }
+                
+                    // Uploading new images
+                    $imagePaths = [];
+                    if ($request->hasFile('image')) {
+                        foreach ($request->file('image') as $image) {
+                            $fileName = time() . '_' . $image->getClientOriginalName();
+                            $image->move(public_path('uploads/products'), $fileName);
+                            $imagePaths[] = 'uploads/products/' . $fileName;
+                        }
+                    }
+                
+                    if (!empty($imagePaths)) {
+                        $validatedData['image'] = implode(',', $imagePaths);
+                    } else {
+                        unset($validatedData['image']);
+                    }
+                
+                    // Update product data
+                    $product->update([
+                        'name' => $validatedData['pname'],
+                        'description' => $validatedData['descriptions'],
+                        'cat_id' => $validatedData['cat_id'],
+                        'sub_cat_id' => $validatedData['sub_cat_id'],
+                        'mrp' => $validatedData['mrp'],
+                        'availability' => $validatedData['availability'],
+                        'return_policy' => $validatedData['return_policy'],
+                        'specification' => $validatedData['specification'],
+                        'physical_property' => $validatedData['physical_property'],
+                        'standards' => $validatedData['standards'],
+                        'key_benefits' => $validatedData['key_benefits'],
+                        'status' => $validatedData['status'],
+                    ]);
+                
+                    // Updating or creating product variants
+                    if ($request->has('options')) {
+                        foreach ($request->options as $option) {
+                            $variantData = [
+                                'product_id' => $product->id,
+                                'name' => $option['name'],
+                                'type' => $option['type'] ?? null,
+                                'sku' => $option['sku'] ?? null,
+                                'short_description' => $option['short_description'] ?? null,
+                            ];
+                
+                            if (!empty($option['sku'])) {
+                                $existingSku = Variant::where('sku', $option['sku'])
+                                    ->where('id', '!=', ($option['id'] ?? null))
+                                    ->exists();
+                                
+                                if ($existingSku) {
+                                    return redirect()->back()->withErrors(['sku' => 'The SKU is already taken.']);
+                                }
+                            }
+                
+                            if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
+                                $fileName = time() . '_' . $option['image']->getClientOriginalName();
+                                $option['image']->move(public_path('uploads/variants'), $fileName);
+                                $variantData['images'] = 'uploads/variants/' . $fileName;
+                            }
+                
+                            Variant::updateOrCreate(
+                                ['id' => $option['id'] ?? null, 'product_id' => $product->id], // Find existing variant
+                                $variantData // Update or create
+                            );
+                            session()->flash('success', 'Product updated successfully.');
+            return $this->redirectRoute('products.index');
+                        }
+                        session()->flash('success', 'Product updated successfully.');
+            return $this->redirectRoute('products.index');
+                        // return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+                    }
+                    session()->flash('success', 'Product updated successfully.');
+            return $this->redirectRoute('products.index');
 
         //  return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
+
+    // My New Code
+    public function update(Request $request, $id)
+{
+    // dd($request->all());
+    $product = Product::findOrFail($id);
+
+    try {
+        $validatedData = $request->validate([
+            'pname' => 'required|string|max:255',
+            'descriptions' => 'nullable|string',
+            'cat_id' => 'required|integer',
+            'sub_cat_id' => 'required|integer',
+            'status' => 'required|boolean',
+            'mrp' => 'required|numeric',
+            'availability' => 'required|string',
+            'specification' => 'required|string',
+            'return_policy' => 'required|string',
+            'physical_property' => 'required|string',
+            'standards' => 'required|string',
+            'key_benefits' => 'required|string',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+            'options.*.id' => 'nullable|integer',
+            'options.*.type' => 'nullable|string',
+            'options.*.size_amount' => 'nullable',
+            'options.*.name' => 'required|string|max:255',
+            'options.*.short_description' => 'nullable|string|max:255',
+            'options.*.sku' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $index = explode('.', $attribute)[1];
+                    $variantId = $request->input("options.$index.id");
+                    if ($variantId) {
+                        $exists = \DB::table('variants')
+                            ->where('sku', $value)
+                            ->where('id', '!=', $variantId)
+                            ->exists();
+                        if ($exists) {
+                            $fail("The SKU has already been taken.");
+                        }
+                    }
+                },
+            ],
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return redirect()->back()->withErrors($e->errors());
+    }
+
+    // Delete images if needed
+    if (empty($request->delete_images)) {
+        $existingImages = explode(',', $product->image);
+        foreach ($existingImages as $image) {
+            if (!empty($image) && file_exists(public_path($image))) {
+                unlink(public_path($image));
+            }
+        }
+        $product->image = null;
+    } elseif (is_array($request->delete_images)) {
+        $existingImages = explode(',', $product->image);
+        $imagesToKeep = $request->delete_images;
+        $imagesToDelete = array_diff($existingImages, $imagesToKeep);
+        foreach ($imagesToDelete as $image) {
+            if (file_exists(public_path($image))) {
+                unlink(public_path($image));
+            }
+        }
+        $product->image = implode(',', $imagesToKeep);
+    }
+
+    // Upload new images
+    $imagePaths = [];
+    if ($request->hasFile('image')) {
+        foreach ($request->file('image') as $image) {
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/products'), $fileName);
+            $imagePaths[] = 'uploads/products/' . $fileName;
+        }
+    }
+
+    if (!empty($imagePaths)) {
+        $validatedData['image'] = !empty($product->image)
+            ? $product->image . ',' . implode(',', $imagePaths)
+            : implode(',', $imagePaths);
+    } else {
+        unset($validatedData['image']);
+    }
+
+    // Update product
+    $product->update([
+        'name' => $validatedData['pname'],
+        'description' => $validatedData['descriptions'],
+        'cat_id' => $validatedData['cat_id'],
+        'sub_cat_id' => $validatedData['sub_cat_id'],
+        'mrp' => $validatedData['mrp'],
+        'availability' => $validatedData['availability'],
+        'return_policy' => $validatedData['return_policy'],
+        'specification' => $validatedData['specification'],
+        'physical_property' => $validatedData['physical_property'],
+        'standards' => $validatedData['standards'],
+        'key_benefits' => $validatedData['key_benefits'],
+        'status' => $validatedData['status'],
+        'image' => $validatedData['image'] ?? $product->image,
+    ]);
+
+    // Handle variants
+    if ($request->has('options')) {
+        foreach ($request->options as $option) {
+            $variantData = [
+                'product_id' => $product->id,
+                'name' => $option['name'],
+                'type' => $option['type'] ?? null,
+                'sku' => $option['sku'] ?? null,
+                'size_amount' => $option['size_amount'] ?? null,
+                'short_description' => $option['short_description'] ?? null,
+            ];
+
+            // Upload variant image
+            if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
+                $fileName = time() . '_' . $option['image']->getClientOriginalName();
+                $option['image']->move(public_path('uploads/variants'), $fileName);
+                $variantData['images'] = 'uploads/variants/' . $fileName;
+            }
+
+            // Update or create variant
+            if (!empty($option['sku'])) {
+                $variant = Variant::where('sku',$option['sku']);
+                if ($variant) {
+                    $variant->update($variantData);
+                } else {
+                    Variant::create($variantData);
+                }
+            } else {
+                Variant::create($variantData);
+            }
+        }
+    }
+
+    // return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+    return redirect()->back()->with('success', 'Product updated successfully.');
+}
 
 
     public function update030425(Request $request, $id)

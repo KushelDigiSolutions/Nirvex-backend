@@ -19,6 +19,7 @@ class Variant extends Model
         'type',
         'name',
         'sku',
+        'size_amount',
         'short_description',
         'images',
     ];
