@@ -75,16 +75,24 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Product Name</th>
+                            <th>Product Variant</th>
+                            <th>Quantity</th>
+                            <th>Price/Qty</th>
                             <th>Date</th>
-                            <th>Download CSV</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach($sellerPrices as $sellerPrice)
                         <tr>
-                            <td>1</td>
-                            <td>2025-03-20</td>
-                            <td><button class="btn btn-success btn-sm mb-2" onclick="downloadCSV(1)">Download CSV</button></td>
+                            <td>{{$sellerPrice->id}}</td>
+                            <th>{{$sellerPrice->variant->product->name}}</th>
+                            <th>{{$sellerPrice->variant->name}}</th>
+                            <th>{{$sellerPrice->quantity}}</th>
+                            <th>₹{{$sellerPrice->prices}}</th>
+                            <td>{{$sellerPrice->created_at}}</td>
                         </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

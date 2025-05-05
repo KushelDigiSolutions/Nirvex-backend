@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\SellerPrice;
 use App\Models\Address;
 use App\Models\CustomerDetails;
 use Spatie\Permission\Models\Role;
@@ -126,19 +127,23 @@ class SellerController extends Controller
     public function show($encryptedId): View
     {
         try {
-            // Decrypt the ID first
             $id = Crypt::decrypt($encryptedId);
-            
-            // Query using the decrypted numeric ID
             $user = User::where('id', $id)
                     ->where('user_type', 2)
                     ->firstOrFail();
-                    // echo '<pre>'; print_r($user); die;
-            return view('admin.sellers.show', compact('user'));
+
+            $sellerPrices = SellerPrice::with('variant.product')
+            ->where('user_id', $id)
+            ->get();
+
+         //   dd( $sellerPrices[0]->variant->product->name);
+
+            return view('admin.sellers.show', compact('user', 'sellerPrices'));
         } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
             abort(404, 'Invalid ID');
         }
     }
+
     /**
      * Show the form for editing the specified resource.
      *
