@@ -30,6 +30,7 @@
                                     <th>ID</th>
                                     <th>Pincode</th>
                                     <th>Product ID</th>
+                                    <th>Product Name</th>
                                     <th>SKU</th>
                                     <th>MRP</th>
                                     <th>Price</th>
@@ -48,6 +49,7 @@
                                     <td>{{ $pricing->id }}</td>
                                     <td>{{ $pricing->pincode }}</td>
                                     <td>{{ $pricing->product_id }}</td>
+                                    <td>{{ $pricing->product->name ?? 'N/A' }}</td>
                                     <td>{{ $pricing->product_sku_id }}</td>
                                     <td>{{ $pricing->mrp }}</td>
                                     <td>{{ $pricing->price }}</td>

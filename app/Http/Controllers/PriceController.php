@@ -17,7 +17,7 @@ class PriceController extends Controller
      */
         public function index()
         {
-            $pricings = Pricing::all();
+            $pricings = Pricing::with('product')->get();
             return view('admin.pricings.index', compact('pricings'));
         }
 
