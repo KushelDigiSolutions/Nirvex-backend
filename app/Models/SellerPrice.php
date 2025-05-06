@@ -23,4 +23,9 @@ class SellerPrice extends Model
         'prices' => 'float',
         'quantity' => 'integer',
     ];
+
+    public function variant()
+    {
+        return $this->belongsTo(Variant::class);
+    }
 }
