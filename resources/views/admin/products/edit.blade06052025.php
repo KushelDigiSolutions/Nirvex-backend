@@ -218,9 +218,7 @@
                                             @enderror -->
                                         </div>
                                         <div class="col d-flex align-items-end">      
-                                        <div class="d-flex justify-content-start">
-                    <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-                </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -246,64 +244,7 @@
 </x-layout>
 
 
-
 <script>
-    let fieldCount = 1;
-
-    document.getElementById('add-field').addEventListener('click', function () {
-        const dynamicForm = document.getElementById('dynamic-form');
-        const newField = `
-            <div class="variant-box mb-4 border p-3 rounded">
-                <div class="row mb-3">
-                    <div class="col">
-                        <label class="form-label">Type <span class="text-danger">*</span></label>
-                        <select class="form-select" name="options[${fieldCount}][type]">
-                            <option value="1">Quality</option>
-                            <option value="2">Color</option>
-                            <option value="3">Size</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <label class="form-label">Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="options[${fieldCount}][name]" placeholder="Enter name">
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        <label class="form-label">Image <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" name="options[${fieldCount}][image]">
-                    </div>
-                    <div class="col">
-                        <label class="form-label">Short Description <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="options[${fieldCount}][short_description]" placeholder="Short description">
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Product Sku <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="options[${fieldCount}][sku]">
-                    </div>
-                </div>
-                <div class="d-flex justify-content-start">
-                    <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-                </div>
-            </div>
-        `;
-        // dynamicForm.insertAdjacentHTML('beforeend', newField);
-        dynamicForm.insertAdjacentHTML('beforeend', newField);
-        fieldCount++;
-    });
-
-    // Handle remove button
-    document.getElementById('dynamic-form').addEventListener('click', function (e) {
-        if (e.target.classList.contains('remove-field')) {
-            e.target.closest('.variant-box').remove();
-        }
-    });
-</script>
-
-
-<!-- <script>
     let fieldCount = 1;
 
     document.getElementById('add-field').addEventListener('click', function () {
@@ -355,7 +296,7 @@
             e.target.closest('.row').remove();
         }
     });
-</script> -->
+</script>
 <script>
     document.getElementById('cat_id').addEventListener('change', function () {
         const catId = this.value; 

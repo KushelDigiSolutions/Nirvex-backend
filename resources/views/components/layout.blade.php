@@ -35,7 +35,7 @@
     <!-- Responsive Extension JavaScript -->
     <script src="{{ asset('assets') }}/js/dataTables.responsive.min.js"></script>
     <!-- Place the first <script> tag in your HTML's <head> -->
-<script src="{{ asset('assets') }}/tinymce.min.js" referrerpolicy="origin"></script>
+
 <style>
 .sidenav-header {
     max-height: 100vh;
