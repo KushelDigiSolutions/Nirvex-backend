@@ -2252,46 +2252,102 @@ private function formatTimestamp($createdAt)
     }
 
     public function searchVendorOrder(Request $request, $orderId)
-    {
-        // Get the authenticated user
-        $user = $request->user();
+{
+    // Get the authenticated user
+    $user = $request->user();
 
-        $order = Order::with(['orderItems.product','orderItems.variant'])
-            ->where('id', $orderId)
-            ->where('vendor_id', $user->id)
-            ->first();
+    $order = Order::with(['orderItems.product','orderItems.variant'])
+        ->where('id', $orderId)
+        ->where('vendor_id', $user->id)
+        ->first();
 
-        if (!$order) {
-            return response()->json([
-                'isSuccess' => false,
-                'errors' => [
-                    'message' => 'Order not found or you do not have access to this order.',
-                ],
-                'data' => null,
-            ], 404);
+    if (!$order) {
+        return response()->json([
+            'isSuccess' => false,
+            'errors' => [
+                'message' => 'Order not found or you do not have access to this order.',
+            ],
+            'data' => null,
+        ], 404);
+    }
+
+    // Extract unique, non-zero variant_ids
+    $variantIds = [];
+    foreach ($order->orderItems as $item) {
+        if (!empty($item->variant_id) && $item->variant_id != 0 && !in_array($item->variant_id, $variantIds)) {
+            $variantIds[] = $item->variant_id;
         }
-        $totalProducts = [];
-        $order->orderItems->each(function ($item) use (&$totalProducts) {
-            $totalProducts[] = $item;
+    }
+
+    // Prepare your custom output
+    $customData = [
+        'created' => $order->created_at,
+    ];
+
+    $customData['vendor'] = $user->id;
+    $variantIds = [];
+    foreach ($order->orderItems as $item) {
+        if (!empty($item->variant_id) && $item->variant_id != 0 && !in_array($item->variant_id, $variantIds)) {
+            $variantIds[] = $item->variant_id;
+        }
+    }
+    $customData['variants'] = $variantIds;
+
+    $vdata = $this->__getValidSellerPricings($customData);
+
+    // Return both original and custom data if you want
+    return response()->json([
+        'isSuccess' => true,
+        'errors' => [
+            'message' => null,
+        ],
+        'data' => [
+            'order_id' => $order->id,
+            'vendor_id' => $order->vendor_id,
+            'total_amount' => $order->grand_total,
+            'status' => $order->status,
+            'created_at' => $order->created_at,
+            'updated_at' => $order?->updated_at,
+            'order_items' => $order->orderItems,
+            'vendor_prices' => $vdata, // <-- Yahan pe custom data add kiya hai
+        ],
+    ], 200);
+}
+
+private function __getValidSellerPricings(array $data)
+{
+    $orderCreatedDate = $data['created']; // Order ka created_at
+    $vendorId = $data['vendor'];
+    $variantIds = $data['variants'];
+
+    // Step 1: Har variant ke liye valid_upto <= order_created_at wala latest record
+    $validPricings = SellerPrice::where('user_id', $vendorId)
+        ->whereIn('variant_id', $variantIds)
+        ->where('created_at', '<=', $orderCreatedDate)
+        ->orderBy('created_at', 'desc') // Latest valid_upto wala pehle
+        ->get()
+        ->groupBy('variant_id')
+        ->map(function ($group) {
+            return $group->first(); // Har group ka pehla (latest) record
         });
 
-        return response()->json([
-            'isSuccess' => true,
-            'errors' => [
-                'message' => null,
-            ],
-            'data' => [
-                'order_id' => $order->id,
-                'vendor_id' => $order->vendor_id,
-                'total_amount' => $order->grand_total,
-                'status' => $order->status,
-                'created_at' => $order->created_at,
-                'updated_at' => $order?->updated_at,
-                'order_items' => $totalProducts, // Include mapped order items
-            ],
-        ], 200);
+    // Step 2: Jo variants nahi mile unke liye 0 set karo
+    $result = [];
+    foreach ($variantIds as $variantId) {
+        if ($validPricings->has($variantId)) {
+            $result[] = $validPricings[$variantId];
+        } else {
+            $result[] = [
+                'variant_id' => $variantId,
+                'price' => 0,
+                'created_at' => null
+            ];
+        }
     }
-    
+
+    return $result;
+}
+
 
 
 private function __getProductDetail(Request $request, $productId)
@@ -2445,6 +2501,20 @@ public function vendorDashboard(Request $request)
         }
     }
 
+    $variantIds = [];
+    foreach ($order->orderItems as $item) {
+        if ($item->variant_id && !in_array($item->variant_id, $variantIds)) {
+            $variantIds[] = $item->variant_id;
+        }
+    }
+
+    // Get vendor prices
+    $vdata = $this->__getValidSellerPricings([
+        'created' => $order->created_at,
+        'vendor' => $user->id,
+        'variants' => $variantIds
+    ]);
+
     // Map orders with their items and mapped status
     $ordersData = $orders->map(function ($order) use ($statusHeaders) {
         return [
@@ -2477,6 +2547,7 @@ public function vendorDashboard(Request $request)
             'complete_order' => $completeOrder,
             'reject_order'   => $rejectOrder, 
             'orders'         => $ordersData, // Include all mapped orders with items
+            'vendor_prices' => $vdata
         ],
     ], 200);
 }
