@@ -2611,25 +2611,40 @@ public function vendorOrders(Request $request)
         ], 404);
     }
 
-    // Map orders data clearly
-    $ordersData = $orders->map(function ($order) {
+     // Map orders data with vendor_prices
+     $ordersData = $orders->map(function ($order) use ($user) {
+        // Unique variant IDs
+        $variantIds = [];
+        foreach ($order->orderItems as $item) {
+            if (!empty($item->variant_id) && $item->variant_id != 0 && !in_array($item->variant_id, $variantIds)) {
+                $variantIds[] = $item->variant_id;
+            }
+        }
+
+        // Get vendor prices for this order
+        $vdata = $this->__getValidSellerPricings([
+            'created' => $order->created_at,
+            'vendor' => $user->id,
+            'variants' => $variantIds
+        ]);
+
         return [
             'order_id'     => $order->id,
             'status'       => $order->order_status,
-            'total_amount'  => $order->grand_total,
+            'total_amount' => $order->grand_total,
             'created_at'   => $order->created_at,
-            'items'          => $order->orderItems->map(function ($item) {
+            'items'        => $order->orderItems->map(function ($item) {
                 return [
                     'item_id'   => $item->id,
                     'product'   => $item->product,
                     'variant'   => $item->variant,
-                    'quantity'  => $item->quantity,
-                    'price'     => $item->price,
+                    'quantity'  => $item->qty,
+                    'price'     => $item->sale_price,
                 ];
             }),
+            'vendor_prices' => $vdata
         ];
     });
-
     return response()->json([
         'isSuccess' => true,
         'errors' => [
