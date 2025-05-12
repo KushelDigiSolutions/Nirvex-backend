@@ -2688,8 +2688,9 @@ public function getVendorStocks()
         $formattedVariants = $groupedVariants->map(function ($variant) {
             // Fetch seller price details for the current variant and logged-in user
             $sellerPrice = SellerPrice::where('user_id', auth()->id())
-                ->where('variant_id', $variant->id)
-                ->first();
+    ->where('variant_id', $variant->id)
+    ->latest('updated_at')
+    ->first();
 
             return [
                 'variant_id' => $variant->id,
