@@ -2339,7 +2339,7 @@ private function __getValidSellerPricings(array $data)
         } else {
             $result[] = [
                 'variant_id' => $variantId,
-                'price' => 0,
+                'prices' => 0,
                 'created_at' => null
             ];
         }
