@@ -2271,29 +2271,6 @@ private function formatTimestamp($createdAt)
         ], 404);
     }
 
-    // Extract unique, non-zero variant_ids
-    $variantIds = [];
-    foreach ($order->orderItems as $item) {
-        if (!empty($item->variant_id) && $item->variant_id != 0 && !in_array($item->variant_id, $variantIds)) {
-            $variantIds[] = $item->variant_id;
-        }
-    }
-
-    // Prepare your custom output
-    $customData = [
-        'created' => $order->created_at,
-    ];
-
-    $customData['vendor'] = $user->id;
-    $variantIds = [];
-    foreach ($order->orderItems as $item) {
-        if (!empty($item->variant_id) && $item->variant_id != 0 && !in_array($item->variant_id, $variantIds)) {
-            $variantIds[] = $item->variant_id;
-        }
-    }
-    $customData['variants'] = $variantIds;
-
-    $vdata = $this->__getValidSellerPricings($customData);
 
     // Return both original and custom data if you want
     return response()->json([
@@ -2308,8 +2285,22 @@ private function formatTimestamp($createdAt)
             'status' => $order->status,
             'created_at' => $order->created_at,
             'updated_at' => $order?->updated_at,
-            'order_items' => $order->orderItems,
-            'vendor_prices' => $vdata, // <-- Yahan pe custom data add kiya hai
+            'order_items' => $order->orderItems->map(function ($item) use ($order)  {
+                //dd($item->variant);
+                $item->variant->sellerPrice = $this->__getValidSellerPricings([
+                    'created' => $order->created_at,
+                    'vendor' => $order->vendor_id,
+                    'variants' => $item->variant->id
+                ]);
+                return [
+                    'item_id' => $item->id,
+                    'product' => $item->product,
+                    'variant' => $item->variant,
+                    'quantity' => $item->qty,
+                    'price' => $item->sale_price,
+                    'tax' => $item->tax,
+                ];
+            }),
         ],
     ], 200);
 }
@@ -2505,22 +2496,6 @@ public function vendorDashboard(Request $request)
 
     $variantIds = [];
 
-  /*   foreach ($orders as $order) {
-     
-        foreach ($order->orderItems as $item) {
-            
-            if ($item->variant_id && !in_array($item->variant_id, $variantIds)) {
-                $variantIds[] = $item->variant_id;
-            }
-        }
-    }
-    // Get vendor prices
-    $vdata = $this->__getValidSellerPricings([
-        'created' => $order->created_at,
-        'vendor' => $user->id,
-        'variants' => $variantIds
-    ]); */
-
     // Map orders with their items and mapped status
     $ordersData = $orders->map(function ($order) use ($statusHeaders) {
         return [
@@ -2625,36 +2600,28 @@ public function vendorOrders(Request $request)
 
      // Map orders data with vendor_prices
      $ordersData = $orders->map(function ($order) use ($user) {
-        // Unique variant IDs
-        $variantIds = [];
-        foreach ($order->orderItems as $item) {
-            if (!empty($item->variant_id) && $item->variant_id != 0 && !in_array($item->variant_id, $variantIds)) {
-                $variantIds[] = $item->variant_id;
-            }
-        }
-
-        // Get vendor prices for this order
-        $vdata = $this->__getValidSellerPricings([
-            'created' => $order->created_at,
-            'vendor' => $user->id,
-            'variants' => $variantIds
-        ]);
-
+        
         return [
             'order_id'     => $order->id,
             'status'       => $order->order_status,
             'total_amount' => $order->grand_total,
             'created_at'   => $order->created_at,
-            'items'        => $order->orderItems->map(function ($item) {
+            'items'        => $order->orderItems->map(function ($item) use ($order)  {
+                //dd($item->variant);
+                $item->variant->sellerPrice = $this->__getValidSellerPricings([
+                    'created' => $order->created_at,
+                    'vendor' => $order->vendor_id,
+                    'variants' => $item->variant->id
+                ]);
                 return [
-                    'item_id'   => $item->id,
-                    'product'   => $item->product,
-                    'variant'   => $item->variant,
-                    'quantity'  => $item->qty,
-                    'price'     => $item->sale_price,
+                    'item_id' => $item->id,
+                    'product' => $item->product,
+                    'variant' => $item->variant,
+                    'quantity' => $item->qty,
+                    'price' => $item->sale_price,
+                    'tax' => $item->tax,
                 ];
             }),
-            'vendor_prices' => $vdata
         ];
     });
     return response()->json([
