@@ -2316,15 +2316,19 @@ private function formatTimestamp($createdAt)
 
 private function __getValidSellerPricings(array $data)
 {
-    $orderCreatedDate = $data['created']; // Order ka created_at
+  //  dd($data);
+    $orderCreatedDate = $data['created']; // Order ka created_at (timestamp with date and time)
     $vendorId = $data['vendor'];
-    $variantIds = $data['variants'];
+    $variantId = $data['variants'];
 
-    // Step 1: Har variant ke liye valid_upto <= order_created_at wala latest record
+    // Ensure $orderCreatedDate is a valid timestamp
+    $orderCreatedDateTime = \Carbon\Carbon::parse($orderCreatedDate);
+
+    // Step 1: Har variant ke liye created_at <= order_created_at (date and time) wala latest record
     $validPricings = SellerPrice::where('user_id', $vendorId)
-        ->whereIn('variant_id', $variantIds)
-        ->where('created_at', '<=', $orderCreatedDate)
-        ->orderBy('created_at', 'desc') // Latest valid_upto wala pehle
+        ->where('variant_id', $variantId)
+        ->where('created_at', '<=', $orderCreatedDateTime) // Compares both date and time
+        ->orderBy('created_at', 'desc') // Latest record pehle
         ->get()
         ->groupBy('variant_id')
         ->map(function ($group) {
@@ -2332,17 +2336,15 @@ private function __getValidSellerPricings(array $data)
         });
 
     // Step 2: Jo variants nahi mile unke liye 0 set karo
-    $result = [];
-    foreach ($variantIds as $variantId) {
-        if ($validPricings->has($variantId)) {
-            $result[] = $validPricings[$variantId];
-        } else {
-            $result[] = [
-                'variant_id' => $variantId,
-                'prices' => 0,
-                'created_at' => null
-            ];
-        }
+    $result = null;
+    if ($validPricings->has($variantId)) {
+        $result = $validPricings[$variantId];
+    } else {
+        $result = [
+            'variant_id' => $variantId,
+            'prices' => 0,
+            'created_at' => null
+        ];
     }
 
     return $result;
@@ -2502,18 +2504,22 @@ public function vendorDashboard(Request $request)
     }
 
     $variantIds = [];
-    foreach ($order->orderItems as $item) {
-        if ($item->variant_id && !in_array($item->variant_id, $variantIds)) {
-            $variantIds[] = $item->variant_id;
+
+  /*   foreach ($orders as $order) {
+     
+        foreach ($order->orderItems as $item) {
+            
+            if ($item->variant_id && !in_array($item->variant_id, $variantIds)) {
+                $variantIds[] = $item->variant_id;
+            }
         }
     }
-
     // Get vendor prices
     $vdata = $this->__getValidSellerPricings([
         'created' => $order->created_at,
         'vendor' => $user->id,
         'variants' => $variantIds
-    ]);
+    ]); */
 
     // Map orders with their items and mapped status
     $ordersData = $orders->map(function ($order) use ($statusHeaders) {
@@ -2523,7 +2529,13 @@ public function vendorDashboard(Request $request)
             'order_status' => $order->order_status,
             'total_amount' => $order->grand_total,
             'created_at' => $order->created_at,
-            'items' => $order->orderItems->map(function ($item) {
+            'items' => $order->orderItems->map(function ($item) use ($order)  {
+                //dd($item->variant);
+                $item->variant->sellerPrice = $this->__getValidSellerPricings([
+                    'created' => $order->created_at,
+                    'vendor' => $order->vendor_id,
+                    'variants' => $item->variant->id
+                ]);
                 return [
                     'item_id' => $item->id,
                     'product' => $item->product,
@@ -2547,7 +2559,7 @@ public function vendorDashboard(Request $request)
             'complete_order' => $completeOrder,
             'reject_order'   => $rejectOrder, 
             'orders'         => $ordersData, // Include all mapped orders with items
-            'vendor_prices' => $vdata
+         
         ],
     ], 200);
 }
