@@ -115,6 +115,7 @@ class ProductController extends Controller
                     'name' => $option['name'],
                     'sku'  => $option['sku'],
                     'type' => $option['type'],
+                    'min_quantity' => $option['min_quantity'],
                     'short_description' => $option['short_description'] ?? null,
                 ];
 
@@ -415,6 +416,7 @@ class ProductController extends Controller
                     'name' => $option['name'],
                     'type' => $option['type'] ?? null,
                     'sku' => $option['sku'] ?? null,
+                    'min_quantity' => $option['min_quantity'] ?? null,
                     'short_description' => $option['short_description'] ?? null,
                 ];
         

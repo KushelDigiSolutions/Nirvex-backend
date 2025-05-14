@@ -121,6 +121,16 @@
                             @enderror
                     </div>
                 </div>
+                 <!-- Video URl -->
+                 <div class="row">
+                    <div class="col">
+                        <label for="specification" class="form-label">Video<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('video') is-invalid @enderror" id="video" placeholder="Video" name="video">
+                            @error('availability')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                    </div>
+                </div>
                 <!-- Delivery Days & Status -->
                 <div class="row">
                     <div class="col">
@@ -190,8 +200,12 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
-                                        <div class="col d-flex align-items-end">
-                                            
+                                        <div class="col">
+                                            <label for="min_quantity" class="form-label">Min Qty<span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @error('options.0.min_quantity') is-invalid @enderror" name="options[0][min_quantity]">
+                                            @error('options.0.min_quantity')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -252,10 +266,17 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
-                                    </div>
-                                     <div class="col d-flex justify-content-start align-items-end">
-    <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-</div>
+                                         <div class="col">
+                                            <label for="min_quantity" class="form-label">Min Qty<span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="options[${fieldCount}][min_quantity]">
+                                             @error('min_quantity')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>  
+                                    <div class="col d-flex justify-content-start align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
+                                    </div>                                 
                                 </div>`;
         dynamicForm.insertAdjacentHTML('beforeend', newField);
         fieldCount++;

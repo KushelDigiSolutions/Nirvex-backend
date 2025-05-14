@@ -122,6 +122,18 @@
                         @enderror
                 </div>
             </div>
+
+              <!-- Video -->
+              <div class="row">
+                <div class="col">
+                    <label for="video" class="form-label">Video:</label>
+                        <input type="text" class="form-control @error('video') is-invalid @enderror" id="video" placeholder="Enter Delivery Days" name="video" value="{{  $product->video }}">
+                        @error('video')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                </div>
+            </div>
+
             <!-- Delivery Days & Status -->
             <div class="row">
                 <div class="col">
@@ -206,24 +218,28 @@
                                         </div>
                                         <div class="col">
                                             <label for="description" class="form-label">Short Description<span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="options[{{ $index }}][short_description]" value="{{ $variant->short_description }}" placeholder="Short description">
+                                            <input type="text" class="form-control" name="options[{{ $index }}][short_description]" value="{{ $variant->short_description }}" placeholder="Short description">
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col">
                                             <label for="sku" class="form-label">Product Sku<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control @error('options.0.sku') is-invalid @enderror" name="options[{{ $index }}][sku]" value="{{$variant->sku}}">
-                                            <!-- @error('options.0.sku')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror -->
                                         </div>
-                                        <div class="col d-flex align-items-end">      
-                                        <div class="d-flex justify-content-start">
-                    <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-                </div>
+                                        <div class="col">
+                                            <label for="min_quantity" class="form-label">Min Qty<span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @error('options.0.min_quantity') is-invalid @enderror" name="options[{{ $index }}][min_quantity]" value="{{$variant->min_quantity}}">
+                                        </div>
                                     </div>
+                                    @if($index != 0)
+                                    <div class="col d-flex align-items-end">      
+                                        <div class="d-flex justify-content-start">
+                                            <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
-                            </div>
+                            
                             @endforeach
                             @endif
                         </div>
@@ -248,7 +264,7 @@
 
 
 <script>
-    let fieldCount = 1;
+    let fieldCount = 100;
 
     document.getElementById('add-field').addEventListener('click', function () {
         const dynamicForm = document.getElementById('dynamic-form');
@@ -279,9 +295,13 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col">
                         <label class="form-label">Product Sku <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="options[${fieldCount}][sku]">
+                    </div>
+                    <div class="col">
+                        <label for="min_quantity" class="form-label">Min Qty<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="options[${fieldCount}][min_quantity]">
                     </div>
                 </div>
                 <div class="d-flex justify-content-start">
@@ -303,59 +323,6 @@
 </script>
 
 
-<!-- <script>
-    let fieldCount = 1;
-
-    document.getElementById('add-field').addEventListener('click', function () {
-        const dynamicForm = document.getElementById('dynamic-form');
-        const newField = `<div class="variant-box">
-                                    <div class="row mb-3">
-                                        <div class="col">
-                                            <label for="type" class="form-label">Type<span class="text-danger">*</span></label>
-                                            <select class="form-select" name="options[${fieldCount}][type]">
-                                                <option value="1">Quality</option>
-                                                <option value="2">Color</option>
-                                                <option value="3">Size</option>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <label for="name" class="form-label">Name<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="options[${fieldCount}][name]" placeholder="Enter name">
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col">
-                                            <label for="image" class="form-label">Image<span class="text-danger">*</span></label>
-                                            <input type="file" class="form-control" name="options[${fieldCount}][image]">
-                                        </div>
-                                        <div class="col">
-                                            <label for="description" class="form-label">Short Description<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="options[${fieldCount}][short_description]" placeholder="Short description">
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col">
-                                            <label for="sku" class="form-label">Product Sku<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="options[${fieldCount}][sku]">
-                                        </div>
-                                        <div class="col d-flex align-items-end">
-                                        </div>
-                                    </div>
-                                    <div class="col d-flex justify-content-start align-items-end">
-                                        <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-                                    </div>
-                                </div>
-            `;
-        dynamicForm.insertAdjacentHTML('beforeend', newField);
-        fieldCount++;
-    });
-
-    document.getElementById('dynamic-form').addEventListener('click', function (e) {
-        if (e.target.classList.contains('remove-field')) {
-            e.target.closest('.row').remove();
-        }
-    });
-</script> -->
 <script>
     document.getElementById('cat_id').addEventListener('change', function () {
         const catId = this.value; 
