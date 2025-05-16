@@ -407,40 +407,58 @@ class ProductController extends Controller
             'key_benefits' => $validatedData['key_benefits'],
             'status' => $validatedData['status'],
         ]);
-        if ($request->has('options')) {
-            foreach ($request->options as $option) {
-        
-                // Build data array
-                $variantData = [
-                    'product_id' => $product->id,
-                    'name' => $option['name'],
-                    'type' => $option['type'] ?? null,
-                    'sku' => $option['sku'] ?? null,
-                    'min_quantity' => $option['min_quantity'] ?? null,
-                    'short_description' => $option['short_description'] ?? null,
-                ];
-        
-                // Handle image upload
-                if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
-                    $fileName = time() . '_' . $option['image']->getClientOriginalName();
-                    $option['image']->move(public_path('uploads/variants'), $fileName);
-                    $variantData['images'] = 'uploads/variants/' . $fileName;
-                }
-        
-                // Check if SKU exists for same product and update that record
-                $existingVariant = Variant::where('sku', $option['sku'])
+    if ($request->has('options')) {
+        // 1. Collect all incoming IDs (skip null or empty)
+        $incomingIds = collect($request->options)
+            ->pluck('id')
+            ->filter()
+            ->all();
+
+        // 2. Delete variants that exist in DB but not in the incoming payload
+        Variant::where('product_id', $product->id)
+            ->whereNotIn('id', $incomingIds)
+            ->delete();
+
+        // 3. Process each option
+        foreach ($request->options as $option) {
+            $variantData = [
+                'product_id'      => $product->id,
+                'name'            => $option['name']            ?? null,
+                'type'            => $option['type']            ?? null,
+                'sku'             => $option['sku']             ?? null,
+                'min_quantity'    => $option['min_quantity']    ?? null,
+                'short_description'=> $option['short_description'] ?? null,
+            ];
+
+            // 3a. Handle image upload if present
+            if (isset($option['image']) && $option['image'] instanceof \Illuminate\Http\UploadedFile) {
+                $fileName = time() . '_' . $option['image']->getClientOriginalName();
+                $option['image']->move(public_path('uploads/variants'), $fileName);
+                $variantData['images'] = 'uploads/variants/' . $fileName;
+            }
+
+            // 3b. Update existing or create new
+            if (!empty($option['id'])) {
+                // Update existing variant
+                $variant = Variant::where('id', $option['id'])
                     ->where('product_id', $product->id)
                     ->first();
-        
-                if ($existingVariant) {
-                    // Update existing variant
-                    $existingVariant->update($variantData);
-                } else {
-                    // Create new variant
-                    Variant::create($variantData);
+
+                if ($variant) {
+                    // If no new image was uploaded, omit the images field so it's not overwritten
+                    if (!array_key_exists('images', $variantData)) {
+                        unset($variantData['images']);
+                    }
+                    $variant->update($variantData);
+                    continue;
                 }
             }
+
+            // Create new variant (no valid id found)
+            Variant::create($variantData);
         }
+    }
+
         
         
         session()->flash('success', 'Product updated successfully.');

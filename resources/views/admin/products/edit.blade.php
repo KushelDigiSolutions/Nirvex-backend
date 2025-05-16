@@ -194,6 +194,7 @@
                             @if ($product->variants && $product->variants->count())
                             @foreach ($product->variants as $index => $variant)
                                 <div class="variant-box">
+                                    <input type="hidden" name="options[{{ $index }}][id]" value="{{$variant->id}}">
                                     <div class="row mb-3">
                                         <div class="col">
                                             <label for="type" class="form-label">Type<span class="text-danger">*</span></label>
