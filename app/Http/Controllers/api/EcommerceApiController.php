@@ -2720,9 +2720,22 @@ public function acceptRejectOrder(Request $request)
         ]
     );
 
+     $statusHeaders = [
+        0 => 'Created',
+        1 => 'Payment Done',
+        2 => 'Order Accept',
+        3 => 'Order Preparing',
+        4 => 'Order Shipped',
+        5 => 'Order Delivered',
+        6 => 'Order Completed',
+        7 => 'Order Rejected',
+        8 => 'Order Returned',
+        9 => 'Order Cancelled'
+    ];
     // Update order status based on type
     $order = Order::findOrFail($validated['order_id']);
     $order->order_status = $validated['type'];
+        createUserNotification(1, $validated['type'],"Order ID #".$validated['order_id']." status changed to ". $statusHeaders[$validated['type']]);
    /*  if ($validated['type'] == 0) { // Rejected
         $order->order_status = 7; // Rejected status code
     } else if ($validated['type'] == 1){ // Accepted

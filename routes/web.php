@@ -24,6 +24,7 @@ Route::get('/', function () {
 Auth::routes();
 
  Route::get('/admin/dashboard', [App\Http\Controllers\HomeController::class, 'index'])->name('admin.dashboard');
+ Route::get('/admin/notification', [App\Http\Controllers\HomeController::class, 'notifications'])->name('admin.notification');
 Route::get('admin/invoice/{id}', [InvoiceController::class, 'generatePDF'])->name('invoice');
 // Route::get('/admin/categories', [App\Http\Controllers\CategoryController::class, 'index'])->name('admin.categories');
 
