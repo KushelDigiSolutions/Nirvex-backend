@@ -2895,7 +2895,7 @@ public function getInvoice(Request $request, $orderId)
         ], 404);
     }             
 
-    $orderItems = "http://xyz.com/invoice/".$orderId;   
+    $orderItems = url("admin/invoice/{$orderId}");
 
     return response()->json([
         'data' => $orderItems,

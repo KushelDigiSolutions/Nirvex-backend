@@ -14,6 +14,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SellerController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\AddressController;
 
 Route::get('/', function () {
@@ -23,7 +24,7 @@ Route::get('/', function () {
 Auth::routes();
 
  Route::get('/admin/dashboard', [App\Http\Controllers\HomeController::class, 'index'])->name('admin.dashboard');
-
+Route::get('admin/invoice/{id}', [InvoiceController::class, 'generatePDF'])->name('invoice');
 // Route::get('/admin/categories', [App\Http\Controllers\CategoryController::class, 'index'])->name('admin.categories');
 
 Route::middleware(['role:admin'])->prefix('admin')->group(function(){
