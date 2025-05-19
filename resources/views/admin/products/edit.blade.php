@@ -158,7 +158,7 @@
             <!-- Category Images -->
             <div class="row">
                 <div class="col">
-                    <label for="image" class="form-label">Category Images:</label>
+                    <label for="image" class="form-label">Product Images:</label>
                         <input type="file" class="form-control @error('image.*') is-invalid @enderror" name="image[]" multiple>
                             @error('image')
                                 <div class="invalid-feedback">{{ $message }}</div>

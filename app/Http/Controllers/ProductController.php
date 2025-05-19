@@ -180,6 +180,7 @@ class ProductController extends Controller
                 'return_policy' => 'required|string',
                 'physical_property' => 'required|string',
                 'standards' => 'required|string',
+                'video' => 'nullable|string',
                 'key_benefits' => 'required|string',
                 'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
                 'options.*.id' => 'nullable|integer',
@@ -320,6 +321,7 @@ class ProductController extends Controller
                 'return_policy' => 'required|string',
                 'physical_property' => 'required|string',
                 'standards' => 'required|string',
+                'video' => 'nullable|string',
                 'key_benefits' => 'required|string',
                 'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
                 'options.*.id' => 'nullable|integer',
@@ -355,7 +357,7 @@ class ProductController extends Controller
                 }
             }
         }
-
+       
         if (empty($request->delete_images)) {
             $existingImages = explode(',', $product->image);
             foreach ($existingImages as $image) {
@@ -375,9 +377,8 @@ class ProductController extends Controller
                 }
             }
     
-            $product->image = implode(',', $imagesToKeep);
+            $product->image = $imagesToKeep;
         }
-    
         $imagePaths = [];
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $image) {
@@ -386,18 +387,19 @@ class ProductController extends Controller
                 $imagePaths[] = 'uploads/products/' . $fileName;
             }
         }
-    
+        $imagePaths = array_merge($product->image, $imagePaths);
         if (!empty($imagePaths)) {
             $validatedData['image'] = implode(',', $imagePaths);
         } else {
             unset($validatedData['image']);
         }
-    
         $product->update([
             'name' => $validatedData['pname'],
             'description' => $validatedData['descriptions'],
             'cat_id' => $validatedData['cat_id'],
             'sub_cat_id' => $validatedData['sub_cat_id'],
+            'image' => $validatedData['image'],
+            'video' => $validatedData['video'] ?? null,
             'mrp' => $validatedData['mrp'],
             'availability' => $validatedData['availability'],
             'return_policy' => $validatedData['return_policy'],
